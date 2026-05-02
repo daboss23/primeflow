@@ -298,7 +298,7 @@ export function CustomerListView({
                   <div className="flex items-center gap-3 pr-4">
                     <div className="w-8 h-8 rounded-lg flex items-center justify-center text-[10px] font-bold flex-shrink-0"
                       style={{ background: `${hColor}15`, color: hColor }}>
-                      {iniStr(c.first_name, c.last_name)}
+                      {iniStr(c.first_name ?? "", c.last_name ?? "")}
                     </div>
                     <div className="min-w-0">
                       <div className="flex items-center gap-1.5">

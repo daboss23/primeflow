@@ -60,7 +60,7 @@ export async function fetchShopifyCustomers(
 
   // Handle pagination
   while (url) {
-    const res = await fetch(url, {
+    const res: Response = await fetch(url, {
       headers: {
         'X-Shopify-Access-Token': accessToken,
         'Content-Type': 'application/json',
@@ -75,8 +75,8 @@ export async function fetchShopifyCustomers(
     customers.push(...data.customers)
 
     // Check for next page via Link header
-    const linkHeader = res.headers.get('Link')
-    const nextMatch = linkHeader?.match(/<([^>]+)>;\s*rel="next"/)
+    const linkHeader: string | null = res.headers.get('Link')
+    const nextMatch: RegExpMatchArray | null = linkHeader?.match(/<([^>]+)>;\s*rel="next"/)
     url = nextMatch ? nextMatch[1] : null
   }
 
@@ -96,7 +96,7 @@ export async function fetchShopifyOrders(
     `https://${shopDomain}/admin/api/${SHOPIFY_API_VERSION}/orders.json?status=any&limit=250&created_at_min=${since}`
 
   while (url) {
-    const res = await fetch(url, {
+    const res: Response = await fetch(url, {
       headers: {
         'X-Shopify-Access-Token': accessToken,
         'Content-Type': 'application/json',
@@ -108,8 +108,8 @@ export async function fetchShopifyOrders(
     const data = await res.json()
     orders.push(...data.orders)
 
-    const linkHeader = res.headers.get('Link')
-    const nextMatch = linkHeader?.match(/<([^>]+)>;\s*rel="next"/)
+    const linkHeader: string | null = res.headers.get('Link')
+    const nextMatch: RegExpMatchArray | null = linkHeader?.match(/<([^>]+)>;\s*rel="next"/)
     url = nextMatch ? nextMatch[1] : null
   }
 
@@ -123,7 +123,7 @@ export async function fetchAbandonedCheckouts(
   accessToken: string
 ): Promise<ShopifyAbandonedCheckoutRaw[]> {
   const since = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
-  const res = await fetch(
+  const res: Response = await fetch(
     `https://${shopDomain}/admin/api/${SHOPIFY_API_VERSION}/checkouts.json?limit=250&created_at_min=${since}`,
     {
       headers: {

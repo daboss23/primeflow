@@ -2,11 +2,17 @@
 
 import { useState } from 'react'
 
-export function ConnectShopify() {
-  const [domain, setDomain] = useState('')
+interface Props {
+  connected?: boolean
+  shopDomain?: string | null
+  lastSynced?: string | null
+}
+
+export function ConnectShopify({ connected, shopDomain, lastSynced }: Props) {
+  const [domain, setDomain] = useState(shopDomain ?? '')
   const [token, setToken] = useState('')
   const [saving, setSaving] = useState(false)
-  const [success, setSuccess] = useState(false)
+  const [success, setSuccess] = useState(connected ?? false)
   const [error, setError] = useState<string | null>(null)
 
   const handleConnect = async () => {
@@ -40,7 +46,12 @@ export function ConnectShopify() {
       {success ? (
         <div className="rounded-xl border border-[#00e676]/25 bg-[#00e676]/[0.06] p-5 text-center">
           <div className="text-[#00e676] text-[18px] font-semibold mb-1">✓ Connected!</div>
-          <div className="text-[13px] text-white/50">Your Shopify store is now connected.</div>
+          <div className="text-[13px] text-white/50">
+            {shopDomain ? `Connected to ${shopDomain}` : 'Your Shopify store is now connected.'}
+          </div>
+          {lastSynced && (
+            <div className="text-[11px] text-white/30 mt-1">Last synced: {lastSynced}</div>
+          )}
         </div>
       ) : (
         <div className="space-y-4">

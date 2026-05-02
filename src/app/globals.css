@@ -1,8 +1,8 @@
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap');
 
 :root {
   --font-cinzel: 'Cinzel', Georgia, serif;
@@ -127,7 +127,6 @@ html, body {
   100% { text-shadow: 0 0 8px rgba(0,212,255,0.9), 0 0 20px rgba(0,212,255,0.5), 0 0 40px rgba(0,212,255,0.25), 0 0 80px rgba(120,80,255,0.15); }
 }
 
-/* Spark particles floating around the title */
 .electric-sparks {
   position: absolute;
   inset: -8px;
@@ -187,7 +186,6 @@ html, body {
   display: inline-block;
 }
 
-/* Electric beam line that pulses under the logo */
 .logo-beam {
   position: absolute;
   left: 5%;
@@ -205,7 +203,6 @@ html, body {
   50%       { opacity: 1;   transform: scaleX(1.02); filter: blur(1px) brightness(1.5); }
 }
 
-/* Logo glow pulse */
 .logo-wide-glow-inner {
   animation: wide-glow-pulse 3.2s ease-in-out infinite;
 }
@@ -215,7 +212,6 @@ html, body {
   50%       { opacity: 1; }
 }
 
-/* Intelligence Core label */
 .intelligence-core-label {
   text-align: center;
   font-size: 11px;
@@ -232,7 +228,6 @@ html, body {
   50%       { opacity: 0.9; text-shadow: 0 0 12px rgba(0,212,255,0.6); }
 }
 
-/* Wide logo spark particles */
 .electric-sparks-wide {
   position: absolute;
   inset: 0;
@@ -265,7 +260,6 @@ html, body {
 .spark-w6 { left: 35%; bottom: 55%; animation: spark-w-float-6 3.3s ease-out infinite 0.8s; background: #00d4ff; }
 .spark-w7 { left: 88%; bottom: 60%; animation: spark-w-float-7 2.9s ease-out infinite 1.8s; background: #00d4ff; }
 
-/* spark-rise — used by LogoWidePulse particles */
 @keyframes spark-rise {
   0%   { transform: translate(0, 0) scale(1); opacity: 0; }
   15%  { opacity: 1; }
@@ -273,13 +267,11 @@ html, body {
   100% { transform: translate(var(--sx, -10px), -28px) scale(0); opacity: 0; }
 }
 
-/* logo-intensity — subtle brightness pulse on the image */
 @keyframes logo-intensity {
   0%, 100% { filter: brightness(1.15) contrast(1.05); }
   50%       { filter: brightness(1.3) contrast(1.1) drop-shadow(0 0 8px rgba(0,212,255,0.3)); }
 }
 
-/* vert-spark — vertical electricity lines */
 @keyframes vert-spark {
   0%, 100% { opacity: 0; }
   10%       { opacity: 0.8; }

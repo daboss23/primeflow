@@ -76,7 +76,7 @@ export async function fetchShopifyCustomers(
 
     // Check for next page via Link header
     const linkHeader: string | null = res.headers.get('Link')
-    const nextMatch: RegExpMatchArray | null = linkHeader?.match(/<([^>]+)>;\s*rel="next"/)
+    const nextMatch = linkHeader ? linkHeader.match(/<([^>]+)>;\s*rel="next"/) : null
     url = nextMatch ? nextMatch[1] : null
   }
 
@@ -109,7 +109,7 @@ export async function fetchShopifyOrders(
     orders.push(...data.orders)
 
     const linkHeader: string | null = res.headers.get('Link')
-    const nextMatch: RegExpMatchArray | null = linkHeader?.match(/<([^>]+)>;\s*rel="next"/)
+    const nextMatch = linkHeader ? linkHeader.match(/<([^>]+)>;\s*rel="next"/) : null
     url = nextMatch ? nextMatch[1] : null
   }
 

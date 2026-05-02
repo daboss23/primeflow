@@ -159,7 +159,7 @@ export default async function DashboardPage() {
         <div>
           <div className="flex items-center gap-3 mb-1">
             <div className="w-1 h-7 rounded-full bg-[#00d4ff]" />
-            <h1 className="text-[26px] font-bold text-white">Command Center</h1>
+            <h1 className="text-[26px] font-bold text-white">Oracle Core</h1>
           </div>
           <p className="text-[14px] text-white/45 ml-4">
             Real-time overview of customer health, recovery operations, and revenue impact

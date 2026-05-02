@@ -2,8 +2,7 @@
 
 // FILE: src/components/layout/Sidebar.tsx
 
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { LogoPulse } from '@/components/ui/LogoPulse'
 
 const NAV = [
@@ -88,6 +87,11 @@ const NAV = [
 
 export function Sidebar() {
   const pathname = usePathname()
+  const router = useRouter()
+
+  function handleNav(href: string) {
+    router.push(href)
+  }
 
   return (
     <aside className="w-56 flex-shrink-0 flex flex-col border-r border-white/[0.06] bg-[#070714]">
@@ -99,10 +103,10 @@ export function Sidebar() {
         {NAV.map(({ href, label, icon }) => {
           const active = pathname === href || (href !== '/' && pathname.startsWith(href))
           return (
-            <Link
+            <button
               key={href}
-              href={href}
-              className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-medium transition-all ${
+              onClick={() => handleNav(href)}
+              className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-medium transition-all text-left ${
                 active
                   ? 'bg-white/[0.07] text-white'
                   : 'text-white/40 hover:text-white/75 hover:bg-white/[0.04]'
@@ -110,7 +114,7 @@ export function Sidebar() {
             >
               <span className={active ? 'text-[#00d4ff]' : 'text-current'}>{icon}</span>
               {label}
-            </Link>
+            </button>
           )
         })}
       </nav>

@@ -57,11 +57,6 @@ export function LogoPulse({ width = 200, variant = 'sidebar', className = '' }: 
           }}
         />
       </div>
-      {(variant === 'dashboard' || variant === 'sidebar') && (
-        <div className="text-[9px] tracking-[0.28em] text-[#00d4ff]/60 uppercase mt-1 font-medium">
-          Intelligence Core
-        </div>
-      )}
     </div>
   )
 }

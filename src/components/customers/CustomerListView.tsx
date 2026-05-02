@@ -2,93 +2,26 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import type { CustomerWithHealth, HealthBand, CustomerState } from '@/types'
-import { Empty, Spinner } from '@/components/ui'
+import { HealthDot, StateBadge, Avatar, Empty, Spinner } from '@/components/ui'
 import { CustomerDetail } from '@/components/customers/CustomerDetail'
-import { fullName, formatCurrency, daysSinceLabel } from '@/lib/utils'
+import { fullName, initials, formatCurrency, daysSinceLabel, stateLabel } from '@/lib/utils'
 
-// ─── Filter Config ─────────────────────────────────────────────────────────────
-
-const BANDS: { key: HealthBand | 'all'; label: string; dot?: string }[] = [
-  { key: 'all',    label: 'All'      },
-  { key: 'red',    label: 'Critical', dot: '#ff4060' },
-  { key: 'yellow', label: 'Watch',    dot: '#ffaa00' },
-  { key: 'green',  label: 'Healthy',  dot: '#00e676' },
+const BANDS: { key: HealthBand | 'all'; label: string }[] = [
+  { key: 'all', label: 'All' },
+  { key: 'red', label: '🔴 Critical' },
+  { key: 'yellow', label: '🟡 Watch' },
+  { key: 'green', label: '🟢 Healthy' },
 ]
 
 const STATES: { key: CustomerState | 'all'; label: string }[] = [
-  { key: 'all',                 label: 'All States'            },
-  { key: 'abandoned_cart',      label: 'Abandoned Cart'        },
-  { key: 'failed_payment',      label: 'Failed Payment'        },
-  { key: 'dormant_buyer',       label: 'Dormant Buyer'         },
-  { key: 'repeat_at_risk',      label: 'VIP at Risk'           },
-  { key: 'replenishment',       label: 'Replenishment'         },
-  { key: 'engaged_unconverted', label: 'Engaged, Not Converted'},
+  { key: 'all', label: 'All States' },
+  { key: 'abandoned_cart', label: 'Abandoned Cart' },
+  { key: 'failed_payment', label: 'Failed Payment' },
+  { key: 'dormant_buyer', label: 'Dormant Buyer' },
+  { key: 'repeat_at_risk', label: 'VIP at Risk' },
+  { key: 'replenishment', label: 'Replenishment' },
+  { key: 'engaged_unconverted', label: 'Engaged, Not Converted' },
 ]
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function iniStr(first: string, last: string) {
-  return `${first?.[0] ?? ''}${last?.[0] ?? ''}`.toUpperCase()
-}
-
-function dayGap(dateStr: string | null): number | null {
-  if (!dateStr) return null
-  const diff = Date.now() - new Date(dateStr).getTime()
-  return Math.floor(diff / (1000 * 60 * 60 * 24))
-}
-
-function getActionCfg(state: string, spend: number): { label: string; color: string; bg: string; border: string } {
-  const map: Record<string, { label: string; color: string; bg: string; border: string }> = {
-    repeat_at_risk:      { label: 'Personal Outreach', color: '#a78bfa', bg: 'rgba(167,139,250,0.1)', border: 'rgba(167,139,250,0.3)' },
-    dormant_buyer:       { label: 'Win-Back',           color: '#f59e0b', bg: 'rgba(245,158,11,0.1)',  border: 'rgba(245,158,11,0.3)'  },
-    abandoned_cart:      { label: 'Cart Recovery',      color: '#ff6b6b', bg: 'rgba(255,107,107,0.1)', border: 'rgba(255,107,107,0.3)' },
-    failed_payment:      { label: 'Payment Fix',        color: '#ff8c00', bg: 'rgba(255,140,0,0.1)',   border: 'rgba(255,140,0,0.3)'   },
-    replenishment:       { label: 'Replenish Now',      color: '#00d4ff', bg: 'rgba(0,212,255,0.1)',   border: 'rgba(0,212,255,0.3)'   },
-    engaged_unconverted: { label: 'Convert Now',        color: '#8b5cf6', bg: 'rgba(139,92,246,0.1)',  border: 'rgba(139,92,246,0.3)'  },
-  }
-  if (map[state]) return map[state]
-  return spend > 3000
-    ? { label: 'VIP Upgrade',    color: '#00e676', bg: 'rgba(0,230,118,0.1)',  border: 'rgba(0,230,118,0.3)'  }
-    : { label: 'Loyalty Reward', color: '#00d4ff', bg: 'rgba(0,212,255,0.08)', border: 'rgba(0,212,255,0.25)' }
-}
-
-function getStateCfg(state: string): { label: string; color: string; bg: string } {
-  const map: Record<string, { label: string; color: string; bg: string }> = {
-    abandoned_cart:      { label: 'Abandoned Cart',        color: '#ff6b6b', bg: 'rgba(255,107,107,0.1)' },
-    failed_payment:      { label: 'Failed Payment',        color: '#ff8c00', bg: 'rgba(255,140,0,0.1)'   },
-    dormant_buyer:       { label: 'Dormant Buyer',         color: '#a78bfa', bg: 'rgba(167,139,250,0.1)' },
-    repeat_at_risk:      { label: 'VIP at Risk',           color: '#f59e0b', bg: 'rgba(245,158,11,0.1)'  },
-    replenishment:       { label: 'Replenishment',         color: '#00d4ff', bg: 'rgba(0,212,255,0.1)'   },
-    engaged_unconverted: { label: 'Engaged, Not Converted',color: '#8b5cf6', bg: 'rgba(139,92,246,0.1)'  },
-    active:              { label: 'Active',                color: '#00e676', bg: 'rgba(0,230,118,0.1)'   },
-    new:                 { label: 'New',                   color: '#00d4ff', bg: 'rgba(0,212,255,0.08)'  },
-  }
-  return map[state] ?? { label: state, color: 'rgba(255,255,255,0.4)', bg: 'rgba(255,255,255,0.06)' }
-}
-
-// ─── Sub-components ───────────────────────────────────────────────────────────
-
-function HealthBar({ score, band }: { score: number; band: HealthBand }) {
-  const color = band === 'red' ? '#ff4060' : band === 'yellow' ? '#ffaa00' : '#00e676'
-  const label = band === 'red' ? 'Critical' : band === 'yellow' ? 'Fair' : 'Good'
-  return (
-    <div className="flex items-center gap-3">
-      <div className="flex items-center gap-1.5 w-16">
-        <div className="w-1.5 h-1.5 rounded-full flex-shrink-0"
-          style={{ background: color, boxShadow: `0 0 4px ${color}` }} />
-        <span className="text-[11px] font-medium" style={{ color }}>{label}</span>
-      </div>
-      <div className="w-16 h-1 rounded-full overflow-hidden flex-shrink-0"
-        style={{ background: 'rgba(255,255,255,0.07)' }}>
-        <div className="h-full rounded-full"
-          style={{ width: `${Math.min(100, score)}%`, background: color, boxShadow: `0 0 4px ${color}55` }} />
-      </div>
-      <span className="text-[13px] font-semibold tabular-nums w-7" style={{ color }}>{score}</span>
-    </div>
-  )
-}
-
-// ─── Main Component ───────────────────────────────────────────────────────────
 
 export function CustomerListView({
   initialBand,
@@ -97,314 +30,151 @@ export function CustomerListView({
   initialBand: HealthBand | null
   initialState: CustomerState | null
 }) {
-  const [customers,   setCustomers]   = useState<CustomerWithHealth[]>([])
-  const [loading,     setLoading]     = useState(true)
-  const [band,        setBand]        = useState<HealthBand | 'all'>(initialBand ?? 'all')
-  const [state,       setState]       = useState<CustomerState | 'all'>(initialState ?? 'all')
-  const [search,      setSearch]      = useState('')
-  const [selectedId,  setSelectedId]  = useState<string | null>(null)
+  const [customers, setCustomers] = useState<CustomerWithHealth[]>([])
+  const [loading, setLoading] = useState(true)
+  const [band, setBand] = useState<HealthBand | 'all'>(initialBand ?? 'all')
+  const [state, setState] = useState<CustomerState | 'all'>(initialState ?? 'all')
+  const [selectedId, setSelectedId] = useState<string | null>(null)
 
   const fetchCustomers = useCallback(async () => {
     setLoading(true)
     const params = new URLSearchParams()
-    if (band  !== 'all') params.set('band',  band)
+    if (band !== 'all') params.set('band', band)
     if (state !== 'all') params.set('state', state)
-    const res  = await fetch(`/api/customers?${params}`)
+
+    const res = await fetch(`/api/customers?${params}`)
     const data = await res.json()
     const list: CustomerWithHealth[] = data.customers ?? []
     setCustomers(list)
+    if (list.length > 0 && !selectedId) setSelectedId(list[0].customer_id)
     setLoading(false)
-  }, [band, state])
+  }, [band, state]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => { fetchCustomers() }, [fetchCustomers])
 
-  const filtered = customers.filter((c) => {
-    if (!search.trim()) return true
-    const q = search.toLowerCase()
-    return (
-      c.first_name?.toLowerCase().includes(q) ||
-      c.last_name?.toLowerCase().includes(q)  ||
-      c.email?.toLowerCase().includes(q)
-    )
-  })
-
-  // If a customer is selected show detail view
-  if (selectedId) {
-    const selected = customers.find(c => c.customer_id === selectedId)
-    if (selected) {
-      return (
-        <div className="flex-1 h-full flex flex-col" style={{ background: '#070714' }}>
-          {/* Back bar */}
-          <div className="flex items-center gap-3 px-8 py-4 flex-shrink-0"
-            style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-            <button
-              onClick={() => setSelectedId(null)}
-              className="flex items-center gap-1.5 text-[11px] transition-colors hover:text-white/70"
-              style={{ color: 'rgba(255,255,255,0.3)' }}>
-              <svg width="10" height="10" fill="none" viewBox="0 0 16 16">
-                <path d="M10 3L5 8l5 5" stroke="currentColor" strokeWidth="1.5"
-                  strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-              Customer Intelligence
-            </button>
-            <span style={{ color: 'rgba(255,255,255,0.12)' }}>·</span>
-            <span className="text-[11px]" style={{ color: 'rgba(255,255,255,0.45)' }}>
-              {fullName(selected.first_name, selected.last_name)}
-            </span>
-          </div>
-          <CustomerDetail customer={selected} onRefresh={fetchCustomers} />
-        </div>
-      )
-    }
-  }
-
-  const criticalCount = customers.filter(c => c.health_band === 'red').length
-  const watchCount    = customers.filter(c => c.health_band === 'yellow').length
+  const selected = customers.find((c) => c.customer_id === selectedId)
 
   return (
-    <div className="flex-1 overflow-y-auto h-full" style={{ background: '#070714' }}>
-      <div className="px-8 py-8">
-
-        {/* ── Page Header ── */}
-        <div className="mb-7">
-          <h1 className="text-[26px] font-bold text-white tracking-tight mb-1">
-            Customer Intelligence
-          </h1>
-          <p className="text-[13px]" style={{ color: 'rgba(255,255,255,0.3)' }}>
-            {customers.length} customers tracked
-            {criticalCount > 0 && ` · ${criticalCount} critical`}
-            {watchCount    > 0 && ` · ${watchCount} on watchlist`}
-          </p>
-        </div>
-
-        {/* ── Filters ── */}
-        <div className="flex items-center gap-4 mb-5 flex-wrap">
-
-          {/* Band pills */}
-          <div className="flex items-center gap-1.5">
-            {BANDS.map(({ key, label, dot }) => {
-              const active = band === key
-              return (
-                <button key={key} onClick={() => setBand(key as HealthBand | 'all')}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-medium transition-all"
-                  style={active
-                    ? { background: 'rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.85)', border: '1px solid rgba(255,255,255,0.2)' }
-                    : { color: 'rgba(255,255,255,0.35)', border: '1px solid rgba(255,255,255,0.07)' }}>
-                  {dot && (
-                    <span className="w-1.5 h-1.5 rounded-full flex-shrink-0"
-                      style={{ background: dot, boxShadow: active ? `0 0 5px ${dot}` : undefined }} />
-                  )}
-                  {label}
-                </button>
-              )
-            })}
+    <>
+      {/* Left pane — list */}
+      <div className="w-[360px] flex-shrink-0 flex flex-col border-r border-white/[0.06] h-full">
+        {/* Filters */}
+        <div className="px-4 py-3 border-b border-white/[0.05] space-y-2 flex-shrink-0">
+          {/* Band filter */}
+          <div className="flex gap-1.5 flex-wrap">
+            {BANDS.map(({ key, label }) => (
+              <button
+                key={key}
+                onClick={() => setBand(key as HealthBand | 'all')}
+                className={`px-2.5 py-1 rounded-full text-[10px] font-medium border transition-all ${
+                  band === key
+                    ? key === 'red'
+                      ? 'bg-red-500/15 border-red-500/60 text-red-400'
+                      : key === 'yellow'
+                      ? 'bg-yellow-500/15 border-yellow-500/60 text-yellow-400'
+                      : key === 'green'
+                      ? 'bg-green-500/15 border-green-500/60 text-green-400'
+                      : 'bg-white/[0.07] border-white/25 text-white'
+                    : 'border-white/[0.08] text-white/35 hover:text-white/65 hover:border-white/20'
+                }`}
+              >
+                {label}
+              </button>
+            ))}
           </div>
 
-          {/* State dropdown */}
+          {/* State filter */}
           <select
             value={state}
             onChange={(e) => setState(e.target.value as CustomerState | 'all')}
-            className="px-3 py-1.5 rounded-full text-[11px] font-medium outline-none transition-all"
-            style={{
-              background: state !== 'all' ? 'rgba(255,255,255,0.06)' : 'transparent',
-              color: 'rgba(255,255,255,0.55)',
-              border: '1px solid rgba(255,255,255,0.12)',
-              cursor: 'pointer',
-            }}>
+            className="w-full bg-white/[0.03] border border-white/[0.08] rounded-lg px-2.5 py-1.5 text-[11px] text-white/60 outline-none focus:border-white/20"
+          >
             {STATES.map(({ key, label }) => (
-              <option key={key} value={key} className="bg-[#0d0d1f]">{label}</option>
+              <option key={key} value={key} className="bg-[#0d0d1f]">
+                {label}
+              </option>
             ))}
           </select>
-
-          {/* Search */}
-          <div className="relative ml-auto">
-            <svg width="13" height="13" fill="none" viewBox="0 0 16 16"
-              className="absolute left-3 top-1/2 -translate-y-1/2"
-              style={{ color: 'rgba(255,255,255,0.22)' }}>
-              <circle cx="6.5" cy="6.5" r="4.5" stroke="currentColor" strokeWidth="1.4"/>
-              <path d="M10 10l3 3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
-            </svg>
-            <input
-              type="text"
-              placeholder="Search by name or email…"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="pl-8 pr-4 py-1.5 rounded-full text-[11px] outline-none transition-all w-56"
-              style={{
-                background: 'rgba(255,255,255,0.04)',
-                border: '1px solid rgba(255,255,255,0.1)',
-                color: 'rgba(255,255,255,0.7)',
-              }}
-            />
-          </div>
         </div>
 
-        {/* ── Table ── */}
-        <div className="rounded-2xl overflow-hidden"
-          style={{ border: '1px solid rgba(255,255,255,0.07)' }}>
-
-          {/* Column headers */}
-          <div className="grid px-6 py-3"
-            style={{
-              gridTemplateColumns: '2.2fr 1.4fr 1.6fr 1.1fr 1fr 1fr 1.2fr 1.3fr',
-              background: 'rgba(255,255,255,0.02)',
-              borderBottom: '1px solid rgba(255,255,255,0.06)',
-            }}>
-            {['Customer', 'State', 'Health', 'Health Score', 'Opp. Score', 'Total Spend', 'Last Purchase', 'Action'].map((h) => (
-              <span key={h} className="text-[10px] font-semibold tracking-[0.12em] uppercase"
-                style={{ color: 'rgba(255,255,255,0.22)' }}>
-                {h}
-              </span>
-            ))}
-          </div>
-
-          {/* Rows */}
+        {/* List */}
+        <div className="flex-1 overflow-y-auto">
           {loading ? (
-            <div className="flex items-center justify-center gap-2 py-16 text-[13px]"
-              style={{ color: 'rgba(255,255,255,0.25)' }}>
-              <Spinner size={14} /> Loading customers…
+            <div className="flex items-center justify-center h-32 gap-2 text-white/30">
+              <Spinner size={14} /> Loading...
             </div>
-          ) : filtered.length === 0 ? (
-            <div className="py-16 text-center text-[13px]"
-              style={{ color: 'rgba(255,255,255,0.2)' }}>
-              No customers match this filter
-            </div>
+          ) : customers.length === 0 ? (
+            <Empty message="No customers match this filter" />
           ) : (
-            filtered.map((c, i) => {
-              const name      = fullName(c.first_name, c.last_name)
-              const isUrgent  = c.health_band === 'red'
-              const isVIP     = (c.total_spend ?? 0) > 2000
-              const gap       = dayGap(c.last_purchase_at)
-              const stateCfg  = getStateCfg(c.state)
-              const actionCfg = getActionCfg(c.state, c.total_spend ?? 0)
-              const hColor    = c.health_band === 'red' ? '#ff4060' : c.health_band === 'yellow' ? '#ffaa00' : '#00e676'
-
+            customers.map((c) => {
+              const isSel = c.customer_id === selectedId
               return (
-                <div key={c.customer_id}
-                  className="grid px-6 py-4 relative cursor-pointer transition-all hover:bg-white/[0.02]"
-                  style={{
-                    gridTemplateColumns: '2.2fr 1.4fr 1.6fr 1.1fr 1fr 1fr 1.2fr 1.3fr',
-                    borderBottom: i < filtered.length - 1 ? '1px solid rgba(255,255,255,0.04)' : undefined,
-                  }}
-                  onClick={() => setSelectedId(c.customer_id)}>
-
-                  {/* Urgent left bar */}
-                  {isUrgent && (
-                    <div className="absolute left-0 top-0 bottom-0 w-[2px] rounded-r"
-                      style={{ background: '#ff4060', boxShadow: '1px 0 8px rgba(255,64,96,0.3)' }} />
+                <button
+                  key={c.customer_id}
+                  onClick={() => setSelectedId(c.customer_id)}
+                  className={`w-full flex items-center gap-3 px-4 py-3 border-b border-white/[0.04] transition-all text-left relative ${
+                    isSel
+                      ? 'bg-[#00d4ff]/[0.05]'
+                      : 'hover:bg-white/[0.025]'
+                  }`}
+                >
+                  {isSel && (
+                    <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-[#00d4ff] rounded-r" />
                   )}
-
-                  {/* Customer */}
-                  <div className="flex items-center gap-3 pr-4">
-                    <div className="w-8 h-8 rounded-lg flex items-center justify-center text-[10px] font-bold flex-shrink-0"
-                      style={{ background: `${hColor}15`, color: hColor }}>
-                      {iniStr(c.first_name ?? "", c.last_name ?? "")}
+                  <Avatar
+                    initials={initials(c.first_name, c.last_name)}
+                    band={c.health_band}
+                    size={34}
+                  />
+                  <div className="flex-1 min-w-0">
+                    <div className="text-[13px] font-medium text-white/90 truncate">
+                      {fullName(c.first_name, c.last_name)}
                     </div>
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-1.5">
-                        <span className="text-[13px] font-medium truncate"
-                          style={{ color: 'rgba(255,255,255,0.82)' }}>{name}</span>
-                        {isVIP && (
-                          <svg width="11" height="11" viewBox="0 0 16 16" fill="#f59e0b" className="flex-shrink-0">
-                            <path d="M8 1l1.5 4.5H14l-3.7 2.7 1.4 4.3L8 10l-3.7 2.5 1.4-4.3L2 5.5h4.5z"/>
-                          </svg>
-                        )}
-                      </div>
-                      <div className="text-[10px] truncate mt-0.5"
-                        style={{ color: 'rgba(255,255,255,0.25)' }}>{c.email}</div>
+                    <div className="text-[10px] text-white/35 mt-0.5 truncate">
+                      {stateLabel(c.state)} · {daysSinceLabel(c.last_purchase_at)}
                     </div>
                   </div>
-
-                  {/* State */}
-                  <div className="flex items-center">
-                    <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-medium"
-                      style={{ color: stateCfg.color, background: stateCfg.bg }}>
-                      {stateCfg.label}
-                    </span>
-                  </div>
-
-                  {/* Health */}
-                  <div className="flex items-center">
-                    <HealthBar score={c.health_score} band={c.health_band} />
-                  </div>
-
-                  {/* Health Score (numeric) */}
-                  <div className="flex items-center">
-                    <span className="text-[14px] font-bold tabular-nums" style={{ color: hColor }}>
-                      {c.health_score}
-                    </span>
-                  </div>
-
-                  {/* Opp Score */}
-                  <div className="flex items-center">
-                    <span className="text-[14px] font-bold tabular-nums" style={{ color: '#00d4ff' }}>
+                  <div className="flex flex-col items-end gap-1.5">
+                    <HealthDot band={c.health_band} size={7} />
+                    <span
+                      className="text-[11px] font-medium"
+                      style={{
+                        fontFamily: 'var(--font-jetbrains)',
+                        color:
+                          c.health_band === 'red'
+                            ? '#ff4060'
+                            : c.health_band === 'yellow'
+                            ? '#ffaa00'
+                            : '#00e676',
+                      }}
+                    >
                       {c.opportunity_score}
                     </span>
                   </div>
-
-                  {/* Total Spend */}
-                  <div className="flex items-center">
-                    <div>
-                      <div className="text-[13px] font-semibold" style={{ color: 'rgba(255,255,255,0.7)' }}>
-                        {formatCurrency(c.total_spend)}
-                      </div>
-                      <div className="text-[10px] mt-0.5" style={{ color: 'rgba(255,255,255,0.25)' }}>
-                        {c.total_orders} orders
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Last Purchase */}
-                  <div className="flex items-center">
-                    <div>
-                      <div className="text-[12px]" style={{ color: 'rgba(255,255,255,0.5)' }}>
-                        {daysSinceLabel(c.last_purchase_at)}
-                      </div>
-                      {gap !== null && gap > 30 && (
-                        <div className="text-[10px] mt-0.5 font-semibold"
-                          style={{ color: gap > 90 ? '#ff4060' : '#f59e0b' }}>
-                          ⏱ {gap}d gap
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Action */}
-                  <div className="flex items-center">
-                    <span
-                      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-semibold whitespace-nowrap"
-                      style={{
-                        color: actionCfg.color,
-                        background: actionCfg.bg,
-                        border: `1px solid ${actionCfg.border}`,
-                      }}>
-                      {actionCfg.label}
-                      <svg width="8" height="8" fill="none" viewBox="0 0 16 16"
-                        style={{ color: actionCfg.color }}>
-                        <path d="M6 3l5 5-5 5" stroke="currentColor" strokeWidth="1.5"
-                          strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                    </span>
-                  </div>
-
-                </div>
+                </button>
               )
             })
           )}
         </div>
 
         {/* Footer count */}
-        {!loading && (
-          <div className="mt-4 flex items-center gap-2">
-            <div className="w-1 h-1 rounded-full" style={{ background: 'rgba(255,255,255,0.15)' }} />
-            <span className="text-[11px]" style={{ color: 'rgba(255,255,255,0.22)' }}>
-              {filtered.length} customer{filtered.length !== 1 ? 's' : ''}
-              {search && ` matching "${search}"`}
-            </span>
+        <div className="px-4 py-2.5 border-t border-white/[0.05] flex-shrink-0">
+          <span className="text-[10px] text-white/25">
+            {customers.length} customer{customers.length !== 1 ? 's' : ''}
+          </span>
+        </div>
+      </div>
+
+      {/* Right pane — detail */}
+      <div className="flex-1 overflow-y-auto h-full">
+        {selected ? (
+          <CustomerDetail customer={selected} onRefresh={fetchCustomers} />
+        ) : (
+          <div className="flex items-center justify-center h-full text-white/20 text-[13px]">
+            Select a customer to view details
           </div>
         )}
-
       </div>
-    </div>
+    </>
   )
 }

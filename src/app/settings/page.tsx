@@ -21,7 +21,7 @@ export default async function SettingsPage() {
         title="Brand Settings"
         subtitle="Configure your brand voice so every AI-generated message sounds exactly like you."
       />
-      <BrandSettingsForm initial={settings} />
+      <BrandSettingsForm initial={settings ?? {}} />
     </div>
   )
 }

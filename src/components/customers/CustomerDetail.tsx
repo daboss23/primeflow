@@ -70,8 +70,8 @@ export function CustomerDetail({
     ? Math.floor((Date.now() - new Date(customer.last_purchase_at).getTime()) / 86400000)
     : null
 
-  const customerSince = customer.created_at
-    ? new Date(customer.created_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
+  const customerSince = customer.last_purchase_at
+    ? new Date(customer.last_purchase_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
     : null
 
   function handleLaunch() {

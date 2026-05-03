@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Spinner } from '@/components/ui'
+import { Spinner, PageHeader } from '@/components/ui'
 
 const PLATFORMS = [
   { id: 'shopify', name: 'Shopify', description: 'Sync orders, customers & products', emoji: '🛍️', color: '#96bf48', category: 'Commerce', phase: 1,
@@ -84,15 +84,10 @@ export default function IntegrationsPage() {
     <div className="p-6 max-w-[1100px]">
 
       {/* Header */}
-      <div className="mb-7">
-        <div className="flex items-center gap-3 mb-1">
-          <div className="w-1 h-7 rounded-full bg-[#00d4ff]" />
-          <h1 className="text-[26px] font-bold text-white">Integrations</h1>
-        </div>
-        <p className="text-[14px] text-white/45 ml-4">
-          Connect your ecommerce stack to enrich customer data and trigger automated flows
-        </p>
-      </div>
+      <PageHeader
+        title="Integrations"
+        subtitle="Connect your ecommerce stack to enrich customer data and trigger automated flows."
+      />
 
       {/* Stats */}
       <div className="grid grid-cols-2 gap-4 mb-6">

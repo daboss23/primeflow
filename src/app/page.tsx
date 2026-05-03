@@ -1,6 +1,7 @@
 import { supabaseAdmin } from '@/lib/supabase'
 import { HealthSummaryChart } from '@/components/dashboard/HealthSummaryChart'
 import { SeedButton } from '@/components/dashboard/SeedButton'
+import { PageHeader } from '@/components/ui/PageHeader'
 import { formatCurrency, stateLabel, stateColor } from '@/lib/utils'
 import type { CustomerState } from '@/types'
 import Link from 'next/link'
@@ -156,15 +157,10 @@ export default async function DashboardPage() {
 
       {/* Header */}
       <div className="flex items-start justify-between mb-7">
-        <div>
-          <div className="flex items-center gap-3 mb-1">
-            <div className="w-1 h-7 rounded-full bg-[#00d4ff]" />
-            <h1 className="text-[26px] font-bold text-white">Intelligence Core</h1>
-          </div>
-          <p className="text-[14px] text-white/45 ml-4">
-            Real-time overview of customer health, recovery operations, and revenue impact
-          </p>
-        </div>
+        <PageHeader
+          title="Intelligence Core"
+          subtitle="Real-time overview of customer health, recovery operations, and revenue impact."
+        />
         <SeedButton hasData={hasData} />
       </div>
 
@@ -198,69 +194,60 @@ export default async function DashboardPage() {
 
           {/* Row 3 */}
           <div className="grid grid-cols-3 gap-4 mb-4">
-
-            <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-5">
-              <div className="text-[11px] uppercase tracking-[0.14em] text-white/40 mb-4">Health Distribution</div>
-              <HealthSummaryChart distribution={dist} />
+            <div className="col-span-2 rounded-xl border border-white/[0.06] bg-white/[0.02] p-5">
+              <div className="text-[11px] uppercase tracking-[0.12em] text-white/40 mb-4">Health Distribution</div>
+              <HealthSummaryChart dist={dist} />
             </div>
-
             <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-5">
-              <div className="text-[11px] uppercase tracking-[0.14em] text-white/40 mb-4">Customer State Breakdown</div>
-              <div className="space-y-3">
-                {by_state.map(({ state, count }) => {
-                  const max   = Math.max(...by_state.map(b => b.count), 1)
-                  const pct   = (count / max) * 100
-                  const color = stateColor(state)
-                  return (
-                    <div key={state} className="flex items-center gap-3">
-                      <div className="text-[11px] text-white/55 w-32 shrink-0 truncate">{stateLabel(state)}</div>
-                      <div className="flex-1 h-[6px] rounded-full bg-white/[0.06] overflow-hidden">
-                        <div className="h-full rounded-full" style={{ width: `${pct}%`, background: color }} />
+              <div className="text-[11px] uppercase tracking-[0.12em] text-white/40 mb-4">State Breakdown</div>
+              <div className="space-y-2">
+                {by_state.map(({ state, count }) => (
+                  <div key={state} className="flex items-center justify-between">
+                    <span className="text-[12px] text-white/55">{stateLabel(state)}</span>
+                    <div className="flex items-center gap-2">
+                      <div className="w-16 h-1 rounded-full bg-white/[0.06] overflow-hidden">
+                        <div className="h-full rounded-full" style={{ width: `${total > 0 ? (count / total) * 100 : 0}%`, background: stateColor(state) }} />
                       </div>
-                      <div className="text-[12px] font-medium w-5 text-right shrink-0" style={{ color }}>{count}</div>
+                      <span className="text-[12px] font-medium text-white/70 w-4 text-right">{count}</span>
                     </div>
-                  )
-                })}
+                  </div>
+                ))}
               </div>
-            </div>
-
-            <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-5">
-              <div className="text-[11px] uppercase tracking-[0.14em] text-white/40 mb-4">Recent Activity</div>
-              {recentActivity.length === 0 ? (
-                <div className="text-[13px] text-white/25 text-center py-6">No outreach activity yet</div>
-              ) : (
-                <div className="space-y-2.5">
-                  {recentActivity.map((d) => (
-                    <div key={d.id} className="flex items-center gap-3">
-                      <div className="w-7 h-7 rounded-lg flex items-center justify-center text-[11px] shrink-0"
-                        style={{ background: `${STATUS_COLORS[d.status] ?? '#fff'}18`, color: STATUS_COLORS[d.status] ?? '#fff' }}>
-                        {STATUS_ICONS[d.status] ?? '•'}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="text-[12px] text-white/75 capitalize truncate">{d.channel} — {d.status}</div>
-                        <div className="text-[10px] text-white/30">{daysSinceLabel(d.generated_at)}</div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
             </div>
           </div>
 
-          {/* Row 4 — Top critical customers */}
+          {/* Recent Activity */}
+          {recentActivity.length > 0 && (
+            <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-5 mb-4">
+              <div className="text-[11px] uppercase tracking-[0.12em] text-white/40 mb-4">Recent Outreach Activity</div>
+              <div className="space-y-2">
+                {recentActivity.map((a) => (
+                  <div key={a.id} className="flex items-center gap-3 py-1.5">
+                    <span style={{ color: STATUS_COLORS[a.status] ?? '#fff' }}>{STATUS_ICONS[a.status] ?? '•'}</span>
+                    <span className="text-[12px] text-white/55 capitalize">{a.channel}</span>
+                    <span className="text-[11px] px-2 py-0.5 rounded-full"
+                      style={{ background: `${STATUS_COLORS[a.status] ?? '#fff'}15`, color: STATUS_COLORS[a.status] ?? '#fff' }}>
+                      {a.status}
+                    </span>
+                    <span className="text-[11px] text-white/25 ml-auto">{a.generated_at ? new Date(a.generated_at).toLocaleDateString() : '—'}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Top At-Risk */}
           {topAtRisk.length > 0 && (
             <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-5">
               <div className="flex items-center justify-between mb-4">
-                <div className="text-[11px] uppercase tracking-[0.14em] text-white/40">
-                  Top Critical Customers — Immediate Attention Required
-                </div>
-                <Link href="/customers?band=red" className="text-[11px] text-[#00d4ff] hover:text-white transition-colors">
+                <div className="text-[11px] uppercase tracking-[0.12em] text-white/40">Top At-Risk Customers</div>
+                <Link href="/customers?band=red" className="text-[11px] text-white/30 hover:text-white/60 transition-colors">
                   View all →
                 </Link>
               </div>
-              <div className="space-y-2">
+              <div className="space-y-1">
                 {topAtRisk.map((c) => (
-                  <Link key={c.customer_id} href="/customers"
+                  <Link key={c.customer_id} href={`/customers/${c.customer_id}`}
                     className="flex items-center gap-4 py-2.5 px-3 rounded-lg hover:bg-white/[0.03] transition-all border border-transparent hover:border-white/[0.05]">
                     <div className="w-8 h-8 rounded-full flex items-center justify-center text-[11px] font-semibold text-white shrink-0"
                       style={{ background: 'linear-gradient(135deg,#8b1a2e,#c0253a)' }}>

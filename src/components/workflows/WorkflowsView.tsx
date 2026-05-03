@@ -3,6 +3,7 @@
 // FILE: src/components/workflows/WorkflowsView.tsx
 
 import { useState, useEffect, useRef } from 'react'
+import { PageHeader } from '@/components/ui/PageHeader'
 import { WorkflowCustomerView, type WorkflowCustomer } from './WorkflowCustomerView'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -1377,13 +1378,10 @@ export function WorkflowsView() {
 
           {/* Header */}
           <div className="flex items-start justify-between mb-8">
-            <div>
-              <div className="flex items-center gap-3 mb-2">
-                <div className="w-1 h-7 rounded-full" style={{ background: 'linear-gradient(to bottom, #00d4ff, #7c3aed)' }} />
-                <h1 className="text-[26px] font-bold text-white tracking-tight">Recovery Workflows</h1>
-              </div>
-              <p className="text-[13px] text-white/35 ml-4">Automated multi-channel workflows triggered by customer health, lifecycle state, and behavior.</p>
-            </div>
+            <PageHeader
+              title="Recovery Workflows"
+              subtitle="Automated multi-channel workflows triggered by customer health, lifecycle state, and behavior."
+            />
             <button onClick={() => setShowModal(true)}
               className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-[13px] font-semibold transition-all hover:opacity-90 active:scale-[0.98]"
               style={{ background: 'rgba(0,212,255,0.12)', border: '1px solid rgba(0,212,255,0.25)', color: '#00d4ff' }}>

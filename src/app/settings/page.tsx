@@ -1,25 +1,26 @@
 import { BrandSettingsForm } from '@/components/settings/BrandSettingsForm'
-import { supabaseAdmin } from '@/lib/supabase'
+import { PageHeader } from '@/components/ui/PageHeader'
 
 async function getSettings() {
-  const { data } = await supabaseAdmin
-    .from('integrations')
-    .select('*')
-    .limit(1)
-    .single()
-  return data ?? {}
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL ?? 'http://localhost:3000'}/api/settings`, {
+      cache: 'no-store',
+    })
+    if (!res.ok) return null
+    return res.json()
+  } catch {
+    return null
+  }
 }
 
 export default async function SettingsPage() {
   const settings = await getSettings()
   return (
     <div className="p-7 max-w-[720px]">
-      <div className="mb-8">
-        <h2 className="text-[22px] font-semibold text-white">Brand Settings</h2>
-        <p className="text-[13px] text-white/50 mt-1">
-          Configure your brand voice so every AI-generated message sounds exactly like you.
-        </p>
-      </div>
+      <PageHeader
+        title="Brand Settings"
+        subtitle="Configure your brand voice so every AI-generated message sounds exactly like you."
+      />
       <BrandSettingsForm initial={settings} />
     </div>
   )

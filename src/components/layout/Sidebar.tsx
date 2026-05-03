@@ -89,7 +89,7 @@ export function Sidebar() {
   const pathname = usePathname()
   const router = useRouter()
 
-  function handleNav(href: string) {
+  function handleNav(href: string) {n    if (href === "/customers") window.dispatchEvent(new Event("customers:reset"))
     router.push(href)
   }
 

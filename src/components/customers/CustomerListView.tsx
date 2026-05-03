@@ -11,9 +11,18 @@ interface Props {
   initialState?: CustomerState | null
 }
 
-// ── 5-level health derived from health_score ──────────────────────────────────
+// ── Health band tabs (3-band, drives API filter) ──────────────────────────────
 
-type HealthLevel = 'all' | 'critical' | 'poor' | 'fair' | 'good' | 'excellent'
+const HEALTH_BANDS = [
+  { key: 'all',    label: 'All',      color: '' },
+  { key: 'red',    label: 'Critical', color: '#ff4060' },
+  { key: 'yellow', label: 'Watch',    color: '#f59e0b' },
+  { key: 'green',  label: 'Healthy',  color: '#00e676' },
+] as const
+
+// ── 5-level health display derived from health_score (table rows only) ────────
+
+type HealthLevel = 'critical' | 'poor' | 'fair' | 'good' | 'excellent'
 
 function getHealthLevel(score: number): HealthLevel {
   if (score <= 20) return 'critical'
@@ -23,7 +32,7 @@ function getHealthLevel(score: number): HealthLevel {
   return 'excellent'
 }
 
-const HEALTH_LEVEL_CONFIG: Record<string, { label: string; color: string }> = {
+const HEALTH_LEVEL_CONFIG: Record<HealthLevel, { label: string; color: string }> = {
   critical:  { label: 'Critical',  color: '#ff4060' },
   poor:      { label: 'Poor',      color: '#ff8c00' },
   fair:      { label: 'Fair',      color: '#f59e0b' },
@@ -31,19 +40,10 @@ const HEALTH_LEVEL_CONFIG: Record<string, { label: string; color: string }> = {
   excellent: { label: 'Excellent', color: '#00e676' },
 }
 
-const HEALTH_OPTIONS: Array<{ key: HealthLevel; label: string; color?: string }> = [
-  { key: 'all',       label: 'All Health' },
-  { key: 'critical',  label: 'Critical',  color: '#ff4060' },
-  { key: 'poor',      label: 'Poor',      color: '#ff8c00' },
-  { key: 'fair',      label: 'Fair',      color: '#f59e0b' },
-  { key: 'good',      label: 'Good',      color: '#00d4ff' },
-  { key: 'excellent', label: 'Excellent', color: '#00e676' },
-]
+// ── State dropdown ────────────────────────────────────────────────────────────
 
-// ── State filters ─────────────────────────────────────────────────────────────
-
-const STATE_FILTERS = [
-  { key: 'all',                 label: 'All' },
+const STATE_OPTIONS = [
+  { key: 'all',                 label: 'All States' },
   { key: 'abandoned_cart',      label: 'Abandoned Cart' },
   { key: 'failed_payment',      label: 'Failed Payment' },
   { key: 'dormant_buyer',       label: 'Dormant' },
@@ -81,7 +81,8 @@ const ACTION_CFG: Record<string, { label: string; color: string }> = {
 
 const VIP_STATES = new Set(['repeat_at_risk'])
 
-const GRID = '220px 120px 105px 130px 75px 110px 145px 130px'
+// Slightly wider columns for breathing room
+const GRID = '240px 135px 115px 140px 80px 115px 160px 140px'
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -113,45 +114,45 @@ function fullName(f: string | null, l: string | null) {
 // ── Component ─────────────────────────────────────────────────────────────────
 
 export function CustomerListView({ initialBand, initialState }: Props) {
-  const router    = useRouter()
-  const healthRef = useRef<HTMLDivElement>(null)
+  const router   = useRouter()
+  const dropRef  = useRef<HTMLDivElement>(null)
 
-  const [customers,  setCustomers]  = useState<CustomerWithHealth[]>([])
-  const [loading,    setLoading]    = useState(true)
-  const [search,     setSearch]     = useState('')
-  const [state,      setState]      = useState<string>(initialState ?? 'all')
-  const [health,     setHealth]     = useState<HealthLevel>('all')
-  const [healthOpen, setHealthOpen] = useState(false)
-  const [hovered,    setHovered]    = useState<string | null>(null)
+  const [customers, setCustomers] = useState<CustomerWithHealth[]>([])
+  const [loading,   setLoading]   = useState(true)
+  const [search,    setSearch]    = useState('')
+  const [band,      setBand]      = useState<string>(initialBand  ?? 'all')
+  const [state,     setState]     = useState<string>(initialState ?? 'all')
+  const [dropdown,  setDropdown]  = useState(false)
+  const [hovered,   setHovered]   = useState<string | null>(null)
 
-  // Fetch — state goes to API; health + search filtered client-side
+  // Fetch — band + state go to API
   const load = useCallback(async () => {
     setLoading(true)
     try {
       const p = new URLSearchParams()
+      if (band  !== 'all') p.set('band',  band)
       if (state !== 'all') p.set('state', state)
       const res  = await fetch(`/api/customers?${p}`)
       const data = await res.json()
       setCustomers(data.customers ?? [])
     } catch { setCustomers([]) }
     finally   { setLoading(false) }
-  }, [state])
+  }, [band, state])
 
   useEffect(() => { load() }, [load])
 
-  // Close health dropdown on outside click
+  // Close state dropdown on outside click
   useEffect(() => {
-    if (!healthOpen) return
+    if (!dropdown) return
     const fn = (e: MouseEvent) => {
-      if (healthRef.current && !healthRef.current.contains(e.target as Node)) setHealthOpen(false)
+      if (dropRef.current && !dropRef.current.contains(e.target as Node)) setDropdown(false)
     }
     document.addEventListener('mousedown', fn)
     return () => document.removeEventListener('mousedown', fn)
-  }, [healthOpen])
+  }, [dropdown])
 
-  // Client-side filtering
+  // Search filtered client-side
   const filtered = customers.filter(c => {
-    if (health !== 'all' && getHealthLevel(c.health_score) !== health) return false
     if (!search) return true
     const q = search.toLowerCase()
     return fullName(c.first_name, c.last_name).toLowerCase().includes(q) ||
@@ -160,20 +161,20 @@ export function CustomerListView({ initialBand, initialState }: Props) {
 
   const criticalCount = customers.filter(c => c.health_band === 'red').length
   const watchCount    = customers.filter(c => c.health_band === 'yellow').length
-  const healthLabel   = HEALTH_OPTIONS.find(h => h.key === health)?.label ?? 'All Health'
-  const healthColor   = HEALTH_OPTIONS.find(h => h.key === health)?.color
-  const hasFilters    = state !== 'all' || health !== 'all' || !!search
+  const stateLabel    = STATE_OPTIONS.find(s => s.key === state)?.label ?? 'All States'
+  const stateColor    = state !== 'all' ? STATE_COLORS[state] : undefined
+  const hasFilters    = band !== 'all' || state !== 'all' || !!search
 
-  const clearAll = () => { setState('all'); setHealth('all'); setSearch('') }
+  const clearAll = () => { setBand('all'); setState('all'); setSearch('') }
 
   return (
     <div className="flex-1 flex flex-col overflow-hidden" style={{ background: '#070714' }}>
 
       {/* ── Header ───────────────────────────────────────────────────────────── */}
-      <div className="flex-shrink-0 px-6 pt-5 pb-4" style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+      <div className="flex-shrink-0 px-6 pt-6 pb-5" style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
 
-        {/* Title + subtitle inline */}
-        <div className="flex items-center gap-3 mb-4">
+        {/* Title + subtitle */}
+        <div className="flex items-center gap-3 mb-5">
           <div className="flex items-center gap-2">
             <div className="w-1 h-5 rounded-full" style={{ background: '#00d4ff' }} />
             <h1 className="text-[19px] font-bold text-white tracking-tight">Customer Intelligence</h1>
@@ -185,101 +186,86 @@ export function CustomerListView({ initialBand, initialState }: Props) {
           </span>
         </div>
 
-        {/* ── State pill row — single clean row across the top ── */}
-        <div className="flex items-center gap-1.5 mb-3.5">
-          {STATE_FILTERS.map(opt => {
-            const active = state === opt.key
-            const color  = opt.key === 'all' ? undefined : STATE_COLORS[opt.key]
+        {/* ── Health band tabs with colored lights ── */}
+        <div className="flex items-center gap-1 mb-3">
+          {HEALTH_BANDS.map(b => {
+            const active = band === b.key
             return (
               <button
-                key={opt.key}
-                onClick={() => setState(opt.key)}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-medium transition-all whitespace-nowrap"
+                key={b.key}
+                onClick={() => setBand(b.key)}
+                className="flex items-center gap-2 px-3.5 py-2 rounded-lg text-[12px] font-medium transition-all"
                 style={active
                   ? {
-                      background: color ? `${color}1a` : 'rgba(255,255,255,0.1)',
-                      color:      color ?? 'rgba(255,255,255,0.92)',
-                      border:     `1px solid ${color ? `${color}45` : 'rgba(255,255,255,0.22)'}`,
+                      background: b.key === 'all' ? 'rgba(255,255,255,0.09)' : `${b.color}16`,
+                      color:      b.key === 'all' ? 'rgba(255,255,255,0.9)'  : b.color,
+                      border:     `1px solid ${b.key === 'all' ? 'rgba(255,255,255,0.14)' : `${b.color}35`}`,
                     }
                   : {
                       background: 'transparent',
                       color:      'rgba(255,255,255,0.32)',
-                      border:     '1px solid rgba(255,255,255,0.07)',
+                      border:     '1px solid transparent',
                     }
                 }
               >
-                {color && (
-                  <span className="w-1.5 h-1.5 rounded-full flex-shrink-0"
-                    style={{ background: color, opacity: active ? 1 : 0.45 }} />
+                {b.color && (
+                  <span className="w-2 h-2 rounded-full flex-shrink-0"
+                    style={{
+                      background: b.color,
+                      boxShadow:  active ? `0 0 5px ${b.color}99` : undefined,
+                      opacity:    active ? 1 : 0.5,
+                    }} />
                 )}
-                {opt.label}
+                {b.label}
               </button>
             )
           })}
         </div>
 
-        {/* ── Search (left) + Health dropdown ── */}
-        <div className="flex items-center gap-2.5">
+        {/* ── Bottom controls: State dropdown + Search + Clear ── */}
+        <div className="flex items-center gap-3">
 
-          {/* Search */}
-          <div className="relative" style={{ width: '260px' }}>
-            <svg className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"
-              width="11" height="11" fill="none" viewBox="0 0 16 16"
-              style={{ color: 'rgba(255,255,255,0.22)' }}>
-              <circle cx="7" cy="7" r="4.5" stroke="currentColor" strokeWidth="1.4"/>
-              <path d="M10.5 10.5L14 14" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
-            </svg>
-            <input
-              type="text"
-              placeholder="Search by name or email…"
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              className="w-full pl-8 pr-3 py-1.5 rounded-xl text-[11px] outline-none transition-all"
-              style={{
-                background: 'rgba(255,255,255,0.035)',
-                border:     '1px solid rgba(255,255,255,0.07)',
-                color:      'rgba(255,255,255,0.65)',
-              }}
-            />
-          </div>
-
-          {/* Health dropdown */}
-          <div className="relative" ref={healthRef}>
+          {/* State dropdown */}
+          <div className="relative" ref={dropRef}>
             <button
-              onClick={() => setHealthOpen(o => !o)}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-xl text-[11px] font-medium transition-all"
+              onClick={() => setDropdown(d => !d)}
+              className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-[12px] font-medium transition-all"
               style={{
-                background: healthColor ? `${healthColor}14` : 'rgba(255,255,255,0.035)',
-                color:      healthColor ?? 'rgba(255,255,255,0.4)',
-                border:     healthColor ? `1px solid ${healthColor}30` : '1px solid rgba(255,255,255,0.07)',
+                background: stateColor ? `${stateColor}14` : 'rgba(255,255,255,0.04)',
+                color:      stateColor ?? 'rgba(255,255,255,0.4)',
+                border:     stateColor ? `1px solid ${stateColor}30` : '1px solid rgba(255,255,255,0.08)',
+                minWidth:   '130px',
               }}
             >
-              {healthColor && (
+              {stateColor && (
                 <span className="w-1.5 h-1.5 rounded-full flex-shrink-0"
-                  style={{ background: healthColor, boxShadow: `0 0 4px ${healthColor}88` }} />
+                  style={{ background: stateColor, boxShadow: `0 0 5px ${stateColor}88` }} />
               )}
-              {healthLabel}
+              <span className="flex-1 text-left">{stateLabel}</span>
               <svg width="9" height="9" fill="none" viewBox="0 0 16 16"
-                style={{ transform: healthOpen ? 'rotate(180deg)' : undefined, transition: 'transform 0.15s', color: 'rgba(255,255,255,0.25)' }}>
+                style={{ transform: dropdown ? 'rotate(180deg)' : undefined, transition: 'transform 0.15s', color: 'rgba(255,255,255,0.25)', flexShrink: 0 }}>
                 <path d="M3 5l5 5 5-5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
               </svg>
             </button>
 
-            {healthOpen && (
-              <div className="absolute top-full left-0 mt-1.5 w-40 rounded-xl overflow-hidden z-50"
-                style={{ background: '#0e0e24', border: '1px solid rgba(255,255,255,0.09)', boxShadow: '0 16px 48px rgba(0,0,0,0.7)' }}>
-                {HEALTH_OPTIONS.map(opt => (
+            {dropdown && (
+              <div className="absolute top-full left-0 mt-1.5 w-52 rounded-xl overflow-hidden z-50"
+                style={{ background: '#0e0e24', border: '1px solid rgba(255,255,255,0.1)', boxShadow: '0 16px 48px rgba(0,0,0,0.7)' }}>
+                {STATE_OPTIONS.map(opt => (
                   <button
                     key={opt.key}
-                    onClick={() => { setHealth(opt.key); setHealthOpen(false) }}
-                    className="w-full flex items-center gap-2.5 px-3.5 py-2 text-[11px] font-medium text-left transition-all hover:bg-white/[0.04]"
-                    style={{ color: health === opt.key ? (opt.color ?? 'rgba(255,255,255,0.9)') : 'rgba(255,255,255,0.38)' }}
+                    onClick={() => { setState(opt.key); setDropdown(false) }}
+                    className="w-full flex items-center gap-2.5 px-4 py-2.5 text-[11px] font-medium text-left transition-all hover:bg-white/[0.04]"
+                    style={{
+                      color: state === opt.key
+                        ? (opt.key === 'all' ? 'rgba(255,255,255,0.9)' : STATE_COLORS[opt.key])
+                        : 'rgba(255,255,255,0.38)',
+                    }}
                   >
-                    {opt.color && (
-                      <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: opt.color }} />
-                    )}
+                    <span className="w-1.5 h-1.5 rounded-full flex-shrink-0"
+                      style={{ background: opt.key === 'all' ? 'rgba(255,255,255,0.3)' : STATE_COLORS[opt.key] }} />
                     {opt.label}
-                    {health === opt.key && (
+                    {state === opt.key && (
                       <svg className="ml-auto" width="9" height="9" fill="none" viewBox="0 0 16 16">
                         <path d="M3 8l4 4 6-7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                       </svg>
@@ -290,11 +276,33 @@ export function CustomerListView({ initialBand, initialState }: Props) {
             )}
           </div>
 
+          {/* Search */}
+          <div className="relative" style={{ width: '260px' }}>
+            <svg className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"
+              width="12" height="12" fill="none" viewBox="0 0 16 16"
+              style={{ color: 'rgba(255,255,255,0.22)' }}>
+              <circle cx="7" cy="7" r="4.5" stroke="currentColor" strokeWidth="1.4"/>
+              <path d="M10.5 10.5L14 14" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
+            </svg>
+            <input
+              type="text"
+              placeholder="Search by name or email…"
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              className="w-full pl-8 pr-3 py-2 rounded-xl text-[12px] outline-none transition-all"
+              style={{
+                background: 'rgba(255,255,255,0.035)',
+                border:     '1px solid rgba(255,255,255,0.07)',
+                color:      'rgba(255,255,255,0.65)',
+              }}
+            />
+          </div>
+
           {/* Clear */}
           {hasFilters && (
             <button
               onClick={clearAll}
-              className="px-2.5 py-1.5 rounded-xl text-[10px] font-medium transition-all hover:bg-white/[0.04]"
+              className="px-3 py-2 rounded-xl text-[11px] font-medium transition-all hover:bg-white/[0.04]"
               style={{ color: 'rgba(255,255,255,0.25)', border: '1px solid rgba(255,255,255,0.06)' }}
             >
               Clear
@@ -307,8 +315,8 @@ export function CustomerListView({ initialBand, initialState }: Props) {
       <div className="flex-1 overflow-y-auto">
         <div className="px-6">
 
-          {/* Column headers */}
-          <div className="grid py-3 sticky top-0 z-10"
+          {/* Column headers — more top padding */}
+          <div className="grid pt-4 pb-3 sticky top-0 z-10"
             style={{
               gridTemplateColumns: GRID,
               background:          '#070714',
@@ -336,7 +344,7 @@ export function CustomerListView({ initialBand, initialState }: Props) {
             const action     = ACTION_CFG[c.state]
             const isVip      = VIP_STATES.has(c.state)
             const isHov      = hovered === c.customer_id
-            const stateColor = c.state ? STATE_COLORS[c.state] : undefined
+            const sc         = c.state ? STATE_COLORS[c.state] : undefined
 
             return (
               <div
@@ -349,8 +357,8 @@ export function CustomerListView({ initialBand, initialState }: Props) {
                   borderLeft:    isCrit ? '2px solid rgba(255,64,96,0.55)'
                                         : isWat ? '2px solid rgba(245,158,11,0.4)'
                                         : '2px solid transparent',
-                  paddingTop:    '12px',
-                  paddingBottom: '12px',
+                  paddingTop:    '15px',
+                  paddingBottom: '15px',
                   paddingLeft:   '3px',
                   alignItems:    'center',
                 }}
@@ -361,7 +369,7 @@ export function CustomerListView({ initialBand, initialState }: Props) {
 
                 {/* Customer */}
                 <div className="pr-4 min-w-0">
-                  <div className="flex items-center gap-1.5 mb-0.5">
+                  <div className="flex items-center gap-1.5 mb-1">
                     <span className="text-[13px] font-bold truncate" style={{ color: 'rgba(255,255,255,0.9)' }}>
                       {name}
                     </span>
@@ -381,9 +389,9 @@ export function CustomerListView({ initialBand, initialState }: Props) {
                   {c.state ? (
                     <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-semibold whitespace-nowrap"
                       style={{
-                        color:      stateColor ?? 'white',
-                        background: `${stateColor ?? '#fff'}14`,
-                        border:     `1px solid ${stateColor ?? '#fff'}28`,
+                        color:      sc ?? 'white',
+                        background: `${sc ?? '#fff'}14`,
+                        border:     `1px solid ${sc ?? '#fff'}28`,
                       }}>
                       {STATE_LABELS[c.state] ?? c.state}
                     </span>
@@ -392,7 +400,7 @@ export function CustomerListView({ initialBand, initialState }: Props) {
                   )}
                 </div>
 
-                {/* Health dot + label */}
+                {/* Health dot + 5-level label */}
                 <div className="flex items-center gap-2">
                   <span className="w-2 h-2 rounded-full flex-shrink-0"
                     style={{ background: hcfg.color, boxShadow: `0 0 5px ${hcfg.color}77` }} />
@@ -402,8 +410,8 @@ export function CustomerListView({ initialBand, initialState }: Props) {
                 </div>
 
                 {/* Health score bar + number */}
-                <div className="flex items-center gap-2.5">
-                  <div className="w-14 h-[3px] rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.07)' }}>
+                <div className="flex items-center gap-3">
+                  <div className="w-16 h-[3px] rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.07)' }}>
                     <div className="h-full rounded-full" style={{ width: `${c.health_score}%`, background: hcfg.color }} />
                   </div>
                   <span className="text-[12px] font-semibold" style={{ color: 'rgba(255,255,255,0.5)' }}>
@@ -420,7 +428,7 @@ export function CustomerListView({ initialBand, initialState }: Props) {
 
                 {/* Spend */}
                 <div>
-                  <div className="text-[13px] font-semibold" style={{ color: 'rgba(255,255,255,0.85)' }}>
+                  <div className="text-[13px] font-semibold mb-0.5" style={{ color: 'rgba(255,255,255,0.85)' }}>
                     {fmt(c.total_spend)}
                   </div>
                   <div className="text-[10px]" style={{ color: 'rgba(255,255,255,0.22)' }}>
@@ -430,11 +438,11 @@ export function CustomerListView({ initialBand, initialState }: Props) {
 
                 {/* Last purchase */}
                 <div>
-                  <div className="text-[12px]" style={{ color: 'rgba(255,255,255,0.52)' }}>
+                  <div className="text-[12px] mb-0.5" style={{ color: 'rgba(255,255,255,0.52)' }}>
                     {daysSince(c.last_purchase_at)}
                   </div>
                   {gap !== null && gap > 30 && (
-                    <div className="flex items-center gap-1 mt-0.5">
+                    <div className="flex items-center gap-1">
                       <svg width="9" height="9" fill="none" viewBox="0 0 16 16">
                         <circle cx="8" cy="8" r="6" stroke="#f59e0b" strokeWidth="1.5"/>
                         <path d="M8 5v3" stroke="#f59e0b" strokeWidth="1.5" strokeLinecap="round"/>
@@ -445,9 +453,9 @@ export function CustomerListView({ initialBand, initialState }: Props) {
                 </div>
 
                 {/* Action */}
-                <div className="flex items-center justify-between pr-1">
+                <div className="flex items-center justify-between pr-2">
                   {action ? (
-                    <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-semibold whitespace-nowrap"
+                    <span className="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-semibold whitespace-nowrap"
                       style={{
                         color:      action.color,
                         background: `${action.color}12`,
@@ -468,7 +476,7 @@ export function CustomerListView({ initialBand, initialState }: Props) {
             )
           })}
 
-          <div className="py-4 text-[10px]" style={{ color: 'rgba(255,255,255,0.15)' }}>
+          <div className="py-5 text-[10px]" style={{ color: 'rgba(255,255,255,0.15)' }}>
             {filtered.length} of {customers.length} customers
           </div>
         </div>

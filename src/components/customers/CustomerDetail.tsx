@@ -259,7 +259,7 @@ export function CustomerDetail({
           </div>
 
           {/* Triggered signals */}
-          {customer.triggered_signals && customer.triggered_signals.length > 0 && (
+          {false && (
             <div>
               <div className="text-[10px] font-semibold tracking-[0.12em] uppercase mb-2.5"
                 style={{ color: 'rgba(255,255,255,0.22)' }}>Triggered Signals</div>

@@ -4,6 +4,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import type { CustomerWithHealth } from '@/types'
 import { fullName, initials, formatCurrency, daysSinceLabel, bandColor } from '@/lib/utils'
 
@@ -81,11 +82,10 @@ export function CustomerDetail({
 
   return (
     <div className="flex-1 overflow-y-auto" style={{ background: '#070714' }}>
-      <div className="max-w-[1100px] px-7 py-6">
+      <div className="max-w-[1100px] px-7 py-6 pb-10">
 
         {/* ── Back button ── */}
-        <button
-          onClick={() => router.push('/customers')}
+        <Link href="/customers"
           className="flex items-center gap-1.5 mb-5 transition-colors group"
           style={{ color: 'rgba(255,255,255,0.3)' }}
         >
@@ -93,7 +93,7 @@ export function CustomerDetail({
             <path d="M10 3L5 8l5 5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
           <span className="text-[12px] font-medium group-hover:opacity-70 transition-opacity">Back to Customers</span>
-        </button>
+        </Link>
 
         {/* ── Customer Header ── */}
         <div className="rounded-2xl px-6 py-5 mb-5"
@@ -147,7 +147,7 @@ export function CustomerDetail({
         <div className="grid grid-cols-[1fr_300px] gap-4 mb-4">
 
           {/* LEFT: Purchase Intelligence */}
-          <div className="rounded-2xl p-5"
+          <div className="rounded-2xl p-6"
             style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)' }}>
             <div className="text-[10px] font-semibold tracking-[0.14em] uppercase mb-4"
               style={{ color: 'rgba(255,255,255,0.28)' }}>Purchase Intelligence</div>
@@ -244,7 +244,7 @@ export function CustomerDetail({
                     ) : (
                       <>{workflowCfg.action}</>
                     )}
-                  </button>
+                  </Link>
                 </div>
               ) : (
                 <div>
@@ -283,28 +283,28 @@ export function CustomerDetail({
                 className="text-[11px] font-medium transition-colors hover:opacity-70"
                 style={{ color: 'rgba(255,255,255,0.28)' }}>
                 View all workflows →
-              </button>
+              </Link>
               <span style={{ color: 'rgba(255,255,255,0.1)' }}>·</span>
               <button className="text-[11px] font-medium transition-colors hover:opacity-70"
                 style={{ color: 'rgba(255,255,255,0.28)' }}>
                 Send manual message
-              </button>
+              </Link>
             </div>
 
           </div>
         </div>
 
         {/* ── Diagnosis ── */}
-        <div className="rounded-2xl p-5"
+        <div className="rounded-2xl p-6"
           style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)' }}>
           <div className="text-[10px] font-semibold tracking-[0.14em] uppercase mb-4"
             style={{ color: 'rgba(255,255,255,0.28)' }}>Diagnosis</div>
 
-          <div className="grid grid-cols-[1fr_1fr] gap-4">
+          <div className="grid grid-cols-[1fr_1fr] gap-5">
 
             {/* Risk signal */}
-            <div className="space-y-3">
-              <div className="flex items-start gap-3 px-4 py-3 rounded-xl"
+            <div className="space-y-4">
+              <div className="flex items-start gap-3 px-4 py-4 rounded-xl"
                 style={{ background: `${hColor}08`, border: `1px solid ${hColor}18` }}>
                 <div className="w-2 h-2 rounded-full flex-shrink-0 mt-1"
                   style={{ background: hColor, boxShadow: `0 0 6px ${hColor}` }} />
@@ -319,7 +319,7 @@ export function CustomerDetail({
               </div>
 
               {/* Revenue opportunity */}
-              <div className="px-4 py-3 rounded-xl"
+              <div className="px-4 py-4 rounded-xl"
                 style={{ background: 'rgba(0,212,255,0.04)', border: '1px solid rgba(0,212,255,0.1)' }}>
                 <div className="flex items-center gap-2 mb-1.5">
                   <svg width="10" height="10" fill="none" viewBox="0 0 16 16" style={{ color: '#00d4ff', flexShrink: 0 }}>
@@ -346,7 +346,7 @@ export function CustomerDetail({
             </div>
 
             {/* Triggered signals */}
-            <div className="px-4 py-3 rounded-xl"
+            <div className="px-4 py-4 rounded-xl"
               style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)' }}>
               <div className="text-[10px] font-semibold tracking-[0.12em] uppercase mb-3"
                 style={{ color: 'rgba(255,255,255,0.22)' }}>Triggered Signals</div>

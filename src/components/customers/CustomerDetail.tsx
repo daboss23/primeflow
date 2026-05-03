@@ -82,7 +82,7 @@ export function CustomerDetail({
 
   return (
     <div className="flex-1 overflow-y-auto" style={{ background: '#070714' }}>
-      <div className="max-w-[1200px] mx-auto px-8 py-6 pb-12">
+      <div className="max-w-[1100px] px-7 py-6 pb-10">
 
         {/* ── Back button ── */}
         <Link href="/customers"
@@ -96,7 +96,7 @@ export function CustomerDetail({
         </Link>
 
         {/* ── Customer Header ── */}
-        <div className="rounded-2xl px-7 py-6 mb-6"
+        <div className="rounded-2xl px-6 py-5 mb-5"
           style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)' }}>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
@@ -144,16 +144,16 @@ export function CustomerDetail({
         </div>
 
         {/* ── Main two-column layout ── */}
-        <div className="grid grid-cols-[3fr_2fr] gap-5 mb-5">
+        <div className="grid grid-cols-[1fr_300px] gap-4 mb-4">
 
           {/* LEFT: Purchase Intelligence */}
-          <div className="rounded-2xl p-7"
+          <div className="rounded-2xl p-6"
             style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)' }}>
             <div className="text-[10px] font-semibold tracking-[0.14em] uppercase mb-4"
               style={{ color: 'rgba(255,255,255,0.28)' }}>Purchase Intelligence</div>
 
             {/* 4 stat cards */}
-            <div className="grid grid-cols-2 gap-4 mb-5">
+            <div className="grid grid-cols-2 gap-3 mb-4">
               {[
                 { label: 'Lifetime Value', value: formatCurrency(customer.total_spend), sub: `${customer.total_orders} total orders`,
                   icon: <svg width="14" height="14" fill="none" viewBox="0 0 16 16"><path d="M8 1v14M12 4H6a2 2 0 000 4h4a2 2 0 010 4H4" stroke="#00d4ff" strokeWidth="1.4" strokeLinecap="round"/></svg> },
@@ -164,7 +164,7 @@ export function CustomerDetail({
                 { label: 'Total Orders', value: String(customer.total_orders), sub: 'completed transactions',
                   icon: <svg width="14" height="14" fill="none" viewBox="0 0 16 16"><rect x="3" y="2" width="10" height="12" rx="1.5" stroke="#00e676" strokeWidth="1.3"/><path d="M6 6h4M6 9h4M6 12h2" stroke="#00e676" strokeWidth="1.3" strokeLinecap="round"/></svg> },
               ].map(({ label, value, sub, icon }) => (
-                <div key={label} className="p-5 rounded-xl"
+                <div key={label} className="p-4 rounded-xl"
                   style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-[9px] font-semibold tracking-[0.13em] uppercase"
@@ -178,7 +178,7 @@ export function CustomerDetail({
             </div>
 
             {/* Score bars */}
-            <div className="space-y-4 pt-4" style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+            <div className="space-y-3 pt-3" style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}>
               <div>
                 <div className="flex items-center justify-between mb-1.5">
                   <span className="text-[10px] font-semibold tracking-[0.12em] uppercase"
@@ -295,12 +295,12 @@ export function CustomerDetail({
         </div>
 
         {/* ── Diagnosis ── */}
-        <div className="rounded-2xl p-7"
+        <div className="rounded-2xl p-6"
           style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)' }}>
           <div className="text-[10px] font-semibold tracking-[0.14em] uppercase mb-4"
             style={{ color: 'rgba(255,255,255,0.28)' }}>Diagnosis</div>
 
-          <div className="grid grid-cols-[1fr_1fr] gap-6">
+          <div className="grid grid-cols-[1fr_1fr] gap-5">
 
             {/* Risk signal */}
             <div className="space-y-4">

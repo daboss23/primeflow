@@ -2,8 +2,7 @@
 
 // FILE: src/app/analytics/page.tsx
 
-import {
-  LineChart, Line, BarChart, Bar,
+import { useState } from 'react'
   XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
 } from 'recharts'
 
@@ -136,6 +135,35 @@ function ChartTooltip({ active, payload, label }: any) {
   )
 }
 
+// ─── Date Range Selector ──────────────────────────────────────────────────────
+
+const RANGES = ['This Month', 'Last 30 Days', 'Quarter', 'Custom Range']
+
+function DateRangeSelector() {
+  const [active, setActive] = useState('This Month')
+  return (
+    <div className="flex items-center gap-1 p-1 rounded-xl"
+      style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
+      {RANGES.map((r) => (
+        <button
+          key={r}
+          onClick={() => setActive(r)}
+          className="px-3.5 py-1.5 rounded-lg text-[11px] font-medium transition-all whitespace-nowrap"
+          style={active === r ? {
+            background: 'rgba(0,212,255,0.1)',
+            color: '#00d4ff',
+            border: '1px solid rgba(0,212,255,0.2)',
+          } : {
+            color: 'rgba(255,255,255,0.32)',
+            border: '1px solid transparent',
+          }}>
+          {r}
+        </button>
+      ))}
+    </div>
+  )
+}
+
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function AnalyticsPage() {
@@ -154,14 +182,10 @@ export default function AnalyticsPage() {
               </h1>
             </div>
             <p className="text-[12px] ml-[18px]" style={{ color: 'rgba(255,255,255,0.3)' }}>
-              Recovery performance overview · Last 7 months · Showing demo data
+              Recovery performance overview · This month
             </p>
           </div>
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl"
-            style={{ background: 'rgba(0,230,118,0.06)', border: '1px solid rgba(0,230,118,0.15)' }}>
-            <span className="w-1.5 h-1.5 rounded-full" style={{ background: '#00e676', boxShadow: '0 0 6px #00e676' }} />
-            <span className="text-[11px] font-medium" style={{ color: '#00e676' }}>Live Demo Mode</span>
-          </div>
+          <DateRangeSelector />
         </div>
 
         {/* ── KPI Cards ── */}
@@ -376,11 +400,11 @@ export default function AnalyticsPage() {
           </div>
         </div>
 
-        {/* Footer note */}
+        {/* Footer */}
         <div className="flex items-center gap-2 mt-5">
           <div className="w-1 h-1 rounded-full" style={{ background: 'rgba(255,255,255,0.12)' }} />
           <span className="text-[11px]" style={{ color: 'rgba(255,255,255,0.2)' }}>
-            Showing demo data · Connect Shopify and Klaviyo to populate with live recovery performance
+            Connect Shopify and Klaviyo to populate with live recovery performance
           </span>
         </div>
 

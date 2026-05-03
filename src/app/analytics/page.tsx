@@ -102,16 +102,14 @@ const KPIS = [
     ),
   },
   {
-    label:  'Active Workflows',
-    value:  '4',
-    sub:    '461 customers enrolled',
+    label:  'Workflow Performance',
+    value:  '68%',
+    sub:    'avg success rate across 4 active workflows',
     color:  '#f59e0b',
     icon: (
       <svg width="16" height="16" fill="none" viewBox="0 0 16 16">
-        <rect x="1" y="2" width="5" height="4" rx="1.2" stroke="currentColor" strokeWidth="1.3"/>
-        <rect x="10" y="6" width="5" height="4" rx="1.2" stroke="currentColor" strokeWidth="1.3"/>
-        <rect x="1" y="10" width="5" height="4" rx="1.2" stroke="currentColor" strokeWidth="1.3"/>
-        <path d="M6 4h2.5a1.5 1.5 0 011.5 1.5V6M6 12h2.5A1.5 1.5 0 0010 10.5V10" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
+        <path d="M2 11l3-4 3 2.5 3-5 3 3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M13 6v5H8" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
       </svg>
     ),
   },
@@ -143,7 +141,7 @@ function ChartTooltip({ active, payload, label }: any) {
 export default function AnalyticsPage() {
   return (
     <div className="flex-1 overflow-y-auto h-full" style={{ background: '#070714' }}>
-      <div className="max-w-[1400px] mx-auto px-8 py-9">
+      <div className="px-8 py-9">
 
         {/* ── Header ── */}
         <div className="flex items-start justify-between mb-8">
@@ -156,7 +154,7 @@ export default function AnalyticsPage() {
               </h1>
             </div>
             <p className="text-[12px] ml-[18px]" style={{ color: 'rgba(255,255,255,0.3)' }}>
-              Recovery performance · Last 7 months · Demo data
+              Recovery performance overview · Last 7 months · Showing demo data
             </p>
           </div>
           <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl"
@@ -382,7 +380,7 @@ export default function AnalyticsPage() {
         <div className="flex items-center gap-2 mt-5">
           <div className="w-1 h-1 rounded-full" style={{ background: 'rgba(255,255,255,0.12)' }} />
           <span className="text-[11px]" style={{ color: 'rgba(255,255,255,0.2)' }}>
-            Analytics showing demo data · Connect Shopify and Klaviyo to see live performance
+            Showing demo data · Connect Shopify and Klaviyo to populate with live recovery performance
           </span>
         </div>
 

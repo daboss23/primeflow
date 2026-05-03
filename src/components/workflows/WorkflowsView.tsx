@@ -1374,7 +1374,7 @@ export function WorkflowsView() {
       `}</style>
 
       <div className="flex-1 overflow-y-auto" style={{ background: '#070714' }}>
-        <div className="max-w-[1400px] mx-auto px-8 py-8">
+        <div className="max-w-[1400px] mx-auto p-7">
 
           {/* Header */}
           <div className="flex items-start justify-between mb-8">

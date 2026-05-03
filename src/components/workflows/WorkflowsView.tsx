@@ -592,7 +592,7 @@ function WorkflowCustomerListView({
 }) {
   const tc = TRIGGER_COLORS[workflow.trigger]
   return (
-    <div className="flex-1 overflow-y-auto" style={{ background: '#070714' }}>
+    <div style={{ background: '#070714' }}>
       <div className="max-w-[1000px] mx-auto px-8 py-8">
 
         {/* Breadcrumb */}
@@ -1373,7 +1373,7 @@ export function WorkflowsView() {
         .rec-updated { animation: updatedFade 1.8s ease-out forwards; }
       `}</style>
 
-      <div className="flex-1 overflow-y-auto" style={{ background: '#070714' }}>
+      <div style={{ background: '#070714' }}>
         <div className="max-w-[1400px] mx-auto p-7">
 
           {/* Header */}

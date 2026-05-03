@@ -196,7 +196,7 @@ export default async function DashboardPage() {
           <div className="grid grid-cols-3 gap-4 mb-4">
             <div className="col-span-2 rounded-xl border border-white/[0.06] bg-white/[0.02] p-5">
               <div className="text-[11px] uppercase tracking-[0.12em] text-white/40 mb-4">Health Distribution</div>
-              <HealthSummaryChart dist={dist} />
+              <HealthSummaryChart distribution={dist} />
             </div>
             <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-5">
               <div className="text-[11px] uppercase tracking-[0.12em] text-white/40 mb-4">State Breakdown</div>

@@ -6,15 +6,78 @@ import {
   XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
 } from 'recharts'
 
-const REVENUE_TREND = [
-  { month: 'Nov', recovered: 4200,  customers: 9  },
-  { month: 'Dec', recovered: 6800,  customers: 14 },
-  { month: 'Jan', recovered: 5400,  customers: 11 },
-  { month: 'Feb', recovered: 9100,  customers: 19 },
-  { month: 'Mar', recovered: 11600, customers: 24 },
-  { month: 'Apr', recovered: 14200, customers: 31 },
-  { month: 'May', recovered: 18400, customers: 38 },
-]
+const DATA_BY_RANGE: Record<string, {
+  trend: { month: string; recovered: number; customers: number }[]
+  kpis: { revenue: string; customers: string; rate: string; performance: string }
+  sources: { label: string; pct: number; color: string; amount: number }[]
+}> = {
+  'This Month': {
+    trend: [
+      { month: 'W1', recovered: 3200,  customers: 7  },
+      { month: 'W2', recovered: 4800,  customers: 11 },
+      { month: 'W3', recovered: 5100,  customers: 10 },
+      { month: 'W4', recovered: 5300,  customers: 10 },
+    ],
+    kpis: { revenue: '$18,400', customers: '38', rate: '26.8%', performance: '71%' },
+    sources: [
+      { label: 'Abandoned Cart',   pct: 41, color: '#ff6b6b', amount: 7544  },
+      { label: 'VIP Retention',    pct: 28, color: '#f59e0b', amount: 5152  },
+      { label: 'Dormant Win-Back', pct: 18, color: '#a78bfa', amount: 3312  },
+      { label: 'Failed Payment',   pct: 9,  color: '#ff8c00', amount: 1656  },
+      { label: 'Replenishment',    pct: 4,  color: '#00d4ff', amount: 736   },
+    ],
+  },
+  'Last 30 Days': {
+    trend: [
+      { month: 'W1', recovered: 4100,  customers: 9  },
+      { month: 'W2', recovered: 5600,  customers: 12 },
+      { month: 'W3', recovered: 6200,  customers: 13 },
+      { month: 'W4', recovered: 6400,  customers: 13 },
+    ],
+    kpis: { revenue: '$22,300', customers: '47', rate: '24.1%', performance: '68%' },
+    sources: [
+      { label: 'Abandoned Cart',   pct: 38, color: '#ff6b6b', amount: 8474  },
+      { label: 'VIP Retention',    pct: 30, color: '#f59e0b', amount: 6690  },
+      { label: 'Dormant Win-Back', pct: 20, color: '#a78bfa', amount: 4460  },
+      { label: 'Failed Payment',   pct: 8,  color: '#ff8c00', amount: 1784  },
+      { label: 'Replenishment',    pct: 4,  color: '#00d4ff', amount: 892   },
+    ],
+  },
+  'Quarter': {
+    trend: [
+      { month: 'Mar', recovered: 11600, customers: 24 },
+      { month: 'Apr', recovered: 14200, customers: 31 },
+      { month: 'May', recovered: 18400, customers: 38 },
+    ],
+    kpis: { revenue: '$49,560', customers: '108', rate: '23.4%', performance: '68%' },
+    sources: [
+      { label: 'Abandoned Cart',   pct: 41, color: '#ff6b6b', amount: 18400 },
+      { label: 'VIP Retention',    pct: 28, color: '#f59e0b', amount: 8940  },
+      { label: 'Dormant Win-Back', pct: 18, color: '#a78bfa', amount: 6210  },
+      { label: 'Failed Payment',   pct: 9,  color: '#ff8c00', amount: 3140  },
+      { label: 'Replenishment',    pct: 4,  color: '#00d4ff', amount: 2870  },
+    ],
+  },
+  'Custom Range': {
+    trend: [
+      { month: 'Nov', recovered: 4200,  customers: 9  },
+      { month: 'Dec', recovered: 6800,  customers: 14 },
+      { month: 'Jan', recovered: 5400,  customers: 11 },
+      { month: 'Feb', recovered: 9100,  customers: 19 },
+      { month: 'Mar', recovered: 11600, customers: 24 },
+      { month: 'Apr', recovered: 14200, customers: 31 },
+      { month: 'May', recovered: 18400, customers: 38 },
+    ],
+    kpis: { revenue: '$69,900', customers: '152', rate: '22.1%', performance: '65%' },
+    sources: [
+      { label: 'Abandoned Cart',   pct: 41, color: '#ff6b6b', amount: 28659 },
+      { label: 'VIP Retention',    pct: 28, color: '#f59e0b', amount: 19572 },
+      { label: 'Dormant Win-Back', pct: 18, color: '#a78bfa', amount: 12582 },
+      { label: 'Failed Payment',   pct: 9,  color: '#ff8c00', amount: 6291  },
+      { label: 'Replenishment',    pct: 4,  color: '#00d4ff', amount: 2796  },
+    ],
+  },
+}
 
 const TOP_CAMPAIGNS = [
   { name: 'Abandoned Cart Recovery', trigger: 'Abandoned Cart', enrolled: 142, converted: 31, revenue: 18400, color: '#ff6b6b', trend: '+12%' },
@@ -29,45 +92,7 @@ const SEGMENT_PERFORMANCE = [
   { label: 'Lapsed (90d+)',   rate: 18, color: '#ff6b6b', revenue: 2100  },
 ]
 
-const RECOVERY_SOURCES = [
-  { label: 'Abandoned Cart',   pct: 41, color: '#ff6b6b', amount: 18400 },
-  { label: 'VIP Retention',    pct: 28, color: '#f59e0b', amount: 8940  },
-  { label: 'Dormant Win-Back', pct: 18, color: '#a78bfa', amount: 6210  },
-  { label: 'Failed Payment',   pct: 9,  color: '#ff8c00', amount: 3140  },
-  { label: 'Replenishment',    pct: 4,  color: '#00d4ff', amount: 2870  },
-]
-
-const KPIS = [
-  { label: 'Recovered Revenue',     value: '$49,560', sub: 'across all active workflows',              color: '#00e676' },
-  { label: 'Customers Recovered',   value: '108',     sub: 'converted this period',                   color: '#00d4ff' },
-  { label: 'Avg Conversion Rate',   value: '23.4%',   sub: 'across all campaigns',                    color: '#a78bfa' },
-  { label: 'Workflow Performance',  value: '68%',     sub: 'avg success rate across 4 workflows',     color: '#f59e0b' },
-]
-
 const RANGES = ['This Month', 'Last 30 Days', 'Quarter', 'Custom Range']
-
-function DateRangeSelector() {
-  const [active, setActive] = useState('This Month')
-  return (
-    <div className="flex items-center gap-1 p-1 rounded-xl"
-      style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
-      {RANGES.map((r) => (
-        <button key={r} onClick={() => setActive(r)}
-          className="px-3.5 py-1.5 rounded-lg text-[11px] font-medium transition-all whitespace-nowrap"
-          style={active === r ? {
-            background: 'rgba(0,212,255,0.1)',
-            color: '#00d4ff',
-            border: '1px solid rgba(0,212,255,0.2)',
-          } : {
-            color: 'rgba(255,255,255,0.32)',
-            border: '1px solid transparent',
-          }}>
-          {r}
-        </button>
-      ))}
-    </div>
-  )
-}
 
 function ChartTooltip({ active, payload, label }: any) {
   if (!active || !payload?.length) return null
@@ -89,6 +114,18 @@ function ChartTooltip({ active, payload, label }: any) {
 }
 
 export default function AnalyticsPage() {
+  const [active, setActive]     = useState('This Month')
+  const [startDate, setStartDate] = useState('')
+  const [endDate, setEndDate]   = useState('')
+
+  const data = DATA_BY_RANGE[active]
+  const kpis = [
+    { label: 'Recovered Revenue',    value: data.kpis.revenue,     sub: 'across all active workflows',          color: '#00e676' },
+    { label: 'Customers Recovered',  value: data.kpis.customers,   sub: 'converted this period',                color: '#00d4ff' },
+    { label: 'Avg Conversion Rate',  value: data.kpis.rate,        sub: 'across all campaigns',                 color: '#a78bfa' },
+    { label: 'Workflow Performance', value: data.kpis.performance, sub: 'avg success rate across 4 workflows',  color: '#f59e0b' },
+  ]
+
   return (
     <div className="flex-1 overflow-y-auto h-full" style={{ background: '#070714' }}>
       <div className="px-8 py-9">
@@ -102,20 +139,68 @@ export default function AnalyticsPage() {
               <h1 className="text-[26px] font-bold tracking-tight text-white">Analytics</h1>
             </div>
             <p className="text-[12px] ml-[18px]" style={{ color: 'rgba(255,255,255,0.3)' }}>
-              Recovery performance overview · This month
+              Recovery performance overview · {active === 'Custom Range' && startDate && endDate
+                ? `${startDate} → ${endDate}`
+                : active}
             </p>
           </div>
-          <DateRangeSelector />
+
+          {/* Date range selector */}
+          <div className="flex flex-col items-end gap-2">
+            <div className="flex items-center gap-1 p-1 rounded-xl"
+              style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
+              {RANGES.map((r) => (
+                <button key={r} onClick={() => setActive(r)}
+                  className="px-3.5 py-1.5 rounded-lg text-[11px] font-medium transition-all whitespace-nowrap"
+                  style={active === r ? {
+                    background: 'rgba(0,212,255,0.1)',
+                    color: '#00d4ff',
+                    border: '1px solid rgba(0,212,255,0.2)',
+                  } : {
+                    color: 'rgba(255,255,255,0.32)',
+                    border: '1px solid transparent',
+                  }}>
+                  {r}
+                </button>
+              ))}
+            </div>
+
+            {/* Custom date picker */}
+            {active === 'Custom Range' && (
+              <div className="flex items-center gap-2 px-3 py-2 rounded-xl"
+                style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                <svg width="12" height="12" fill="none" viewBox="0 0 16 16" style={{ color: 'rgba(255,255,255,0.3)', flexShrink: 0 }}>
+                  <rect x="1" y="2" width="14" height="13" rx="2" stroke="currentColor" strokeWidth="1.3"/>
+                  <path d="M1 6h14M5 1v2M11 1v2" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
+                </svg>
+                <input
+                  type="date"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  className="text-[11px] outline-none bg-transparent"
+                  style={{ color: startDate ? 'rgba(255,255,255,0.7)' : 'rgba(255,255,255,0.25)', colorScheme: 'dark' }}
+                />
+                <span style={{ color: 'rgba(255,255,255,0.2)', fontSize: 11 }}>→</span>
+                <input
+                  type="date"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  className="text-[11px] outline-none bg-transparent"
+                  style={{ color: endDate ? 'rgba(255,255,255,0.7)' : 'rgba(255,255,255,0.25)', colorScheme: 'dark' }}
+                />
+              </div>
+            )}
+          </div>
         </div>
 
         {/* KPI Cards */}
         <div className="grid grid-cols-4 gap-4 mb-6">
-          {KPIS.map(({ label, value, sub, color }) => (
-            <div key={label} className="rounded-2xl p-5"
+          {kpis.map(({ label, value, sub, color }) => (
+            <div key={label} className="rounded-2xl p-5 transition-all"
               style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.06)' }}>
               <div className="text-[10px] font-semibold tracking-[0.14em] uppercase mb-4"
                 style={{ color: 'rgba(255,255,255,0.28)' }}>{label}</div>
-              <div className="text-[32px] font-bold tracking-tight text-white mb-1"
+              <div className="text-[32px] font-bold tracking-tight mb-1"
                 style={{ fontFamily: 'var(--font-jetbrains)', color }}>{value}</div>
               <div className="text-[11px]" style={{ color: 'rgba(255,255,255,0.28)' }}>{sub}</div>
             </div>
@@ -130,7 +215,7 @@ export default function AnalyticsPage() {
               <div className="text-[10px] font-semibold tracking-[0.14em] uppercase mb-1"
                 style={{ color: 'rgba(255,255,255,0.28)' }}>Revenue Recovered Over Time</div>
               <div className="text-[22px] font-bold text-white"
-                style={{ fontFamily: 'var(--font-jetbrains)' }}>$49,560</div>
+                style={{ fontFamily: 'var(--font-jetbrains)' }}>{data.kpis.revenue}</div>
             </div>
             <div className="flex items-center gap-1.5 px-3 py-1 rounded-lg"
               style={{ background: 'rgba(0,230,118,0.07)', border: '1px solid rgba(0,230,118,0.15)' }}>
@@ -142,7 +227,7 @@ export default function AnalyticsPage() {
           </div>
           <div style={{ height: 200 }}>
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={REVENUE_TREND} margin={{ top: 4, right: 4, bottom: 0, left: 0 }}>
+              <LineChart data={data.trend} margin={{ top: 4, right: 4, bottom: 0, left: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" vertical={false} />
                 <XAxis dataKey="month" tick={{ fill: 'rgba(255,255,255,0.25)', fontSize: 11 }} axisLine={false} tickLine={false} />
                 <YAxis tick={{ fill: 'rgba(255,255,255,0.25)', fontSize: 11 }} axisLine={false} tickLine={false}
@@ -183,9 +268,9 @@ export default function AnalyticsPage() {
                     </div>
                     <div className="grid grid-cols-3 gap-3">
                       {[
-                        { label: 'Enrolled',  value: String(c.enrolled),                       color: 'rgba(255,255,255,0.65)' },
-                        { label: 'Converted', value: `${c.converted} (${convRate}%)`,          color: c.color                  },
-                        { label: 'Revenue',   value: `$${c.revenue.toLocaleString()}`,         color: '#00e676'                },
+                        { label: 'Enrolled',  value: String(c.enrolled),              color: 'rgba(255,255,255,0.65)' },
+                        { label: 'Converted', value: `${c.converted} (${convRate}%)`, color: c.color                  },
+                        { label: 'Revenue',   value: `$${c.revenue.toLocaleString()}`, color: '#00e676'               },
                       ].map(({ label, value, color }) => (
                         <div key={label} className="px-3 py-2 rounded-lg" style={{ background: 'rgba(255,255,255,0.03)' }}>
                           <div className="text-[9px] font-semibold tracking-wider uppercase mb-1"
@@ -209,13 +294,13 @@ export default function AnalyticsPage() {
             <div className="text-[10px] font-semibold tracking-[0.14em] uppercase mb-5"
               style={{ color: 'rgba(255,255,255,0.28)' }}>Top Recovery Sources</div>
             <div className="space-y-4">
-              {RECOVERY_SOURCES.map(({ label, pct, color, amount }) => (
+              {data.sources.map(({ label, pct, color, amount }) => (
                 <div key={label}>
                   <div className="flex items-center justify-between mb-1.5">
                     <div className="flex items-center gap-2">
                       <div className="w-1.5 h-1.5 rounded-full flex-shrink-0"
                         style={{ background: color, boxShadow: `0 0 5px ${color}99` }} />
-                      <span className="text-[12px] text-white/65">{label}</span>
+                      <span className="text-[12px]" style={{ color: 'rgba(255,255,255,0.65)' }}>{label}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <span className="text-[11px] font-semibold" style={{ color, fontFamily: 'var(--font-jetbrains)' }}>
@@ -233,10 +318,10 @@ export default function AnalyticsPage() {
             </div>
             <div className="mt-6 pt-5" style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}>
               <div className="text-[10px] font-semibold tracking-[0.14em] uppercase mb-4"
-                style={{ color: 'rgba(255,255,255,0.28)' }}>Customers Recovered / Month</div>
+                style={{ color: 'rgba(255,255,255,0.28)' }}>Customers Recovered / Period</div>
               <div style={{ height: 100 }}>
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={REVENUE_TREND} margin={{ top: 0, right: 0, bottom: 0, left: 0 }} barSize={14}>
+                  <BarChart data={data.trend} margin={{ top: 0, right: 0, bottom: 0, left: 0 }} barSize={14}>
                     <XAxis dataKey="month" tick={{ fill: 'rgba(255,255,255,0.2)', fontSize: 10 }} axisLine={false} tickLine={false} />
                     <Tooltip content={<ChartTooltip />} cursor={{ fill: 'rgba(255,255,255,0.03)' }} />
                     <Bar dataKey="customers" fill="#7c3aed" radius={[3, 3, 0, 0]} />

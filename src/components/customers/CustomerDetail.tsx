@@ -85,7 +85,7 @@ export function CustomerDetail({
       <div className="max-w-[1100px] px-7 py-6 pb-10">
 
         {/* ── Back button ── */}
-        <Link href="/customers"
+        <button onClick={() => router.back()}
           className="flex items-center gap-1.5 mb-5 transition-colors group"
           style={{ color: 'rgba(255,255,255,0.3)' }}
         >
@@ -93,7 +93,7 @@ export function CustomerDetail({
             <path d="M10 3L5 8l5 5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
           <span className="text-[12px] font-medium group-hover:opacity-70 transition-opacity">Back to Customers</span>
-        </Link>
+        </button>
 
         {/* ── Customer Header ── */}
         <div className="rounded-2xl px-6 py-5 mb-5"

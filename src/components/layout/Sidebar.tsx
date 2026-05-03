@@ -1,7 +1,5 @@
 'use client'
 
-// FILE: src/components/layout/Sidebar.tsx
-
 import { usePathname, useRouter } from 'next/navigation'
 import { LogoPulse } from '@/components/ui/LogoPulse'
 
@@ -89,7 +87,10 @@ export function Sidebar() {
   const pathname = usePathname()
   const router = useRouter()
 
-  function handleNav(href: string) {n    if (href === "/customers") window.dispatchEvent(new Event("customers:reset"))
+  function handleNav(href: string) {
+    if (href === '/customers') {
+      window.dispatchEvent(new Event('customers:reset'))
+    }
     router.push(href)
   }
 

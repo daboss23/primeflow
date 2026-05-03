@@ -81,11 +81,11 @@ export function CustomerDetail({
               <h2 className="text-[20px] font-bold text-white tracking-tight">{name}</h2>
               <div className="flex items-center gap-3 mt-1">
                 <span className="text-[12px]" style={{ color: 'rgba(255,255,255,0.35)' }}>{customer.email}</span>
-                {customer.created_at && (
+                {customer.last_purchase_at && (
                   <>
                     <span style={{ color: 'rgba(255,255,255,0.15)' }}>·</span>
                     <span className="text-[12px]" style={{ color: 'rgba(255,255,255,0.3)' }}>
-                      Customer since {new Date(customer.created_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
+                      Last purchase {new Date(customer.last_purchase_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
                     </span>
                   </>
                 )}

@@ -10,10 +10,10 @@ import { fullName, initials, formatCurrency, daysSinceLabel, bandColor } from '@
 
 export function CustomerDetail({
   customer,
-  onRefresh,n  onBack,
+  onRefresh, onBack,
 }: {
   customer: CustomerWithHealth
-  onRefresh: () => voidn  onBack?: () => void
+  onRefresh: () => void; onBack?: () => void
 }) {
   const router = useRouter()
   const [launching, setLaunching] = useState(false)

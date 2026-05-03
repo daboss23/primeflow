@@ -244,7 +244,7 @@ export function CustomerDetail({
                     ) : (
                       <>{workflowCfg.action}</>
                     )}
-                  </Link>
+                  </button>
                 </div>
               ) : (
                 <div>
@@ -283,12 +283,12 @@ export function CustomerDetail({
                 className="text-[11px] font-medium transition-colors hover:opacity-70"
                 style={{ color: 'rgba(255,255,255,0.28)' }}>
                 View all workflows →
-              </Link>
+              </button>
               <span style={{ color: 'rgba(255,255,255,0.1)' }}>·</span>
               <button className="text-[11px] font-medium transition-colors hover:opacity-70"
                 style={{ color: 'rgba(255,255,255,0.28)' }}>
                 Send manual message
-              </Link>
+              </button>
             </div>
 
           </div>

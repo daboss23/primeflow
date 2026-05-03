@@ -82,7 +82,7 @@ export function CustomerDetail({
 
   return (
     <div className="flex-1 overflow-y-auto" style={{ background: '#070714' }}>
-      <div className="px-8 py-6 pb-12">
+      <div className="max-w-[1200px] mx-auto px-8 py-6 pb-12">
 
         {/* ── Back button ── */}
         <Link href="/customers"
@@ -144,7 +144,7 @@ export function CustomerDetail({
         </div>
 
         {/* ── Main two-column layout ── */}
-        <div className="grid grid-cols-[1fr_340px] gap-5 mb-5">
+        <div className="grid grid-cols-[3fr_2fr] gap-5 mb-5">
 
           {/* LEFT: Purchase Intelligence */}
           <div className="rounded-2xl p-7"

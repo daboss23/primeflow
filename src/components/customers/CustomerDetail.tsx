@@ -10,10 +10,10 @@ import { fullName, initials, formatCurrency, daysSinceLabel, bandColor } from '@
 
 export function CustomerDetail({
   customer,
-  onRefresh,
+  onRefresh,n  onBack,
 }: {
   customer: CustomerWithHealth
-  onRefresh: () => void
+  onRefresh: () => voidn  onBack?: () => void
 }) {
   const router = useRouter()
   const [launching, setLaunching] = useState(false)
@@ -85,7 +85,7 @@ export function CustomerDetail({
       <div className="max-w-[1100px] px-7 py-6 pb-10">
 
         {/* ── Back button ── */}
-        <button onClick={() => router.back()}
+        <button onClick={() => onBack ? onBack() : void 0}
           className="flex items-center gap-1.5 mb-5 transition-colors group"
           style={{ color: 'rgba(255,255,255,0.3)' }}
         >

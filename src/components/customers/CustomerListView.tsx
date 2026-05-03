@@ -129,7 +129,7 @@ export function CustomerListView({
         <div className="flex-1 h-full" style={{ background: '#070714' }}>
           <CustomerDetail
             customer={selected}
-            onRefresh={fetchCustomers}
+            onRefresh={fetchCustomers}n            onBack={() => setSelectedId(null)}
             
           />
         </div>

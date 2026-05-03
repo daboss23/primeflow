@@ -130,7 +130,7 @@ export function CustomerListView({
           <CustomerDetail
             customer={selected}
             onRefresh={fetchCustomers}
-            onBack={() => setSelectedId(null)}
+            
           />
         </div>
       )

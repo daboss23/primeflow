@@ -264,7 +264,7 @@ export function CustomerDetail({
               <div className="text-[10px] font-semibold tracking-[0.12em] uppercase mb-2.5"
                 style={{ color: 'rgba(255,255,255,0.22)' }}>Triggered Signals</div>
               <div className="space-y-1.5">
-                {customer.triggered_signals.map((sig: string, i: number) => (
+                {customer.signals_used.map((sig: string, i: number) => (
                   <div key={i} className="flex items-center gap-2">
                     <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: 'rgba(0,212,255,0.5)' }} />
                     <span className="text-[12px]" style={{ color: 'rgba(255,255,255,0.55)' }}>{sig}</span>

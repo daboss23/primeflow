@@ -20,30 +20,28 @@ function AxiomaiLogo() {
         .axiomai-logo-wrapper {
           position: relative;
           width: 160px;
-          height: 64px;
+          height: 160px;
           display: flex;
           align-items: center;
           justify-content: center;
         }
-        /* Outer slow pulse ring */
         .axiomai-logo-wrapper::before {
           content: '';
           position: absolute;
           left: 50%; top: 50%;
           transform: translate(-50%, -50%);
-          width: 56px; height: 56px;
+          width: 100px; height: 100px;
           border-radius: 50%;
           background: radial-gradient(circle, rgba(130,60,255,0.18) 0%, transparent 70%);
           animation: axiomPulseOuter 3s ease-in-out infinite;
           pointer-events: none;
         }
-        /* Inner tight pulse ring */
         .axiomai-logo-wrapper::after {
           content: '';
           position: absolute;
           left: 50%; top: 50%;
           transform: translate(-50%, -50%);
-          width: 32px; height: 32px;
+          width: 60px; height: 60px;
           border-radius: 50%;
           background: radial-gradient(circle, rgba(0,212,255,0.22) 0%, rgba(130,60,255,0.12) 50%, transparent 70%);
           animation: axiomPulseMid 3s ease-in-out infinite 0.4s;
@@ -72,10 +70,10 @@ function AxiomaiLogo() {
         src="/axiom-logo.png"
         alt="AXIOM AI"
         width={160}
-        height={64}
+        height={160}
         className="axiomai-img"
         priority
-        style={{ width: '160px', height: '64px', objectFit: 'contain' }}
+        style={{ width: '160px', height: '160px', objectFit: 'contain' }}
       />
     </div>
   )
@@ -90,7 +88,7 @@ export function Sidebar() {
   }
   return (
     <aside className="w-56 flex-shrink-0 flex flex-col border-r border-white/[0.06] bg-[#070714]">
-      <div className="px-3 pt-5 pb-4 border-b border-white/[0.06] flex items-center justify-center bg-[#070714]">
+      <div className="px-3 pt-4 pb-4 border-b border-white/[0.06] flex items-center justify-center bg-[#070714]">
         <AxiomaiLogo />
       </div>
       <nav className="flex-1 px-3 py-4 space-y-0.5">

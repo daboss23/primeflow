@@ -6,6 +6,8 @@ import { Empty, Spinner, PageHeader } from '@/components/ui'
 import { CustomerDetail } from '@/components/customers/CustomerDetail'
 import { fullName, formatCurrency, daysSinceLabel } from '@/lib/utils'
 
+// ─── Filter Config ─────────────────────────────────────────────────────────────
+
 const BANDS: { key: HealthBand | 'all'; label: string; dot?: string }[] = [
   { key: 'all',    label: 'All'      },
   { key: 'red',    label: 'Critical', dot: '#ff4060' },
@@ -22,6 +24,8 @@ const STATES: { key: CustomerState | 'all'; label: string }[] = [
   { key: 'replenishment',       label: 'Replenishment'          },
   { key: 'engaged_unconverted', label: 'Engaged, Not Converted' },
 ]
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function dayGap(dateStr: string | null): number | null {
   if (!dateStr) return null
@@ -57,6 +61,8 @@ function getStateCfg(state: string) {
   return map[state] ?? { label: state, color: 'rgba(255,255,255,0.4)', bg: 'rgba(255,255,255,0.06)' }
 }
 
+// ─── Health Bar ───────────────────────────────────────────────────────────────
+
 function HealthBar({ score, band }: { score: number; band: HealthBand }) {
   const color = band === 'red' ? '#ff4060' : band === 'yellow' ? '#ffaa00' : '#00e676'
   const label = band === 'red' ? 'Critical' : band === 'yellow' ? 'Fair' : 'Good'
@@ -75,6 +81,8 @@ function HealthBar({ score, band }: { score: number; band: HealthBand }) {
     </div>
   )
 }
+
+// ─── Main Component ───────────────────────────────────────────────────────────
 
 export function CustomerListView({
   initialBand,
@@ -103,13 +111,6 @@ export function CustomerListView({
 
   useEffect(() => { fetchCustomers() }, [fetchCustomers])
 
-  // Listen for sidebar Customers click — reset back to list
-  useEffect(() => {
-    const handler = () => setSelectedId(null)
-    window.addEventListener('customers:reset', handler)
-    return () => window.removeEventListener('customers:reset', handler)
-  }, [])
-
   const filtered = customers.filter((c) => {
     if (!search.trim()) return true
     const q = search.toLowerCase()
@@ -120,36 +121,17 @@ export function CustomerListView({
     )
   })
 
-  // ── Detail view with back bar ──
+  // ── Detail view ──
   if (selectedId) {
     const selected = customers.find(c => c.customer_id === selectedId)
     if (selected) {
       return (
-        <div className="flex-1 h-full flex flex-col" style={{ background: '#070714' }}>
-          <div className="flex items-center gap-2.5 px-8 py-4 flex-shrink-0"
-            style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-            <button
-              onClick={() => setSelectedId(null)}
-              className="flex items-center gap-1.5 text-[11px] font-medium transition-colors hover:text-white/70"
-              style={{ color: 'rgba(255,255,255,0.35)' }}>
-              <svg width="14" height="14" fill="none" viewBox="0 0 16 16">
-                <path d="M10 3L5 8l5 5" stroke="currentColor" strokeWidth="1.5"
-                  strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-              Back to Customers
-            </button>
-            <span style={{ color: 'rgba(255,255,255,0.1)' }}>·</span>
-            <span className="text-[11px]" style={{ color: 'rgba(255,255,255,0.45)' }}>
-              {fullName(selected.first_name, selected.last_name)}
-            </span>
-          </div>
-          <div className="flex-1 overflow-y-auto">
-            <CustomerDetail
-              customer={selected}
-              onRefresh={fetchCustomers}
-              onBack={() => setSelectedId(null)}
-            />
-          </div>
+        <div className="flex-1 h-full" style={{ background: '#070714' }}>
+          <CustomerDetail
+            customer={selected}
+            onRefresh={fetchCustomers} onBack={() => setSelectedId(null)}
+            
+          />
         </div>
       )
     }
@@ -158,46 +140,21 @@ export function CustomerListView({
   const criticalCount = customers.filter(c => c.health_band === 'red').length
   const watchCount    = customers.filter(c => c.health_band === 'yellow').length
 
+  // ── List view ──
   return (
     <div className="flex-1 overflow-y-auto h-full" style={{ background: '#070714' }}>
       <div className="px-8 py-8">
 
         {/* Page header */}
-        <div className="flex items-center gap-3 mb-2">
-          <div className="w-[3px] h-8 rounded-full flex-shrink-0"
-            style={{ background: 'linear-gradient(to bottom, #7c3aed, #00d4ff)' }} />
-          <h1 className="text-[26px] font-bold tracking-tight text-white">Customer Intelligence</h1>
-        </div>
-        <p className="text-[12px] ml-[18px] mb-6" style={{ color: 'rgba(255,255,255,0.3)' }}>
-          {customers.length} customers tracked
-          {criticalCount > 0 && <span style={{ color: '#ff4060' }}> · {criticalCount} critical</span>}
-          {watchCount    > 0 && <span style={{ color: '#ffaa00' }}> · {watchCount} on watchlist</span>}
-        </p>
-
-        {/* Search — above filters */}
-        <div className="relative mb-3 w-72">
-          <svg width="13" height="13" fill="none" viewBox="0 0 16 16"
-            className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"
-            style={{ color: 'rgba(255,255,255,0.22)' }}>
-            <circle cx="6.5" cy="6.5" r="4.5" stroke="currentColor" strokeWidth="1.4"/>
-            <path d="M10 10l3 3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
-          </svg>
-          <input
-            type="text"
-            placeholder="Search by name or email…"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-8 pr-4 py-2 rounded-xl text-[11px] outline-none"
-            style={{
-              background: 'rgba(255,255,255,0.04)',
-              border: '1px solid rgba(255,255,255,0.1)',
-              color: 'rgba(255,255,255,0.7)',
-            }}
-          />
-        </div>
+        <PageHeader
+          title="Customer Intelligence"
+          subtitle={`${customers.length} customers tracked${criticalCount > 0 ? ` · ${criticalCount} critical` : ''}${watchCount > 0 ? ` · ${watchCount} on watchlist` : ''}`}
+        />
 
         {/* Filters row */}
         <div className="flex items-center gap-3 mb-6 flex-wrap">
+
+          {/* Band pills */}
           <div className="flex items-center gap-1.5">
             {BANDS.map(({ key, label, dot }) => {
               const active = band === key
@@ -217,13 +174,14 @@ export function CustomerListView({
             })}
           </div>
 
+          {/* State dropdown */}
           <select
             value={state}
             onChange={(e) => setState(e.target.value as CustomerState | 'all')}
             className="px-3 py-1.5 rounded-full text-[11px] font-medium outline-none"
             style={{
-              background: state !== 'all' ? 'rgba(255,255,255,0.06)' : 'transparent',
-              color: 'rgba(255,255,255,0.55)',
+              background: 'transparent',
+              color: 'rgba(255,255,255,0.5)',
               border: '1px solid rgba(255,255,255,0.12)',
               cursor: 'pointer',
             }}>
@@ -231,12 +189,35 @@ export function CustomerListView({
               <option key={key} value={key} className="bg-[#0d0d1f]">{label}</option>
             ))}
           </select>
+
+          {/* Search */}
+          <div className="relative ml-auto">
+            <svg width="13" height="13" fill="none" viewBox="0 0 16 16"
+              className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"
+              style={{ color: 'rgba(255,255,255,0.2)' }}>
+              <circle cx="6.5" cy="6.5" r="4.5" stroke="currentColor" strokeWidth="1.4"/>
+              <path d="M10 10l3 3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
+            </svg>
+            <input
+              type="text"
+              placeholder="Search by name or email…"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="pl-8 pr-4 py-1.5 rounded-full text-[11px] outline-none w-56"
+              style={{
+                background: 'rgba(255,255,255,0.04)',
+                border: '1px solid rgba(255,255,255,0.1)',
+                color: 'rgba(255,255,255,0.7)',
+              }}
+            />
+          </div>
         </div>
 
         {/* Table */}
         <div className="rounded-2xl overflow-hidden"
           style={{ border: '1px solid rgba(255,255,255,0.07)' }}>
 
+          {/* Column headers */}
           <div className="grid px-6 py-3"
             style={{
               gridTemplateColumns: '2fr 1.4fr 1.5fr 0.9fr 0.9fr 1fr 1.2fr 1.3fr',
@@ -277,11 +258,13 @@ export function CustomerListView({
                   }}
                   onClick={() => setSelectedId(c.customer_id)}>
 
+                  {/* Urgent left edge bar */}
                   {isUrgent && (
                     <div className="absolute left-0 top-0 bottom-0 w-[2px] rounded-r"
                       style={{ background: '#ff4060', boxShadow: '1px 0 8px rgba(255,64,96,0.25)' }} />
                   )}
 
+                  {/* Customer */}
                   <div className="flex items-center gap-3 pr-3 min-w-0">
                     <div className="w-8 h-8 rounded-lg flex items-center justify-center text-[10px] font-bold flex-shrink-0"
                       style={{ background: `${hColor}15`, color: hColor }}>
@@ -303,6 +286,7 @@ export function CustomerListView({
                     </div>
                   </div>
 
+                  {/* State */}
                   <div className="flex items-center">
                     <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-medium"
                       style={{ color: stateCfg.color, background: stateCfg.bg }}>
@@ -310,22 +294,26 @@ export function CustomerListView({
                     </span>
                   </div>
 
+                  {/* Health bar + label */}
                   <div className="flex items-center">
                     <HealthBar score={c.health_score} band={c.health_band} />
                   </div>
 
+                  {/* Health score */}
                   <div className="flex items-center">
                     <span className="text-[14px] font-bold tabular-nums" style={{ color: hColor }}>
                       {c.health_score}
                     </span>
                   </div>
 
+                  {/* Opp score */}
                   <div className="flex items-center">
                     <span className="text-[14px] font-bold tabular-nums" style={{ color: '#00d4ff' }}>
                       {c.opportunity_score}
                     </span>
                   </div>
 
+                  {/* Total spend */}
                   <div className="flex items-center">
                     <div>
                       <div className="text-[13px] font-semibold" style={{ color: 'rgba(255,255,255,0.68)' }}>
@@ -337,6 +325,7 @@ export function CustomerListView({
                     </div>
                   </div>
 
+                  {/* Last purchase + gap */}
                   <div className="flex items-center">
                     <div>
                       <div className="text-[12px]" style={{ color: 'rgba(255,255,255,0.48)' }}>
@@ -351,8 +340,9 @@ export function CustomerListView({
                     </div>
                   </div>
 
+                  {/* Action CTA */}
                   <div className="flex items-center">
-                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-semibold whitespace-nowrap group-hover:opacity-90"
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-semibold whitespace-nowrap transition-all group-hover:opacity-90"
                       style={{ color: actionCfg.color, background: actionCfg.bg, border: `1px solid ${actionCfg.border}` }}>
                       {actionCfg.label}
                       <svg width="8" height="8" fill="none" viewBox="0 0 16 16">
@@ -367,6 +357,7 @@ export function CustomerListView({
           )}
         </div>
 
+        {/* Footer */}
         {!loading && (
           <div className="mt-4 flex items-center gap-2">
             <div className="w-1 h-1 rounded-full" style={{ background: 'rgba(255,255,255,0.15)' }} />

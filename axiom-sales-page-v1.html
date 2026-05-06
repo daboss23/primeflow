@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AXIOM AI — Autonomous Revenue Recovery</title>
+<style>
+:root{
+--bg:#04070d;
+--bg-2:#07111d;
+--panel:#0a1422;
+--panel-2:#0d1a2c;
+--line:rgba(110, 190, 255, 0.22);
+--line-soft:rgba(255,255,255,0.08);
+--text:#f4f8ff;
+--muted:#9db0c9;
+--muted-2:#7d8faa;
+--blue:#39b8ff;
+--blue-2:#6fe4ff;
+--blue-3:#7aa2ff;
+--glow:0 0 24px rgba(57,184,255,.28), 0 0 70px rgba(57,184,255,.12);
+--panel-glow:0 0 0 1px rgba(57,184,255,.16), 0 0 40px rgba(57,184,255,.08);
+--max:1240px;
+--radius:24px;
+--radius-sm:18px;
+}
+
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+background:
+radial-gradient(circle at 50% 0%, rgba(60,150,255,.13), transparent 28%),
+radial-gradient(circle at 85% 10%, rgba(0,224,255,.08), transparent 22%),
+linear-gradient(180deg, #03050a 0%, #060c14 36%, #04070d 100%);
+color:var(--text);
+line-height:1.55;
+overflow-x:hidden;
+}
+
+body::before{
+content:"";
+position:fixed;
+inset:0;
+pointer-events:none;
+background:
+linear-gradient(rgba(255,255,255,.02) 1px, transparent 1px),
+linear-gradient(90deg, rgba(255,255,255,.02) 1px, transparent 1px);
+background-size:40px 40px;
+mask-image:linear-gradient(180deg, rgba(0,0,0,.28), rgba(0,0,0,.04));
+opacity:.18;
+}
+
+a{color:inherit}
+.container{
+width:100%;
+max-width:var(--max);
+margin:0 auto;
+padding:0 22px;
+}
+
+.topbar{
+position:sticky;
+top:0;
+z-index:50;
+backdrop-filter: blur(16px);
+background:rgba(4,8,14,.72);
+border-bottom:1px solid rgba(110,190,255,.08);
+}
+
+.topbar-inner{
+display:flex;
+align-items:center;
+justify-content:space-between;
+gap:18px;
+min-height:78px;
+}
+
+.brand{
+display:flex;
+align-items:center;
+gap:14px;
+min-width:0;
+}
+
+.brand-badge{
+position:relative;
+width:48px;
+height:48px;
+border-radius:14px;
+border:1px solid rgba(80,180,255,.28);
+background:
+linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.015)),
+radial-gradient(circle at 50% 50%, rgba(80,180,255,.16), transparent 58%);
+box-shadow:var(--glow);
+overflow:hidden;
+}
+
+.brand-badge::before,
+.brand-badge::after{
+content:"";
+position:absolute;
+inset:9px;
+clip-path:polygon(50% 0%, 100% 100%, 72% 100%, 50% 54%, 28% 100%, 0% 100%);
+border:1px solid rgba(111,228,255,.45);
+background:linear-gradient(180deg, rgba(111,228,255,.22), rgba(57,184,255,.06));
+}
+
+.brand-badge::after{
+inset:15px 15px 11px 15px;
+clip-path:polygon(50% 0%, 100% 100%, 76% 100%, 50% 58%, 24% 100%, 0% 100%);
+background:linear-gradient(180deg, rgba(255,255,255,.65), rgba(57,184,255,.18));
+border:none;
+filter:drop-shadow(0 0 12px rgba(57,184,255,.45));
+}
+
+.brand-copy{
+min-width:0;
+}
+
+.brand-copy strong{
+display:block;
+font-size:18px;
+font-weight:800;
+letter-spacing:.18em;
+text-transform:uppercase;
+white-space:nowrap;
+}
+
+.brand-copy span{
+display:block;
+font-size:11px;
+color:var(--muted);
+letter-spacing:.18em;
+text-transform:uppercase;
+white-space:nowrap;
+margin-top:3px;
+}
+
+.nav{
+display:flex;
+align-items:center;
+gap:22px;
+color:var(--muted);
+font-size:13px;
+text-transform:uppercase;
+letter-spacing:.12em;
+}
+
+.nav a{
+text-decoration:none;
+opacity:.9;
+}
+
+.nav a:hover{color:var(--text)}
+
+.nav-cta{
+display:inline-flex;
+align-items:center;
+justify-content:center;
+min-height:46px;
+padding:0 18px;
+border-radius:14px;
+text-decoration:none;
+font-size:12px;
+font-weight:800;
+letter-spacing:.14em;
+text-transform:uppercase;
+color:#eef8ff;
+border:1px solid rgba(78,178,255,.34);
+background:
+linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.02)),
+linear-gradient(135deg, rgba(57,184,255,.18), rgba(91,132,255,.12));
+box-shadow:var(--glow);
+}
+
+.hero{
+padding:34px 0 18px;
+}
+
+.hero-shell{
+border:1px solid rgba(80,180,255,.14);
+border-radius:32px;
+background:
+linear-gradient(180deg, rgba(255,255,255,.035), rgba(255,255,255,.01)),
+linear-gradient(180deg, rgba(7,17,29,.92), rgba(6,12,20,.98));
+box-shadow:
+0 0 0 1px rgba(255,255,255,.015) inset,
+0 0 80px rgba(57,184,255,.06);
+overflow:hidden;
+}
+
+.hero-grid{
+display:grid;
+grid-template-columns:1.05fr .95fr;
+gap:0;
+min-height:680px;
+}
+
+.hero-copy{
+padding:54px 54px 42px;
+position:relative;
+border-right:1px solid rgba(80,180,255,.1);
+}
+
+.eyebrow{
+display:inline-flex;
+align-items:center;
+gap:10px;
+border:1px solid rgba(78,178,255,.22);
+background:rgba(57,184,255,.05);
+color:var(--blue-2);
+border-radius:999px;
+padding:8px 14px;
+font-size:11px;
+font-weight:800;
+letter-spacing:.16em;
+text-transform:uppercase;
+margin-bottom:22px;
+}
+
+.eyebrow::before{
+content:"";
+width:8px;
+height:8px;
+border-radius:50%;
+background:var(--blue-2);
+box-shadow:0 0 10px rgba(111,228,255,.85);
+}
+
+h1{
+margin:0 0 20px;
+font-size:clamp(44px, 6.6vw, 82
+linear-gradient(180deg, rgba(7,17,29,.92), rgba(6,12,20,.98));
+box-shadow:
+0 0 0 1px rgba(255,255,255,.015) inset,
+0 0 80px rgba(57,184,255,.06);
+overflow:hidden;
+}
+
+.hero-grid{
+display:grid;
+grid-template-columns:1.05fr .95fr;
+gap:0;
+min-height:680px;
+}
+
+.hero-copy{
+padding:54px 54px 42px;
+position:relative;
+border-right:1px solid rgba(80,180,255,.1);
+}
+
+.eyebrow{
+display:inline-flex;
+align-items:center;
+gap:10px;
+border:1px solid rgba(78,178,255,.22);
+background:rgba(57,184,255,.05);
+color:var(--blue-2);
+border-radius:999px;
+padding:8px 14px;
+font-size:11px;
+font-weight:800;
+letter-spacing:.16em;
+text-transform:uppercase;
+margin-bottom:22px;
+}
+
+.eyebrow::before{
+content:"";
+width:8px;
+height:8px;
+border-radius:50%;
+background:var(--blue-2);
+box-shadow:0 0 10px rgba(111,228,255,.85);
+}
+
+h1{
+margin:0 0 20px;
+font-size:clamp(44px, 6.6vw, 82
+cat > "/Users/user/Downloads/primeflow 2/axiom-sales-page-v1.html" <<'EOF'
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AXIOM AI — Autonomous Revenue Recovery</title>
+<style>
+:root{
+--bg:#04070d;
+--bg-2:#07111d;
+--panel:#0a1422;
+--panel-2:#0d1a2c;
+--line:rgba(110, 190, 255, 0.22);
+--line-soft:rgba(255,255,255,0.08);
+--text:#f4f8ff;
+--muted:#9db0c9;
+--muted-2:#7d8faa;
+--blue:#39b8ff;
+--blue-2:#6fe4ff;
+--blue-3:#7aa2ff;
+--glow:0 0 24px rgba(57,184,255,.28), 0 0 70px rgba(57,184,255,.12);
+--panel-glow:0 0 0 1px rgba(57,184,255,.16), 0 0 40px rgba(57,184,255,.08);
+--max:1240px;
+--radius:24px;
+--radius-sm:18px;
+}
+
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+background:
+radial-gradient(circle at 50% 0%, rgba(60,150,255,.13), transparent 28%),
+radial-gradient(circle at 85% 10%, rgba(0,224,255,.08), transparent 22%),
+linear-gradient(180deg, #03050a 0%, #060c14 36%, #04070d 100%);
+color:var(--text);
+line-height:1.55;
+overflow-x:hidden;
+}
+
+body::before{
+content:"";
+position:fixed;
+inset:0;
+pointer-events:none;
+background:
+linear-gradient(rgba(255,255,255,.02) 1px, transparent 1px),
+linear-gradient(90deg, rgba(255,255,255,.02) 1px, transparent 1px);
+background-size:40px 40px;
+mask-image:linear-gradient(180deg, rgba(0,0,0,.28), rgba(0,0,0,.04));
+opacity:.18;
+}
+
+a{color:inherit}
+.container{
+width:100%;
+max-width:var(--max);
+margin:0 auto;
+padding:0 22px;
+}
+
+.topbar{
+position:sticky;
+top:0;
+z-index:50;
+backdrop-filter: blur(16px);
+background:rgba(4,8,14,.72);
+border-bottom:1px solid rgba(110,190,255,.08);
+}
+
+.topbar-inner{
+display:flex;
+align-items:center;
+justify-content:space-between;
+gap:18px;
+min-height:78px;
+}
+
+.brand{
+display:flex;
+align-items:center;
+gap:14px;
+min-width:0;
+}
+
+.brand-badge{
+position:relative;
+width:48px;
+height:48px;
+border-radius:14px;
+border:1px solid rgba(80,180,255,.28);
+background:
+linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.015)),
+radial-gradient(circle at 50% 50%, rgba(80,180,255,.16), transparent 58%);
+box-shadow:var(--glow);
+overflow:hidden;
+}
+
+.brand-badge::before,
+.brand-badge::after{
+content:"";
+position:absolute;
+inset:9px;
+clip-path:polygon(50% 0%, 100% 100%, 72% 100%, 50% 54%, 28% 100%, 0% 100%);
+border:1px solid rgba(111,228,255,.45);
+background:linear-gradient(180deg, rgba(111,228,255,.22), rgba(57,184,255,.06));
+}
+
+.brand-badge::after{
+inset:15px 15px 11px 15px;
+clip-path:polygon(50% 0%, 100% 100%, 76% 100%, 50% 58%, 24% 100%, 0% 100%);
+background:linear-gradient(180deg, rgba(255,255,255,.65), rgba(57,184,255,.18));
+border:none;
+filter:drop-shadow(0 0 12px rgba(57,184,255,.45));
+}
+
+.brand-copy{
+min-width:0;
+}
+
+.brand-copy strong{
+display:block;
+font-size:18px;
+font-weight:800;
+letter-spacing:.18em;
+text-transform:uppercase;
+white-space:nowrap;
+}
+
+.brand-copy span{
+display:block;
+font-size:11px;
+color:var(--muted);
+letter-spacing:.18em;
+text-transform:uppercase;
+white-space:nowrap;
+margin-top:3px;
+}
+
+.nav{
+display:flex;
+align-items:center;
+gap:22px;
+color:var(--muted);
+font-size:13px;
+text-transform:uppercase;
+letter-spacing:.12em;
+}
+
+.nav a{
+text-decoration:none;
+opacity:.9;
+}
+
+.nav a:hover{color:var(--text)}
+
+.nav-cta{
+display:inline-flex;
+align-items:center;
+justify-content:center;
+min-height:46px;
+padding:0 18px;
+border-radius:14px;
+text-decoration:none;
+font-size:12px;
+font-weight:800;
+letter-spacing:.14em;
+text-transform:uppercase;
+color:#eef8ff;
+border:1px solid rgba(78,178,255,.34);
+background:
+linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.02)),
+linear-gradient(135deg, rgba(57,184,255,.18), rgba(91,132,255,.12));
+box-shadow:var(--glow);
+}
+
+.hero{
+padding:34px 0 18px;
+}
+
+.hero-shell{
+border:1px solid rgba(80,180,255,.14);
+border-radius:32px;
+background:
+cat > "/Users/user/Downloads/primeflow 2/axiom-sales-page-v1.html" <<'EOF'
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AXIOM AI</title>
+<style>
+body{
+margin:0;
+font-family:Arial,sans-serif;
+background:#05070d;
+color:white;
+display:flex;
+align-items:center;
+justify-content:center;
+min-height:100vh;
+text-align:center;
+padding:40px;
+}
+.box{
+max-width:900px;
+padding:40px;
+border:1px solid rgba(100,180,255,.3);
+border-radius:20px;
+background:linear-gradient(180deg,#0b1220,#07101a);
+box-shadow:0 0 40px rgba(60,160,255,.15);
+}
+h1{
+font-size:56px;
+margin:0 0 20px;
+line-height:1;
+}
+p{
+font-size:20px;
+color:#b9c7dd;
+margin:0;
+}
+</style>
+</head>
+<body>
+<div class="box">
+<h1>AXIOM AI</h1>
+<p>The AI intelligence engine that identifies lost revenue and starts recovering it autonomously.</p>
+</div>
+</body>
+</html>

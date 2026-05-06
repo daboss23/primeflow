@@ -81,7 +81,7 @@ export default function IntegrationsPage() {
   const totalRecords = Object.values(connected).reduce((sum, c) => sum + c.recordsSynced, 0)
 
   return (
-    <div className="p-6 max-w-[1100px]">
+    <div className="p-7 max-w-[1100px]">
 
       {/* Header */}
       <PageHeader

@@ -19,8 +19,8 @@ function AxiomaiLogo() {
       <style>{`
         .axiomai-logo-wrapper {
           position: relative;
-          width: 160px;
-          height: 160px;
+          width: 200px;
+          height: 90px;
           display: flex;
           align-items: center;
           justify-content: center;
@@ -30,7 +30,7 @@ function AxiomaiLogo() {
           position: absolute;
           left: 50%; top: 50%;
           transform: translate(-50%, -50%);
-          width: 100px; height: 100px;
+          width: 80px; height: 80px;
           border-radius: 50%;
           background: radial-gradient(circle, rgba(130,60,255,0.18) 0%, transparent 70%);
           animation: axiomPulseOuter 3s ease-in-out infinite;
@@ -41,7 +41,7 @@ function AxiomaiLogo() {
           position: absolute;
           left: 50%; top: 50%;
           transform: translate(-50%, -50%);
-          width: 60px; height: 60px;
+          width: 44px; height: 44px;
           border-radius: 50%;
           background: radial-gradient(circle, rgba(0,212,255,0.22) 0%, rgba(130,60,255,0.12) 50%, transparent 70%);
           animation: axiomPulseMid 3s ease-in-out infinite 0.4s;
@@ -67,13 +67,13 @@ function AxiomaiLogo() {
         }
       `}</style>
       <Image
-        src="/axiom-logo.png"
+        src="/axiom-logo.jpg"
         alt="AXIOM AI"
-        width={160}
-        height={160}
+        width={200}
+        height={90}
         className="axiomai-img"
         priority
-        style={{ width: '160px', height: '160px', objectFit: 'contain' }}
+        style={{ width: '200px', height: 'auto', objectFit: 'contain' }}
       />
     </div>
   )

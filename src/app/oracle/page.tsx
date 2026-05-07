@@ -290,7 +290,7 @@ RESPONSE STYLE:
             style={{
               flex: 1, background: 'transparent', border: 'none', outline: 'none',
               color: '#fff', fontSize: 14, lineHeight: 1.5, resize: 'none',
-              fontFamily: 'inherit', placeholder: 'rgba(255,255,255,0.2)'
+              fontFamily: 'inherit'
             }}
           />
           <button

@@ -67,7 +67,7 @@ function AxiomaiLogo() {
         }
       `}</style>
       <Image
-        src="/axiom-logo.jpg"
+        src="/axiom-logo.png"
         alt="AXIOM AI"
         width={200}
         height={90}

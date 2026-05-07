@@ -3,7 +3,7 @@ import './globals.css'
 import { Sidebar } from '@/components/layout/Sidebar'
 
 export const metadata: Metadata = {
-  title: 'PRIMEFLOW — Customer Health & Reactivation',
+  title: 'Axiom Platform',
   description: 'AI-powered ecommerce customer intelligence and reactivation engine',
 }
 

@@ -141,53 +141,48 @@ RESPONSE STYLE:
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', background: '#070714', color: '#fff' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', background: 'var(--bg-base)', color: 'var(--text-primary)' }}>
 
       {/* Header */}
-      <div style={{ padding: '20px 28px 16px', borderBottom: '1px solid rgba(255,255,255,0.06)', flexShrink: 0 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <div style={{ position: 'relative', width: 36, height: 36 }}>
+      <div style={{ padding: '24px 40px 18px', borderBottom: '1px solid var(--border-subtle)', flexShrink: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+          <div style={{ position: 'relative', width: 38, height: 38 }}>
             <div style={{
               position: 'absolute', inset: 0, borderRadius: '50%',
-              background: 'radial-gradient(circle, rgba(0,212,255,0.3) 0%, rgba(130,60,255,0.15) 50%, transparent 70%)',
-              animation: 'oraclePulse 2.5s ease-in-out infinite'
+              background: 'radial-gradient(circle, rgba(0,212,255,0.28) 0%, rgba(130,60,255,0.14) 50%, transparent 70%)',
+              animation: 'oraclePulse 3.2s ease-in-out infinite'
             }} />
             <div style={{
-              position: 'absolute', inset: '6px', borderRadius: '50%',
-              background: 'radial-gradient(circle, rgba(0,212,255,0.6) 0%, rgba(130,60,255,0.3) 100%)',
+              position: 'absolute', inset: '7px', borderRadius: '50%',
+              background: 'radial-gradient(circle, rgba(0,212,255,0.65) 0%, rgba(130,60,255,0.32) 100%)',
+              border: '1px solid rgba(0,212,255,0.30)',
             }} />
             <style>{`
-              @keyframes oraclePulse {
-                0%,100% { transform: scale(1); opacity: 0.6; }
-                50% { transform: scale(1.8); opacity: 0; }
-              }
-              @keyframes blink {
-                0%,100% { opacity: 1; }
-                50% { opacity: 0; }
-              }
+              @keyframes oraclePulse { 0%,100% { transform: scale(1); opacity: 0.6; } 50% { transform: scale(1.7); opacity: 0; } }
+              @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0; } }
             `}</style>
           </div>
           <div>
-            <div style={{ fontSize: 16, fontWeight: 600, letterSpacing: '0.08em', color: '#fff' }}>AXIOM ORACLE</div>
-            <div style={{ fontSize: 11, color: 'rgba(0,212,255,0.7)', letterSpacing: '0.12em', textTransform: 'uppercase' }}>Store Intelligence Engine</div>
+            <div className="eyebrow" style={{ fontSize: 10, color: 'rgba(0,212,255,0.75)', marginBottom: 2 }}>Store Intelligence</div>
+            <div style={{ fontSize: 18, fontWeight: 600, letterSpacing: '-0.005em', color: 'var(--text-primary)' }}>Axiom Oracle</div>
           </div>
-          <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 6 }}>
-            <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#00e676', boxShadow: '0 0 6px #00e676aa' }} />
-            <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', letterSpacing: '0.08em' }}>LIVE</span>
+          <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span className="w-1.5 h-1.5 rounded-full pulse-dot" style={{ background: '#3ddc97', boxShadow: '0 0 6px rgba(61,220,151,0.7)' }} />
+            <span className="eyebrow" style={{ fontSize: 10 }}>Live</span>
           </div>
         </div>
 
         {/* Metrics strip */}
-        <div style={{ display: 'flex', gap: 20, marginTop: 16, paddingTop: 14, borderTop: '1px solid rgba(255,255,255,0.04)' }}>
+        <div style={{ display: 'flex', gap: 28, marginTop: 18, paddingTop: 16, borderTop: '1px solid var(--border-subtle)' }}>
           {[
-            { label: 'Revenue Leak', value: `$${STORE_METRICS.liveRevenueLeak.toLocaleString()}`, color: '#ff4d6d' },
-            { label: 'Recoverable', value: `$${STORE_METRICS.recoverableThisWeek}`, color: '#00e676' },
-            { label: 'At Risk', value: `${STORE_METRICS.criticalAtRisk} customers`, color: '#ffab00' },
-            { label: 'Total LTV', value: `$${STORE_METRICS.totalRevenue.toLocaleString()}`, color: '#00d4ff' },
+            { label: 'Revenue leak',    value: `$${STORE_METRICS.liveRevenueLeak.toLocaleString()}`, color: '#ff4d6a' },
+            { label: 'Recoverable',     value: `$${STORE_METRICS.recoverableThisWeek}`,              color: '#3ddc97' },
+            { label: 'At risk',         value: `${STORE_METRICS.criticalAtRisk} customers`,         color: '#ffaa00' },
+            { label: 'Total LTV',       value: `$${STORE_METRICS.totalRevenue.toLocaleString()}`,    color: '#00d4ff' },
           ].map(m => (
             <div key={m.label}>
-              <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 3 }}>{m.label}</div>
-              <div style={{ fontSize: 14, fontWeight: 600, color: m.color }}>{m.value}</div>
+              <div className="eyebrow" style={{ fontSize: 9.5, marginBottom: 4 }}>{m.label}</div>
+              <div className="metric-num" style={{ fontSize: 16, color: m.color }}>{m.value}</div>
             </div>
           ))}
         </div>
@@ -214,17 +209,18 @@ RESPONSE STYLE:
 
             {/* Bubble */}
             <div style={{
-              maxWidth: '75%',
-              background: msg.role === 'assistant' ? 'rgba(255,255,255,0.04)' : 'rgba(0,212,255,0.08)',
-              border: msg.role === 'assistant' ? '1px solid rgba(255,255,255,0.07)' : '1px solid rgba(0,212,255,0.2)',
-              borderRadius: msg.role === 'assistant' ? '4px 12px 12px 12px' : '12px 4px 12px 12px',
-              padding: '12px 16px',
+              maxWidth: '76%',
+              background: msg.role === 'assistant' ? 'var(--bg-surface)' : 'rgba(0,212,255,0.08)',
+              border: msg.role === 'assistant' ? '1px solid var(--border-subtle)' : '1px solid rgba(0,212,255,0.24)',
+              borderRadius: msg.role === 'assistant' ? '4px 14px 14px 14px' : '14px 4px 14px 14px',
+              padding: '14px 16px',
               fontSize: 14,
               lineHeight: 1.65,
-              color: msg.role === 'assistant' ? 'rgba(255,255,255,0.88)' : 'rgba(255,255,255,0.75)',
+              color: msg.role === 'assistant' ? 'rgba(255,255,255,0.92)' : 'rgba(255,255,255,0.92)',
+              boxShadow: '0 1px 0 rgba(255,255,255,0.04) inset',
             }}>
               {formatContent(msg.content)}
-              <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.2)', marginTop: 6 }}>
+              <div className="eyebrow" style={{ fontSize: 9.5, marginTop: 6, opacity: 0.5 }}>
                 {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
               </div>
             </div>
@@ -261,15 +257,15 @@ RESPONSE STYLE:
 
       {/* Suggested questions */}
       {messages.length <= 1 && (
-        <div style={{ padding: '0 28px 12px', display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+        <div style={{ padding: '0 40px 14px', display: 'flex', gap: 8, flexWrap: 'wrap' }}>
           {SUGGESTED_QUESTIONS.map(q => (
             <button key={q} onClick={() => sendMessage(q)} style={{
-              background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)',
-              borderRadius: 20, padding: '6px 14px', fontSize: 12, color: 'rgba(255,255,255,0.5)',
-              cursor: 'pointer', transition: 'all 0.2s',
+              background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)',
+              borderRadius: 8, padding: '7px 12px', fontSize: 12, color: 'rgba(255,255,255,0.65)',
+              cursor: 'pointer', transition: 'all 0.15s',
             }}
-              onMouseEnter={e => { (e.target as HTMLElement).style.background = 'rgba(0,212,255,0.08)'; (e.target as HTMLElement).style.color = '#00d4ff'; (e.target as HTMLElement).style.borderColor = 'rgba(0,212,255,0.3)' }}
-              onMouseLeave={e => { (e.target as HTMLElement).style.background = 'rgba(255,255,255,0.04)'; (e.target as HTMLElement).style.color = 'rgba(255,255,255,0.5)'; (e.target as HTMLElement).style.borderColor = 'rgba(255,255,255,0.08)' }}
+              onMouseEnter={e => { (e.target as HTMLElement).style.background = 'rgba(0,212,255,0.08)'; (e.target as HTMLElement).style.color = '#00d4ff'; (e.target as HTMLElement).style.borderColor = 'rgba(0,212,255,0.30)' }}
+              onMouseLeave={e => { (e.target as HTMLElement).style.background = 'var(--bg-surface)'; (e.target as HTMLElement).style.color = 'rgba(255,255,255,0.65)'; (e.target as HTMLElement).style.borderColor = 'var(--border-subtle)' }}
             >
               {q}
             </button>
@@ -278,18 +274,23 @@ RESPONSE STYLE:
       )}
 
       {/* Input */}
-      <div style={{ padding: '12px 28px 20px', borderTop: '1px solid rgba(255,255,255,0.06)', flexShrink: 0 }}>
-        <div style={{ display: 'flex', gap: 12, alignItems: 'flex-end', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: '10px 14px' }}>
+      <div style={{ padding: '14px 40px 22px', borderTop: '1px solid var(--border-subtle)', flexShrink: 0 }}>
+        <div style={{
+          display: 'flex', gap: 12, alignItems: 'flex-end',
+          background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)',
+          borderRadius: 12, padding: '10px 12px 10px 14px',
+          transition: 'border-color 0.15s',
+        }}>
           <textarea
             ref={inputRef}
             value={input}
             onChange={e => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Ask Oracle anything about your store..."
+            placeholder="Ask Oracle anything about your store…"
             rows={1}
             style={{
               flex: 1, background: 'transparent', border: 'none', outline: 'none',
-              color: '#fff', fontSize: 14, lineHeight: 1.5, resize: 'none',
+              color: 'rgba(255,255,255,0.95)', fontSize: 14, lineHeight: 1.5, resize: 'none',
               fontFamily: 'inherit'
             }}
           />
@@ -297,19 +298,20 @@ RESPONSE STYLE:
             onClick={() => sendMessage()}
             disabled={!input.trim() || loading}
             style={{
-              width: 34, height: 34, borderRadius: 8, border: 'none', cursor: 'pointer',
-              background: input.trim() && !loading ? 'linear-gradient(135deg, #00d4ff, #8b5cf6)' : 'rgba(255,255,255,0.06)',
+              width: 32, height: 32, borderRadius: 8, border: '1px solid rgba(0,212,255,0.30)', cursor: 'pointer',
+              background: input.trim() && !loading ? 'linear-gradient(135deg, #00d4ff, #a78bfa)' : 'rgba(255,255,255,0.04)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              transition: 'all 0.2s', flexShrink: 0
+              transition: 'all 0.15s', flexShrink: 0,
+              boxShadow: input.trim() && !loading ? '0 0 12px rgba(0,212,255,0.25)' : undefined,
             }}
           >
             <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-              <path d="M2 8L14 2L8 14L7 9L2 8Z" stroke={input.trim() && !loading ? '#fff' : 'rgba(255,255,255,0.2)'} strokeWidth="1.5" strokeLinejoin="round" />
+              <path d="M2 8L14 2L8 14L7 9L2 8Z" stroke={input.trim() && !loading ? '#fff' : 'rgba(255,255,255,0.30)'} strokeWidth="1.5" strokeLinejoin="round" />
             </svg>
           </button>
         </div>
-        <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.18)', marginTop: 8, textAlign: 'center', letterSpacing: '0.05em' }}>
-          ORACLE has access to all customer health scores, revenue data, and store metrics
+        <div className="eyebrow" style={{ marginTop: 10, textAlign: 'center', fontSize: 9.5, opacity: 0.6 }}>
+          Oracle has access to all customer health, revenue, and store metrics
         </div>
       </div>
     </div>

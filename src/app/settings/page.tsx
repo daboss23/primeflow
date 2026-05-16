@@ -16,10 +16,11 @@ async function getSettings() {
 export default async function SettingsPage() {
   const settings = await getSettings()
   return (
-    <div className="p-7 max-w-[720px]">
+    <div className="px-10 py-10 max-w-[840px]">
       <PageHeader
-        title="Brand Settings"
-        subtitle="Configure your brand voice so every AI-generated message sounds exactly like you."
+        eyebrow="Brand Vault"
+        title="Brand Knowledge"
+        subtitle="Configure your brand voice, values, and guardrails so every AI-generated message sounds exactly like you."
       />
       <BrandSettingsForm initial={settings ?? {}} />
     </div>

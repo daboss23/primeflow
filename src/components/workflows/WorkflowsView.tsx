@@ -4,6 +4,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { PageHeader } from '@/components/ui/PageHeader'
+import { Card, CardHeader, SectionLabel, Pill, StatusDot, tokens } from '@/components/ui'
 import { WorkflowCustomerView, type WorkflowCustomer } from './WorkflowCustomerView'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -52,12 +53,12 @@ const TRIGGER_LABELS: Record<TriggerState, string> = {
 }
 
 const TRIGGER_COLORS: Record<TriggerState, string> = {
-  abandoned_cart:      '#ff4d4d',
-  failed_payment:      '#ff8c00',
+  abandoned_cart:      '#ff4d6a',
+  failed_payment:      '#ff7a3d',
   dormant_buyer:       '#a78bfa',
-  repeat_at_risk:      '#f59e0b',
+  repeat_at_risk:      '#ffaa00',
   replenishment:       '#00d4ff',
-  engaged_unconverted: '#8b5cf6',
+  engaged_unconverted: '#7c8cff',
 }
 
 const AI_AUTO = 'AI Decide' // sentinel value for auto-managed fields
@@ -475,30 +476,19 @@ function generateFallback(
 // ─── Shared UI ────────────────────────────────────────────────────────────────
 
 function StatusPill({ status }: { status: WorkflowStatus }) {
-  const cfg = {
-    active: { label: 'Active', color: '#00e676', bg: 'rgba(0,230,118,0.08)',          dot: '#00e676' },
-    paused: { label: 'Paused', color: '#f59e0b', bg: 'rgba(245,158,11,0.08)',         dot: '#f59e0b' },
-    draft:  { label: 'Draft',  color: 'rgba(255,255,255,0.3)', bg: 'rgba(255,255,255,0.04)', dot: 'rgba(255,255,255,0.2)' },
-  }[status]
+  const tone = (status === 'active' ? 'success' : status === 'paused' ? 'warn' : 'neutral') as 'success' | 'warn' | 'neutral'
+  const label = status.charAt(0).toUpperCase() + status.slice(1)
   return (
-    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium" style={{ color: cfg.color, background: cfg.bg }}>
-      <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: cfg.dot, boxShadow: status === 'active' ? `0 0 5px ${cfg.dot}` : undefined }} />
-      {cfg.label}
-    </span>
+    <Pill tone={tone}>
+      <StatusDot tone={tone} size={5} glow={status === 'active'} />
+      {label}
+    </Pill>
   )
 }
 
 function ChannelBadge({ channel }: { channel: Channel }) {
-  const cfg = {
-    Email: { bg: 'rgba(0,212,255,0.08)', color: '#00d4ff' },
-    SMS:   { bg: 'rgba(139,92,246,0.08)', color: '#a78bfa' },
-    Both:  { bg: 'rgba(0,212,255,0.06)', color: '#00d4ff' },
-  }[channel]
-  return (
-    <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium" style={{ color: cfg.color, background: cfg.bg, border: `1px solid ${cfg.color}22` }}>
-      {channel}
-    </span>
-  )
+  const tone = (channel === 'SMS' ? 'violet' : 'accent') as 'violet' | 'accent'
+  return <Pill tone={tone}>{channel}</Pill>
 }
 
 function FieldLabel({ children }: { children: React.ReactNode }) {
@@ -592,82 +582,74 @@ function WorkflowCustomerListView({
 }) {
   const tc = TRIGGER_COLORS[workflow.trigger]
   return (
-    <div style={{ background: '#070714' }}>
-      <div className="max-w-[1000px] mx-auto px-8 py-8">
+    <div>
+      <div className="max-w-[1180px] mx-auto px-10 py-10">
 
         {/* Breadcrumb */}
-        <div className="flex items-center gap-2 mb-7">
-          <button onClick={onBack} className="flex items-center gap-1.5 text-[11px] text-white/25 hover:text-white/55 transition-colors">
-            <svg width="10" height="10" fill="none" viewBox="0 0 16 16">
-              <path d="M10 3L5 8l5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-            Recovery Workflows
-          </button>
-          <span style={{ color: 'rgba(255,255,255,0.12)' }}>·</span>
-          <span className="text-[11px] text-white/40">{workflow.name}</span>
-        </div>
+        <button onClick={onBack} className="flex items-center gap-1.5 mb-5 transition-colors group" style={{ color: tokens.textTertiary }}>
+          <svg width="14" height="14" fill="none" viewBox="0 0 16 16" className="transition-transform group-hover:-translate-x-0.5">
+            <path d="M10 3L5 8l5 5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+          <span className="text-[12px] font-medium group-hover:text-white/85 transition-colors">Back to Workflows</span>
+        </button>
 
         {/* Header */}
-        <div className="flex items-center justify-between mb-7">
-          <div className="flex items-center gap-3">
-            <div className="w-2 h-2 rounded-full" style={{ background: tc, boxShadow: `0 0 7px ${tc}` }} />
-            <div>
-              <h2 className="text-[22px] font-bold text-white tracking-tight">{workflow.name}</h2>
-              <p className="text-[12px] text-white/30 mt-0.5">
-                {TRIGGER_LABELS[workflow.trigger]} · {workflow.enrolled} enrolled
-                {workflow.enrolled > 0 && ` · ${((workflow.converted / workflow.enrolled) * 100).toFixed(0)}% conversion`}
-              </p>
-            </div>
-          </div>
-          <StatusPill status={workflow.status} />
-        </div>
+        <PageHeader
+          eyebrow={TRIGGER_LABELS[workflow.trigger]}
+          title={workflow.name}
+          subtitle={`${workflow.enrolled} enrolled${workflow.enrolled > 0 ? ` · ${((workflow.converted / workflow.enrolled) * 100).toFixed(0)}% conversion` : ''}`}
+          actions={<StatusPill status={workflow.status} />}
+        />
 
         {/* Customer table */}
-        <div className="rounded-2xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.07)' }}>
-          <div className="grid px-6 py-3" style={{ gridTemplateColumns: '2fr 1fr 1fr 1fr 1fr 1fr', background: 'rgba(255,255,255,0.02)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+        <div className="rounded-[14px] overflow-hidden" style={{ border: `1px solid ${tokens.borderSubtle}`, background: tokens.surface }}>
+          <div className="grid px-6 py-3" style={{ gridTemplateColumns: '2fr 1fr 1fr 1fr 1fr 1fr', borderBottom: `1px solid ${tokens.borderSubtle}`, background: 'rgba(255,255,255,0.015)' }}>
             {['Customer', 'State', 'Health', 'Spend', 'Step', 'Status'].map((h) => (
-              <span key={h} className="text-[10px] font-semibold tracking-[0.12em] uppercase" style={{ color: 'rgba(255,255,255,0.22)' }}>{h}</span>
+              <span key={h} className="eyebrow" style={{ fontSize: 9.5 }}>{h}</span>
             ))}
           </div>
 
           {customers.length === 0 && (
-            <div className="px-6 py-16 text-center text-[13px] text-white/20">No customers enrolled in this workflow yet</div>
+            <div className="px-6 py-16 text-center text-[13px]" style={{ color: tokens.textMuted }}>No customers enrolled in this workflow yet.</div>
           )}
 
           {customers.map((c, i) => {
-            const hColor = c.healthScore >= 70 ? '#00e676' : c.healthScore >= 45 ? '#f59e0b' : '#ff4d4d'
+            const hColor = c.healthScore >= 70 ? '#3ddc97' : c.healthScore >= 45 ? '#ffaa00' : '#ff4d6a'
             const ws = c.workflowStatus
+            const wsTone = (ws === 'converted' ? 'success' : ws === 'exited' ? 'neutral' : 'accent') as 'success'|'neutral'|'accent'
             return (
-              <div key={c.id} className="grid px-6 py-4 cursor-pointer wf-row"
-                style={{ gridTemplateColumns: '2fr 1fr 1fr 1fr 1fr 1fr', borderBottom: i < customers.length - 1 ? '1px solid rgba(255,255,255,0.04)' : undefined }}
+              <div key={c.id} className="grid px-6 py-3.5 cursor-pointer wf-row"
+                style={{ gridTemplateColumns: '2fr 1fr 1fr 1fr 1fr 1fr', borderBottom: i < customers.length - 1 ? `1px solid ${tokens.borderSubtle}` : undefined }}
                 onClick={() => onSelectCustomer(c)}>
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg flex items-center justify-center text-[10px] font-bold flex-shrink-0"
-                    style={{ background: 'rgba(0,212,255,0.08)', color: '#00d4ff' }}>
+                  <div className="w-8 h-8 rounded-[8px] flex items-center justify-center text-[10.5px] font-semibold flex-shrink-0"
+                    style={{ background: `${tc}14`, color: tc, border: `1px solid ${tc}28` }}>
                     {c.name.split(' ').map(n => n[0]).join('')}
                   </div>
-                  <div>
-                    <div className="text-[13px] font-medium text-white/80">{c.name}</div>
-                    <div className="text-[10px] text-white/25 mt-0.5">{c.email}</div>
+                  <div className="min-w-0">
+                    <div className="text-[13px] font-medium" style={{ color: tokens.textPrimary }}>{c.name}</div>
+                    <div className="text-[11px] mt-0.5 truncate" style={{ color: tokens.textMuted }}>{c.email}</div>
                   </div>
                 </div>
                 <div className="flex items-center">
-                  <span className="text-[11px] font-medium px-2 py-0.5 rounded" style={{ color: tc, background: `${tc}12` }}>{c.state}</span>
+                  <span className="inline-flex items-center h-5 px-2 rounded-[6px] text-[10.5px] font-medium" style={{ color: tc, background: `${tc}14`, border: `1px solid ${tc}28` }}>
+                    {c.state}
+                  </span>
                 </div>
                 <div className="flex items-center">
-                  <span className="text-[13px] font-semibold" style={{ color: hColor }}>{c.healthScore}</span>
+                  <span className="metric-num text-[13.5px]" style={{ color: hColor }}>{c.healthScore}</span>
                 </div>
                 <div className="flex items-center">
-                  <span className="text-[13px] font-semibold text-white/65">${c.totalSpend.toLocaleString()}</span>
+                  <span className="metric-num text-[13.5px]" style={{ color: tokens.textPrimary }}>${c.totalSpend.toLocaleString()}</span>
                 </div>
                 <div className="flex items-center">
-                  <span className="text-[11px] text-white/40">{c.currentStep}</span>
+                  <span className="text-[11.5px]" style={{ color: tokens.textSecondary }}>{c.currentStep}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-medium" style={{ color: ws === 'converted' ? '#00e676' : ws === 'exited' ? 'rgba(255,255,255,0.25)' : '#00d4ff' }}>
-                    {ws === 'converted' ? '✓ Converted' : ws === 'exited' ? 'Exited' : 'Active'}
-                  </span>
-                  <svg width="10" height="10" fill="none" viewBox="0 0 16 16" style={{ color: 'rgba(255,255,255,0.2)' }}>
+                  <Pill tone={wsTone}>
+                    {ws === 'converted' ? 'Converted' : ws === 'exited' ? 'Exited' : 'Active'}
+                  </Pill>
+                  <svg width="10" height="10" fill="none" viewBox="0 0 16 16" style={{ color: tokens.textMuted }}>
                     <path d="M6 3l5 5-5 5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
                 </div>
@@ -1373,62 +1355,83 @@ export function WorkflowsView() {
         .rec-updated { animation: updatedFade 1.8s ease-out forwards; }
       `}</style>
 
-      <div style={{ background: '#070714' }}>
-        <div className="max-w-[1400px] mx-auto p-7">
+      <div>
+        <div className="max-w-[1440px] mx-auto px-10 py-10">
 
           {/* Header */}
-          <div className="flex items-start justify-between mb-8">
-            <PageHeader
-              title="Recovery Workflows"
-              subtitle="Automated multi-channel workflows triggered by customer health, lifecycle state, and behavior."
-            />
-            <button onClick={() => setShowModal(true)}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-[13px] font-semibold transition-all hover:opacity-90 active:scale-[0.98]"
-              style={{ background: 'rgba(0,212,255,0.12)', border: '1px solid rgba(0,212,255,0.25)', color: '#00d4ff' }}>
-              <svg width="13" height="13" fill="none" viewBox="0 0 16 16">
-                <path d="M8 1v14M1 8h14" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
-              </svg>
-              New Workflow
-            </button>
-          </div>
+          <PageHeader
+            eyebrow="Recovery Operations"
+            title="Workflows"
+            subtitle="Automated multi-channel sequences triggered by customer health, lifecycle state, and behaviour."
+            actions={
+              <button
+                onClick={() => setShowModal(true)}
+                className="inline-flex items-center gap-1.5 h-9 px-4 rounded-[10px] text-[12.5px] font-medium transition-all
+                  text-white border border-[rgba(0,212,255,0.35)] bg-[rgba(0,212,255,0.12)]
+                  hover:bg-[rgba(0,212,255,0.18)] hover:border-[rgba(0,212,255,0.55)]"
+              >
+                <svg width="12" height="12" fill="none" viewBox="0 0 16 16">
+                  <path d="M8 2v12M2 8h12" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/>
+                </svg>
+                New Workflow
+              </button>
+            }
+          />
 
           {/* KPI Cards */}
-          <div className="grid grid-cols-4 gap-4 mb-8">
+          <div className="grid grid-cols-4 gap-4 mb-6">
             {[
-              { label: 'Active Workflows',   value: String(activeCount),                sub: `${workflows.length} total`,            accent: '#00d4ff' },
-              { label: 'Customers Enrolled', value: totalEnrolled.toLocaleString(),      sub: 'across all workflows',                 accent: '#a78bfa' },
-              { label: 'Recovered Revenue',  value: `$${totalRevenue.toLocaleString()}`, sub: 'this period',                          accent: '#00e676' },
-              { label: 'Conversion Rate',    value: `${convRate}%`,                      sub: `${totalConverted} customers converted`, accent: '#f59e0b' },
+              { label: 'Active Workflows',   value: String(activeCount),                 sub: `${workflows.length} total`,             accent: '#00d4ff' },
+              { label: 'Customers Enrolled', value: totalEnrolled.toLocaleString(),      sub: 'across all workflows',                  accent: '#a78bfa' },
+              { label: 'Recovered Revenue',  value: `$${totalRevenue.toLocaleString()}`, sub: 'this period',                           accent: '#3ddc97' },
+              { label: 'Conversion Rate',    value: `${convRate}%`,                      sub: `${totalConverted} customers converted`, accent: '#ffaa00' },
             ].map(({ label, value, sub, accent }) => (
-              <div key={label} className="p-5 rounded-2xl" style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.06)' }}>
-                <div className="text-[10px] font-semibold tracking-[0.14em] uppercase mb-3" style={{ color: 'rgba(255,255,255,0.35)' }}>{label}</div>
-                <div className="text-[28px] font-bold tracking-tight mb-1" style={{ color: accent === '#00e676' || accent === '#f59e0b' ? accent : 'white' }}>{value}</div>
-                <div className="text-[11px] text-white/25">{sub}</div>
-              </div>
+              <Card key={label} padded={false} className="px-5 py-5">
+                <SectionLabel className="mb-4">{label}</SectionLabel>
+                <div className="metric-num text-[28px] leading-none tracking-tight mb-2" style={{ color: accent }}>{value}</div>
+                <div className="text-[11.5px]" style={{ color: tokens.textMuted }}>{sub}</div>
+              </Card>
             ))}
           </div>
 
           {/* Table */}
-          <div className="rounded-2xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.06)' }}>
-            <div className="flex items-center justify-between px-6 py-4" style={{ background: 'rgba(255,255,255,0.02)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+          <div
+            className="rounded-[14px] overflow-hidden"
+            style={{ border: `1px solid ${tokens.borderSubtle}`, background: tokens.surface }}
+          >
+            <div
+              className="flex items-center justify-between px-6 py-4"
+              style={{ borderBottom: `1px solid ${tokens.borderSubtle}` }}
+            >
               <div className="flex items-center gap-2">
-                <span className="text-[10px] font-semibold tracking-[0.15em] uppercase text-white/30">Recovery Campaigns</span>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold" style={{ background: 'rgba(0,212,255,0.1)', color: '#00d4ff' }}>{filtered.length}</span>
+                <SectionLabel>Recovery Campaigns</SectionLabel>
+                <Pill tone="accent">{filtered.length}</Pill>
               </div>
-              <div className="flex items-center gap-0.5 p-0.5 rounded-lg" style={{ background: 'rgba(255,255,255,0.04)' }}>
+              <div
+                className="flex items-center gap-0.5 p-0.5 rounded-[10px]"
+                style={{ background: 'rgba(255,255,255,0.03)', border: `1px solid ${tokens.borderSubtle}` }}
+              >
                 {(['all', 'active', 'paused', 'draft'] as const).map((f) => (
-                  <button key={f} onClick={() => setFilter(f)} className="px-3 py-1.5 rounded-md text-[11px] font-medium capitalize transition-all"
-                    style={filter === f ? { background: 'rgba(0,212,255,0.12)', color: '#00d4ff', border: '1px solid rgba(0,212,255,0.2)' } : { color: 'rgba(255,255,255,0.3)', border: '1px solid transparent' }}>
-                    {f === 'all' ? 'All' : f.charAt(0).toUpperCase() + f.slice(1)}
+                  <button
+                    key={f}
+                    onClick={() => setFilter(f)}
+                    className="h-7 px-3 rounded-[7px] text-[11.5px] font-medium capitalize transition-all"
+                    style={
+                      filter === f
+                        ? { background: 'rgba(0,212,255,0.10)', color: '#00d4ff', boxShadow: '0 0 0 1px rgba(0,212,255,0.25) inset' }
+                        : { color: tokens.textTertiary, background: 'transparent' }
+                    }
+                  >
+                    {f === 'all' ? 'All' : f}
                   </button>
                 ))}
               </div>
             </div>
 
             {/* Column headers */}
-            <div className="grid px-6 py-3" style={{ gridTemplateColumns: COLS, borderBottom: '1px solid rgba(255,255,255,0.04)', background: 'rgba(255,255,255,0.01)' }}>
+            <div className="grid px-6 py-3" style={{ gridTemplateColumns: COLS, borderBottom: `1px solid ${tokens.borderSubtle}`, background: 'rgba(255,255,255,0.015)' }}>
               {['Workflow', 'Trigger', 'Action', 'Channels', 'Status', 'Enrolled', 'Conv.', 'Revenue', ''].map((h, i) => (
-                <span key={i} className="text-[10px] font-semibold tracking-[0.12em] uppercase" style={{ color: 'rgba(255,255,255,0.2)' }}>{h}</span>
+                <span key={i} className="eyebrow" style={{ fontSize: 9.5 }}>{h}</span>
               ))}
             </div>
 
@@ -1436,34 +1439,37 @@ export function WorkflowsView() {
               const convPct = wf.enrolled > 0 ? `${((wf.converted / wf.enrolled) * 100).toFixed(0)}%` : null
               const tc = TRIGGER_COLORS[wf.trigger]
               return (
-                <div key={wf.id} className="wf-row grid px-6 py-4 cursor-pointer relative"
-                  style={{ gridTemplateColumns: COLS, borderBottom: i < filtered.length - 1 ? '1px solid rgba(255,255,255,0.04)' : undefined, background: 'transparent' }}
+                <div key={wf.id} className="wf-row grid px-6 py-3.5 cursor-pointer relative"
+                  style={{ gridTemplateColumns: COLS, borderBottom: i < filtered.length - 1 ? `1px solid ${tokens.borderSubtle}` : undefined, background: 'transparent' }}
                   onMouseEnter={() => setHoveredRow(wf.id)}
                   onMouseLeave={() => setHoveredRow(null)}
                   onClick={() => { setSelectedWorkflow(wf); setView('customers') }}>
                   <div className="flex items-center gap-3 pr-3">
-                    <div className="w-1 h-8 rounded-full flex-shrink-0"
-                      style={{ background: tc, opacity: wf.status === 'draft' ? 0.25 : 0.65, boxShadow: wf.status === 'active' ? `0 0 5px ${tc}55` : undefined }} />
-                    <div>
-                      <div className="text-[13px] font-medium text-white/80 leading-tight">{wf.name}</div>
+                    <div className="w-[2px] h-8 rounded-full flex-shrink-0"
+                      style={{ background: tc, opacity: wf.status === 'draft' ? 0.30 : 0.85, boxShadow: wf.status === 'active' ? `0 0 6px ${tc}66` : undefined }} />
+                    <div className="min-w-0">
+                      <div className="text-[13px] font-medium leading-tight truncate" style={{ color: tokens.textPrimary }}>{wf.name}</div>
                       {wf.status === 'active' && (
-                        <div className="text-[10px] text-white/25 mt-0.5">Running · {WORKFLOW_CUSTOMERS[wf.id]?.length ?? 0} customers</div>
+                        <div className="text-[11px] mt-1" style={{ color: tokens.textMuted }}>Running · {WORKFLOW_CUSTOMERS[wf.id]?.length ?? 0} customers</div>
                       )}
                     </div>
                   </div>
                   <div className="flex items-center">
-                    <span className="text-[11px] font-medium px-2 py-0.5 rounded" style={{ color: tc, background: `${tc}12` }}>{TRIGGER_LABELS[wf.trigger]}</span>
+                    <span className="inline-flex items-center h-5 px-2 rounded-[6px] text-[10.5px] font-medium tracking-wide"
+                      style={{ color: tc, background: `${tc}14`, border: `1px solid ${tc}28` }}>
+                      {TRIGGER_LABELS[wf.trigger]}
+                    </span>
                   </div>
-                  <div className="flex items-center"><span className="text-[12px] text-white/40">{wf.actionType}</span></div>
+                  <div className="flex items-center"><span className="text-[12px]" style={{ color: tokens.textSecondary }}>{wf.actionType}</span></div>
                   <div className="flex items-center"><ChannelBadge channel={wf.channels} /></div>
                   <div className="flex items-center"><StatusPill status={wf.status} /></div>
-                  <div className="flex items-center"><span className="text-[13px] font-semibold text-white/65">{wf.enrolled > 0 ? wf.enrolled.toLocaleString() : '—'}</span></div>
+                  <div className="flex items-center"><span className="metric-num text-[13.5px]" style={{ color: tokens.textPrimary }}>{wf.enrolled > 0 ? wf.enrolled.toLocaleString() : '—'}</span></div>
                   <div className="flex items-center gap-1.5">
-                    <span className="text-[13px] font-semibold text-white/65">{wf.converted > 0 ? wf.converted : '—'}</span>
-                    {convPct && <span className="text-[10px] text-white/25">{convPct}</span>}
+                    <span className="metric-num text-[13.5px]" style={{ color: tokens.textPrimary }}>{wf.converted > 0 ? wf.converted : '—'}</span>
+                    {convPct && <span className="text-[10.5px]" style={{ color: tokens.textMuted }}>{convPct}</span>}
                   </div>
                   <div className="flex items-center">
-                    <span className="text-[13px] font-semibold" style={{ color: wf.revenue > 0 ? '#00e676' : 'rgba(255,255,255,0.2)' }}>
+                    <span className="metric-num text-[13.5px]" style={{ color: wf.revenue > 0 ? '#3ddc97' : tokens.textMuted }}>
                       {wf.revenue > 0 ? `$${wf.revenue.toLocaleString()}` : '—'}
                     </span>
                   </div>
@@ -1497,13 +1503,15 @@ export function WorkflowsView() {
             })}
 
             {filtered.length === 0 && (
-              <div className="px-6 py-16 text-center text-[13px] text-white/25">No workflows match this filter</div>
+              <div className="px-6 py-16 text-center text-[13px]" style={{ color: tokens.textMuted }}>
+                No workflows match this filter.
+              </div>
             )}
           </div>
 
           <div className="flex items-center gap-2 mt-5">
-            <div className="w-1 h-1 rounded-full bg-white/15" />
-            <p className="text-[11px] text-white/20">
+            <span className="w-1 h-1 rounded-full" style={{ background: tokens.textMuted }} />
+            <p className="text-[11.5px]" style={{ color: tokens.textMuted }}>
               Workflows run automatically based on customer health scores updated every 6 hours. Click any workflow to view enrolled customers.
             </p>
           </div>

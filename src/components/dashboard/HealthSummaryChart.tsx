@@ -9,23 +9,23 @@ export function HealthSummaryChart({ distribution }: { distribution: HealthDistr
   const { red, yellow, green, total } = distribution
 
   const data = [
-    { name: 'Critical', value: red, color: '#ff4060' },
-    { name: 'Watch', value: yellow, color: '#ffaa00' },
-    { name: 'Healthy', value: green, color: '#00e676' },
+    { name: 'Critical', value: red,    color: '#ff4d6a' },
+    { name: 'Watch',    value: yellow, color: '#ffaa00' },
+    { name: 'Healthy',  value: green,  color: '#3ddc97' },
   ].filter((d) => d.value > 0)
 
   return (
     <div className="flex flex-col items-center">
-      <div className="relative w-full" style={{ height: 160 }}>
+      <div className="relative w-full" style={{ height: 168 }}>
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Pie
               data={data}
               cx="50%"
               cy="50%"
-              innerRadius={50}
-              outerRadius={68}
-              paddingAngle={2}
+              innerRadius={54}
+              outerRadius={72}
+              paddingAngle={3}
               dataKey="value"
               strokeWidth={0}
             >
@@ -35,37 +35,37 @@ export function HealthSummaryChart({ distribution }: { distribution: HealthDistr
             </Pie>
             <Tooltip
               contentStyle={{
-                background: '#0d0d1f',
-                border: '1px solid rgba(255,255,255,0.1)',
-                borderRadius: 8,
-                color: '#e8e8f4',
+                background: 'rgba(15,15,25,0.96)',
+                backdropFilter: 'blur(8px)',
+                border: '1px solid rgba(255,255,255,0.10)',
+                borderRadius: 10,
+                color: 'rgba(255,255,255,0.95)',
                 fontSize: 12,
+                boxShadow: '0 12px 32px -8px rgba(0,0,0,0.6)',
               }}
             />
           </PieChart>
         </ResponsiveContainer>
-        {/* Center label */}
         <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-          <div
-            className="text-2xl font-medium text-white"
-            style={{ fontFamily: 'var(--font-jetbrains)' }}
-          >
+          <div className="metric-num text-[28px] leading-none" style={{ color: 'rgba(255,255,255,0.95)' }}>
             {total}
           </div>
-          <div className="text-[9px] text-white/30 uppercase tracking-widest mt-0.5">Total</div>
+          <div className="eyebrow mt-1.5" style={{ fontSize: 9.5 }}>Total</div>
         </div>
       </div>
 
-      {/* Legend */}
-      <div className="flex gap-4 mt-2">
+      <div className="flex gap-5 mt-3">
         {data.map((d) => (
           <div key={d.name} className="flex items-center gap-1.5">
-            <div
-              className="w-2 h-2 rounded-full"
-              style={{ background: d.color, boxShadow: `0 0 4px ${d.color}88` }}
+            <span
+              className="w-1.5 h-1.5 rounded-full inline-block"
+              style={{ background: d.color, boxShadow: `0 0 5px ${d.color}aa` }}
             />
-            <span className="text-[10px] text-white/40">
-              {d.name} {d.value}
+            <span className="text-[11px] font-medium" style={{ color: 'rgba(255,255,255,0.55)' }}>
+              {d.name}
+            </span>
+            <span className="metric-num text-[11px]" style={{ color: d.color }}>
+              {d.value}
             </span>
           </div>
         ))}

@@ -1,0 +1,3 @@
+module.exports=[86709,a=>{"use strict";var b=a.i(87924);a.s(["PrintButton",0,function(){return(0,b.jsxs)("button",{onClick:()=>window.print(),className:"mt-5 inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-white/[0.12] text-white/60 text-[13px] hover:text-white hover:border-white/25 transition-all",children:[(0,b.jsx)("svg",{width:"14",height:"14",fill:"none",viewBox:"0 0 14 14",children:(0,b.jsx)("path",{d:"M7 1v8M4 6l3 3 3-3M2 11h10",stroke:"currentColor",strokeWidth:"1.3",strokeLinecap:"round",strokeLinejoin:"round"})}),"Download PDF"]})}])}];
+
+//# sourceMappingURL=src_components_report_PrintButton_tsx_0~87dh~._.js.map

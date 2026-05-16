@@ -3,6 +3,7 @@
 // FILE: src/components/workflows/WorkflowsView.tsx
 
 import { useState, useEffect, useRef } from 'react'
+import { Card, Button, SectionLabel } from '@/components/ui'
 import { PageHeader } from '@/components/ui/PageHeader'
 import { WorkflowCustomerView, type WorkflowCustomer } from './WorkflowCustomerView'
 
@@ -739,14 +740,13 @@ function NewWorkflowModal({ onClose }: { onClose: () => void }) {
   const STEPS = [{ n: 1, label: 'Setup' }, { n: 2, label: 'Message Strategy' }, { n: 3, label: 'Preview' }, { n: 4, label: 'Fallback Logic' }]
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center"
-      style={{ background: 'rgba(0,0,0,0.72)', backdropFilter: 'blur(8px)' }}
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/[0.72] backdrop-blur-sm"
       onClick={(e) => e.target === e.currentTarget && onClose()}>
-      <div className="w-[620px] max-h-[90vh] flex flex-col rounded-2xl overflow-hidden"
-        style={{ background: '#09091b', border: '1px solid rgba(255,255,255,0.08)', boxShadow: '0 40px 100px rgba(0,0,0,0.85)' }}>
+      <div className="w-[620px] max-h-[90vh] flex flex-col rounded-2xl overflow-hidden border border-white/[0.08]"
+        style={{ background: '#09091b', boxShadow: '0 40px 100px rgba(0,0,0,0.85)' }}>
 
         {/* Header */}
-        <div className="flex-shrink-0 px-7 pt-6 pb-5" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+        <div className="flex-shrink-0 px-7 pt-6 pb-5 border-b border-white/[0.06]">
           <div className="flex items-start justify-between mb-5">
             <div>
               <div className="flex items-center gap-2 mb-1">
@@ -774,7 +774,7 @@ function NewWorkflowModal({ onClose }: { onClose: () => void }) {
                     {s.label}
                   </span>
                 </button>
-                {i < STEPS.length - 1 && <div className="w-4 h-px mx-0.5" style={{ background: 'rgba(255,255,255,0.08)' }} />}
+                {i < STEPS.length - 1 && <div className="w-4 h-px mx-0.5 bg-white/[0.08]" />}
               </div>
             ))}
           </div>
@@ -833,7 +833,7 @@ function NewWorkflowModal({ onClose }: { onClose: () => void }) {
                 </div>
                 <div>
                   <FieldLabel>A/B Testing</FieldLabel>
-                  <div className="flex items-center justify-between px-3 py-2 rounded-xl h-9" style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                  <div className="flex items-center justify-between px-3 py-2 rounded-xl h-9 bg-white/[0.025] border border-white/[0.06]">
                     <span className="text-[12px] text-white/45">{abTest ? 'Enabled' : 'Disabled'}</span>
                     <button onClick={() => setAbTest(!abTest)} className="relative w-8 h-4 rounded-full transition-all duration-200 flex-shrink-0"
                       style={{ background: abTest ? 'rgba(0,212,255,0.22)' : 'rgba(255,255,255,0.07)', border: abTest ? '1px solid rgba(0,212,255,0.3)' : '1px solid rgba(255,255,255,0.1)' }}>
@@ -845,10 +845,10 @@ function NewWorkflowModal({ onClose }: { onClose: () => void }) {
               </div>
 
               {/* ── Live AI Recommendations — fires immediately from trigger + channels ── */}
-              <div key={recKey} className="rec-panel rounded-xl overflow-hidden" style={{ border: '1px solid rgba(0,212,255,0.14)' }}>
+              <div key={recKey} className="rec-panel rounded-xl overflow-hidden border border-cyan-400/[0.14]">
 
                 {/* Panel header */}
-                <div className="flex items-center gap-2 px-4 py-3" style={{ background: 'rgba(0,212,255,0.05)', borderBottom: '1px solid rgba(0,212,255,0.08)' }}>
+                <div className="flex items-center gap-2 px-4 py-3 bg-cyan-400/[0.05] border-b border-cyan-400/[0.08]">
                   <svg width="12" height="12" fill="none" viewBox="0 0 16 16"><path d="M8 1l1.5 4.5H14l-3.7 2.7 1.4 4.3L8 10l-3.7 2.5 1.4-4.3L2 5.5h4.5z" fill="#00d4ff"/></svg>
                   <span className="text-[11px] font-semibold text-[#00d4ff]">AI Recommendations</span>
                   <span className="text-[10px] text-white/22 ml-1">— live · based on {TRIGGER_LABELS[trigger]}</span>
@@ -884,8 +884,8 @@ function NewWorkflowModal({ onClose }: { onClose: () => void }) {
                     { label: 'Urgency',   rec: aiRecs.urgency },
                     { label: 'Offer',     rec: aiRecs.offer   },
                   ].map(({ label, rec }) => (
-                    <div key={label} className="px-2.5 py-2 rounded-lg" style={{ background: 'rgba(0,212,255,0.07)', border: '1px solid transparent' }}>
-                      <div className="text-[9px] font-semibold tracking-wider uppercase mb-0.5" style={{ color: 'rgba(0,212,255,0.5)' }}>{label}</div>
+                    <div key={label} className="px-2.5 py-2 rounded-lg bg-cyan-400/[0.07]">
+                      <div className="text-[9px] font-semibold tracking-wider uppercase mb-0.5 text-cyan-400/50">{label}</div>
                       <div className="text-[11px] font-medium text-white/75">{rec}</div>
                     </div>
                   ))}
@@ -893,7 +893,7 @@ function NewWorkflowModal({ onClose }: { onClose: () => void }) {
 
                 {/* Insights */}
                 {insights.length > 0 && (
-                  <div className="space-y-1.5 px-4 pb-3 pt-1" style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+                  <div className="space-y-1.5 px-4 pb-3 pt-1 border-t border-white/[0.05]">
                     {insights.map((ins, i) => {
                       const cfg = {
                         positive: { icon: '✓', color: '#00e676', bg: 'rgba(0,230,118,0.06)' },
@@ -922,7 +922,7 @@ function NewWorkflowModal({ onClose }: { onClose: () => void }) {
             <div className="space-y-5">
 
               {/* Refinement header */}
-              <div className="flex items-center gap-3 px-4 py-3 rounded-xl" style={{ background: 'rgba(0,212,255,0.04)', border: '1px solid rgba(0,212,255,0.1)' }}>
+              <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-cyan-400/[0.04] border border-cyan-400/[0.10]">
                 <svg width="13" height="13" fill="none" viewBox="0 0 16 16"><path d="M8 1l1.5 4.5H14l-3.7 2.7 1.4 4.3L8 10l-3.7 2.5 1.4-4.3L2 5.5h4.5z" fill="#00d4ff"/></svg>
                 <div>
                   <div className="text-[12px] font-semibold text-white/75">Refine AI Strategy</div>
@@ -937,7 +937,7 @@ function NewWorkflowModal({ onClose }: { onClose: () => void }) {
                     <FieldLabel>Message Style</FieldLabel>
                     <AiBadge />
                     {isOverride(msgStyle, AI_AUTO) && isOverride(msgStyle, baseDefault.style) && (
-                      <span className="text-[8px] px-1 rounded font-semibold" style={{ background: 'rgba(245,158,11,0.1)', color: 'rgba(245,158,11,0.7)' }}>custom</span>
+                      <span className="text-[8px] px-1 rounded font-semibold bg-amber-500/10 text-amber-500/70">custom</span>
                     )}
                   </div>
                   <select className="w-full mfi" value={msgStyle} onChange={(e) => setMsgStyle(e.target.value)}>
@@ -955,7 +955,7 @@ function NewWorkflowModal({ onClose }: { onClose: () => void }) {
                     <FieldLabel>Urgency Level</FieldLabel>
                     <AiBadge />
                     {isOverride(urgency, AI_AUTO) && isOverride(urgency, baseDefault.urgency) && (
-                      <span className="text-[8px] px-1 rounded font-semibold" style={{ background: 'rgba(245,158,11,0.1)', color: 'rgba(245,158,11,0.7)' }}>custom</span>
+                      <span className="text-[8px] px-1 rounded font-semibold bg-amber-500/10 text-amber-500/70">custom</span>
                     )}
                   </div>
                   <select className="w-full mfi" value={urgency} onChange={(e) => setUrgency(e.target.value)}>
@@ -973,7 +973,7 @@ function NewWorkflowModal({ onClose }: { onClose: () => void }) {
                   <FieldLabel>Message Objective</FieldLabel>
                   <AiBadge />
                   {isOverride(objective, AI_AUTO) && isOverride(objective, baseDefault.objective) && (
-                    <span className="text-[8px] px-1 rounded font-semibold" style={{ background: 'rgba(245,158,11,0.1)', color: 'rgba(245,158,11,0.7)' }}>custom</span>
+                    <span className="text-[8px] px-1 rounded font-semibold bg-amber-500/10 text-amber-500/70">custom</span>
                   )}
                 </div>
                 <select className="w-full mfi" value={objective} onChange={(e) => setObjective(e.target.value)}>
@@ -992,7 +992,7 @@ function NewWorkflowModal({ onClose }: { onClose: () => void }) {
                   <FieldLabel>Offer Angle</FieldLabel>
                   <AiBadge />
                   {isOverride(offerAngle, AI_AUTO) && isOverride(offerAngle, baseDefault.offer) && (
-                    <span className="text-[8px] px-1 rounded font-semibold" style={{ background: 'rgba(245,158,11,0.1)', color: 'rgba(245,158,11,0.7)' }}>custom</span>
+                    <span className="text-[8px] px-1 rounded font-semibold bg-amber-500/10 text-amber-500/70">custom</span>
                   )}
                 </div>
                 <select className="w-full mfi" value={offerAngle} onChange={(e) => setOfferAngle(e.target.value)}>
@@ -1012,7 +1012,7 @@ function NewWorkflowModal({ onClose }: { onClose: () => void }) {
                   <FieldLabel>Tone</FieldLabel>
                   <AiBadge />
                   {isOverride(tone, AI_AUTO) && isOverride(tone, baseDefault.tone) && (
-                    <span className="text-[8px] px-1 rounded font-semibold" style={{ background: 'rgba(245,158,11,0.1)', color: 'rgba(245,158,11,0.7)' }}>custom</span>
+                    <span className="text-[8px] px-1 rounded font-semibold bg-amber-500/10 text-amber-500/70">custom</span>
                   )}
                 </div>
                 <select className="w-full mfi" value={tone} onChange={(e) => setTone(e.target.value)}>
@@ -1029,15 +1029,16 @@ function NewWorkflowModal({ onClose }: { onClose: () => void }) {
               {/* Personalization */}
               <div>
                 <FieldLabel>Personalisation</FieldLabel>
-                <div className="flex flex-wrap gap-2 px-3 py-2.5 rounded-xl" style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                <div className="flex flex-wrap gap-2 px-3 py-2.5 rounded-xl bg-white/[0.025] border border-white/[0.06]">
                   {['First name', 'Last order date', 'Cart value', 'Product name', 'LTV tier', 'Days since last purchase'].map((p) => {
                     const active = personalization.includes(p)
                     return (
                       <button key={p} onClick={() => setPersonalization(prev => active ? prev.filter(x => x !== p) : [...prev, p])}
-                        className="px-2.5 py-1 rounded-md text-[10px] font-medium transition-all"
-                        style={active
-                          ? { background: 'rgba(0,212,255,0.1)', color: '#00d4ff', border: '1px solid rgba(0,212,255,0.2)' }
-                          : { color: 'rgba(255,255,255,0.3)', border: '1px solid rgba(255,255,255,0.07)' }}>
+                        className={`px-2.5 py-1 rounded-md text-[10px] font-medium transition-all border ${
+                          active
+                            ? 'bg-cyan-400/10 text-cyan-400 border-cyan-400/20'
+                            : 'text-white/30 border-white/[0.07]'
+                        }`}>
                         {active ? '✓ ' : ''}{p}
                       </button>
                     )
@@ -1046,7 +1047,7 @@ function NewWorkflowModal({ onClose }: { onClose: () => void }) {
               </div>
 
               {/* Brand Knowledge Vault */}
-              <div className="p-4 rounded-xl" style={{ background: 'rgba(139,92,246,0.05)', border: '1px solid rgba(139,92,246,0.15)' }}>
+              <Card className="bg-violet-500/[0.05] border-violet-400/[0.15]">
                 <div className="flex items-center gap-2 mb-3">
                   <svg width="12" height="12" fill="none" viewBox="0 0 16 16">
                     <circle cx="8" cy="8" r="2.5" stroke="#a78bfa" strokeWidth="1.3"/>
@@ -1063,10 +1064,10 @@ function NewWorkflowModal({ onClose }: { onClose: () => void }) {
                   ))}
                 </div>
                 <button className="mt-3 text-[10px] text-[#a78bfa]/60 hover:text-[#a78bfa] transition-colors">Edit in Brand Settings →</button>
-              </div>
+              </Card>
 
               {/* Strategy summary */}
-              <div key={recKey} className="rec-panel p-4 rounded-xl" style={{ background: 'rgba(0,212,255,0.03)', border: '1px solid rgba(0,212,255,0.1)' }}>
+              <Card key={recKey} className="rec-panel bg-cyan-400/[0.03] border-cyan-400/[0.10]">
                 <div className="flex items-center gap-2 mb-3">
                   <span className="text-[10px] font-semibold tracking-wider uppercase text-[#00d4ff]/60">Effective Strategy</span>
                   {showUpdated && (
@@ -1085,13 +1086,13 @@ function NewWorkflowModal({ onClose }: { onClose: () => void }) {
                     { label: 'Timing',  val: aiRecs.timing },
                     { label: 'Offer',   val: offerAngle === AI_AUTO ? aiRecs.offer   : offerAngle },
                   ].map(({ label, val }) => (
-                    <div key={label} className="px-2.5 py-2 rounded-lg" style={{ background: 'rgba(255,255,255,0.03)' }}>
-                      <div className="text-[9px] font-semibold tracking-wider uppercase text-white/22 mb-0.5">{label}</div>
+                    <div key={label} className="px-2.5 py-2 rounded-lg bg-white/[0.03]">
+                      <div className="text-[9px] font-semibold tracking-wider uppercase text-white/25 mb-0.5">{label}</div>
                       <div className="text-[10px] font-medium text-white/60">{val}</div>
                     </div>
                   ))}
                 </div>
-              </div>
+              </Card>
             </div>
           )}
 
@@ -1105,13 +1106,14 @@ function NewWorkflowModal({ onClose }: { onClose: () => void }) {
                     {msgStyle} · {urgency} urgency · {tone}
                   </div>
                 </div>
-                <div className="flex gap-1 p-0.5 rounded-lg" style={{ background: 'rgba(255,255,255,0.04)' }}>
+                <div className="flex gap-1 p-0.5 rounded-lg bg-white/[0.04]">
                   {(['email', 'sms'] as const).map((t) => (
                     <button key={t} onClick={() => setActivePreview(t)}
-                      className="px-3 py-1.5 rounded-md text-[11px] font-medium uppercase tracking-wide transition-all"
-                      style={activePreview === t
-                        ? { background: 'rgba(0,212,255,0.12)', color: '#00d4ff', border: '1px solid rgba(0,212,255,0.2)' }
-                        : { color: 'rgba(255,255,255,0.3)', border: '1px solid transparent' }}>
+                      className={`px-3 py-1.5 rounded-md text-[11px] font-medium uppercase tracking-wide transition-all border ${
+                        activePreview === t
+                          ? 'bg-cyan-400/[0.12] text-cyan-400 border-cyan-400/20'
+                          : 'text-white/30 border-transparent'
+                      }`}>
                       {t}
                     </button>
                   ))}

@@ -3,78 +3,84 @@
 import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
 
-const NAV = [
-  { href: '/', label: 'Dashboard', icon: (<svg width="16" height="16" fill="none" viewBox="0 0 16 16"><rect x="1" y="1" width="6" height="6" rx="1.5" stroke="currentColor" strokeWidth="1.2"/><rect x="9" y="1" width="6" height="6" rx="1.5" stroke="currentColor" strokeWidth="1.2"/><rect x="1" y="9" width="6" height="6" rx="1.5" stroke="currentColor" strokeWidth="1.2"/><rect x="9" y="9" width="6" height="6" rx="1.5" stroke="currentColor" strokeWidth="1.2"/></svg>) },
-  { href: '/customers', label: 'Customers', icon: (<svg width="16" height="16" fill="none" viewBox="0 0 16 16"><circle cx="8" cy="5" r="3" stroke="currentColor" strokeWidth="1.2"/><path d="M2 14c0-3.314 2.686-5 6-5s6 1.686 6 5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/></svg>) },
-  { href: '/workflows', label: 'Workflows', icon: (<svg width="16" height="16" fill="none" viewBox="0 0 16 16"><rect x="1" y="2" width="5" height="4" rx="1.2" stroke="currentColor" strokeWidth="1.2"/><rect x="10" y="6" width="5" height="4" rx="1.2" stroke="currentColor" strokeWidth="1.2"/><rect x="1" y="10" width="5" height="4" rx="1.2" stroke="currentColor" strokeWidth="1.2"/><path d="M6 4h2.5a1.5 1.5 0 011.5 1.5V6" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/><path d="M6 12h2.5A1.5 1.5 0 0110 10.5V10" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/></svg>) },
-  { href: '/integrations', label: 'Integrations', icon: (<svg width="16" height="16" fill="none" viewBox="0 0 16 16"><circle cx="4" cy="4" r="2" stroke="currentColor" strokeWidth="1.2"/><circle cx="12" cy="4" r="2" stroke="currentColor" strokeWidth="1.2"/><circle cx="4" cy="12" r="2" stroke="currentColor" strokeWidth="1.2"/><circle cx="12" cy="12" r="2" stroke="currentColor" strokeWidth="1.2"/><path d="M6 4h4M4 6v4M12 6v4M6 12h4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/></svg>) },
-  { href: '/analytics', label: 'Analytics', icon: (<svg width="16" height="16" fill="none" viewBox="0 0 16 16"><path d="M2 13L6 8l3 3 5-7" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/></svg>) },
-  { href: '/calculator', label: 'Revenue Gap', icon: (<svg width="16" height="16" fill="none" viewBox="0 0 16 16"><path d="M2 12h2M6 8h2M10 5h2M14 2h2" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/><path d="M2 14V12M6 14V8M10 14V5M14 14V2" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/></svg>) },
-  { href: '/oracle', label: 'Oracle', icon: (<svg width="16" height="16" fill="none" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" stroke="currentColor" strokeWidth="1.2"/><circle cx="8" cy="8" r="2" stroke="currentColor" strokeWidth="1.2"/><path d="M8 2v2M8 12v2M2 8h2M12 8h2" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/></svg>) },
-  { href: '/settings', label: 'Brand Settings', icon: (<svg width="16" height="16" fill="none" viewBox="0 0 16 16"><circle cx="8" cy="8" r="2.5" stroke="currentColor" strokeWidth="1.2"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.05 3.05l1.41 1.41M11.54 11.54l1.41 1.41M3.05 12.95l1.41-1.41M11.54 4.46l1.41-1.41" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/></svg>) },
+type NavItem = { href: string; label: string; icon: React.ReactNode }
+
+const stroke = {
+  stroke: 'currentColor',
+  strokeWidth: 1.4,
+  strokeLinecap: 'round',
+  strokeLinejoin: 'round',
+  fill: 'none',
+} as const
+
+const NAV: NavItem[] = [
+  { href: '/',             label: 'Dashboard',     icon: (<svg width="15" height="15" viewBox="0 0 16 16" {...stroke}><rect x="1.5" y="1.5" width="5.5" height="5.5" rx="1.4"/><rect x="9" y="1.5" width="5.5" height="5.5" rx="1.4"/><rect x="1.5" y="9" width="5.5" height="5.5" rx="1.4"/><rect x="9" y="9" width="5.5" height="5.5" rx="1.4"/></svg>) },
+  { href: '/customers',    label: 'Customers',     icon: (<svg width="15" height="15" viewBox="0 0 16 16" {...stroke}><circle cx="8" cy="5.5" r="2.7"/><path d="M2.5 14c0-2.9 2.5-4.6 5.5-4.6S13.5 11.1 13.5 14"/></svg>) },
+  { href: '/workflows',    label: 'Workflows',     icon: (<svg width="15" height="15" viewBox="0 0 16 16" {...stroke}><rect x="1.5" y="2" width="4.5" height="3.5" rx="1"/><rect x="10" y="6.25" width="4.5" height="3.5" rx="1"/><rect x="1.5" y="10.5" width="4.5" height="3.5" rx="1"/><path d="M6 3.75h2.5a1.5 1.5 0 0 1 1.5 1.5V6"/><path d="M6 12.25h2.5a1.5 1.5 0 0 0 1.5-1.5V10"/></svg>) },
+  { href: '/integrations', label: 'Integrations',  icon: (<svg width="15" height="15" viewBox="0 0 16 16" {...stroke}><circle cx="4" cy="4" r="1.8"/><circle cx="12" cy="4" r="1.8"/><circle cx="4" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><path d="M5.8 4h4.4M4 5.8v4.4M12 5.8v4.4M5.8 12h4.4"/></svg>) },
+  { href: '/analytics',    label: 'Analytics',     icon: (<svg width="15" height="15" viewBox="0 0 16 16" {...stroke}><path d="M2 13l4-5 3 3 5-7"/><path d="M11 4h3v3"/></svg>) },
+  { href: '/calculator',   label: 'Revenue Gap',   icon: (<svg width="15" height="15" viewBox="0 0 16 16" {...stroke}><path d="M2 14V11M6 14V8M10 14V5M14 14V2"/></svg>) },
+  { href: '/oracle',       label: 'Oracle',        icon: (<svg width="15" height="15" viewBox="0 0 16 16" {...stroke}><circle cx="8" cy="8" r="5.8"/><circle cx="8" cy="8" r="1.8"/><path d="M8 2.2v1.2M8 12.6v1.2M2.2 8h1.2M12.6 8h1.2"/></svg>) },
+  { href: '/settings',     label: 'Brand Vault',   icon: (<svg width="15" height="15" viewBox="0 0 16 16" {...stroke}><path d="M8 2L3 4v4c0 3 2.2 5.5 5 6.2 2.8-.7 5-3.2 5-6.2V4l-5-2z"/></svg>) },
 ]
 
-function AxiomaiLogo() {
+function AxiomLogo() {
   return (
-    <div className="axiomai-logo-wrapper">
+    <div className="axiom-logo-wrap">
       <style>{`
-        .axiomai-logo-wrapper {
+        .axiom-logo-wrap {
           position: relative;
-          width: 200px;
-          height: 90px;
+          width: 168px;
+          height: 72px;
           display: flex;
           align-items: center;
           justify-content: center;
         }
-        .axiomai-logo-wrapper::before {
+        .axiom-logo-wrap::before {
           content: '';
           position: absolute;
           left: 50%; top: 50%;
           transform: translate(-50%, -50%);
-          width: 80px; height: 80px;
+          width: 70px; height: 70px;
           border-radius: 50%;
-          background: radial-gradient(circle, rgba(130,60,255,0.18) 0%, transparent 70%);
-          animation: axiomPulseOuter 3s ease-in-out infinite;
+          background: radial-gradient(circle, rgba(120,60,255,0.14) 0%, transparent 70%);
+          animation: ax-pulse-outer 4s ease-in-out infinite;
           pointer-events: none;
         }
-        .axiomai-logo-wrapper::after {
+        .axiom-logo-wrap::after {
           content: '';
           position: absolute;
           left: 50%; top: 50%;
           transform: translate(-50%, -50%);
-          width: 44px; height: 44px;
+          width: 38px; height: 38px;
           border-radius: 50%;
-          background: radial-gradient(circle, rgba(0,212,255,0.22) 0%, rgba(130,60,255,0.12) 50%, transparent 70%);
-          animation: axiomPulseMid 3s ease-in-out infinite 0.4s;
+          background: radial-gradient(circle, rgba(0,212,255,0.20) 0%, transparent 70%);
+          animation: ax-pulse-inner 4s ease-in-out infinite 0.4s;
           pointer-events: none;
         }
-        .axiomai-img {
+        .axiom-logo-img {
           position: relative;
           z-index: 5;
           mix-blend-mode: lighten;
-          animation: axiomLogoGlow 3s ease-in-out infinite;
+          filter: drop-shadow(0 0 6px rgba(0,212,255,0.30));
         }
-        @keyframes axiomPulseOuter {
+        @keyframes ax-pulse-outer {
           0%,100% { transform: translate(-50%,-50%) scale(1); opacity: 0.5; }
-          50%      { transform: translate(-50%,-50%) scale(2.2); opacity: 0; }
+          50%      { transform: translate(-50%,-50%) scale(1.9); opacity: 0; }
         }
-        @keyframes axiomPulseMid {
+        @keyframes ax-pulse-inner {
           0%,100% { transform: translate(-50%,-50%) scale(1); opacity: 0.7; }
-          50%      { transform: translate(-50%,-50%) scale(2.0); opacity: 0; }
-        }
-        @keyframes axiomLogoGlow {
-          0%,100% { filter: drop-shadow(0 0 5px rgba(0,212,255,0.35)) drop-shadow(0 0 12px rgba(130,60,255,0.2)); }
-          50%      { filter: drop-shadow(0 0 12px rgba(0,212,255,0.65)) drop-shadow(0 0 24px rgba(130,60,255,0.45)); }
+          50%      { transform: translate(-50%,-50%) scale(1.7); opacity: 0; }
         }
       `}</style>
       <Image
         src="/axiom-logo.png"
-        alt="AXIOM AI"
-        width={200}
-        height={90}
-        className="axiomai-img"
+        alt="AXIOM"
+        width={168}
+        height={72}
+        className="axiom-logo-img"
         priority
-        style={{ width: '200px', height: 'auto', objectFit: 'contain' }}
+        style={{ width: '168px', height: 'auto', objectFit: 'contain' }}
       />
     </div>
   )
@@ -83,27 +89,82 @@ function AxiomaiLogo() {
 export function Sidebar() {
   const pathname = usePathname()
   const router = useRouter()
+
   function handleNav(href: string) {
     if (href === '/customers') window.dispatchEvent(new Event('customers:reset'))
     router.push(href)
   }
+
   return (
-    <aside className="w-56 flex-shrink-0 flex flex-col border-r border-white/[0.06] bg-[#070714]">
-      <div className="px-3 pt-4 pb-4 border-b border-white/[0.06] flex items-center justify-center bg-[#070714]">
-        <AxiomaiLogo />
+    <aside
+      className="w-[232px] flex-shrink-0 flex flex-col"
+      style={{
+        background: 'var(--bg-sidebar)',
+        borderRight: '1px solid var(--border-subtle)',
+      }}
+    >
+      {/* Logo */}
+      <div
+        className="px-4 pt-5 pb-4 flex items-center justify-center"
+        style={{ borderBottom: '1px solid var(--border-subtle)' }}
+      >
+        <AxiomLogo />
       </div>
-      <nav className="flex-1 px-3 py-4 space-y-0.5">
+
+      {/* Section label */}
+      <div className="px-5 pt-5 pb-2">
+        <div className="eyebrow" style={{ fontSize: 9.5, opacity: 0.55 }}>Operations</div>
+      </div>
+
+      {/* Nav */}
+      <nav className="flex-1 px-3 space-y-0.5">
         {NAV.map(({ href, label, icon }) => {
           const active = pathname === href || (href !== '/' && pathname.startsWith(href))
           return (
-            <button key={href} onClick={() => handleNav(href)} className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-medium transition-all text-left ${active ? 'bg-white/[0.07] text-white' : 'text-white/40 hover:text-white/75 hover:bg-white/[0.04]'}`}>
-              <span className={active ? 'text-[#00d4ff]' : 'text-current'}>{icon}</span>
-              {label}
+            <button
+              key={href}
+              onClick={() => handleNav(href)}
+              className={`
+                w-full flex items-center gap-3 px-3 h-9 rounded-[10px]
+                text-[13px] font-medium text-left transition-all relative
+                ${active
+                  ? 'text-white'
+                  : 'text-white/55 hover:text-white/90 hover:bg-[rgba(255,255,255,0.035)]'
+                }
+              `}
+              style={
+                active
+                  ? {
+                      background: 'rgba(0,212,255,0.06)',
+                      boxShadow: '0 0 0 1px rgba(0,212,255,0.16) inset',
+                    }
+                  : undefined
+              }
+            >
+              {active && (
+                <span
+                  className="absolute left-0 top-1/2 -translate-y-1/2 rounded-r-full"
+                  style={{
+                    width: 2,
+                    height: 16,
+                    background: 'linear-gradient(180deg,#00d4ff,#a78bfa)',
+                    boxShadow: '0 0 8px rgba(0,212,255,0.7)',
+                  }}
+                />
+              )}
+              <span style={{ color: active ? '#00d4ff' : 'currentColor' }}>{icon}</span>
+              <span className="tracking-[0.005em]">{label}</span>
             </button>
           )
         })}
       </nav>
-      <div className="px-4 py-4 border-t border-white/[0.06] space-y-2">
+
+      {/* Footer status */}
+      <div
+        className="px-5 py-4 space-y-2.5"
+        style={{ borderTop: '1px solid var(--border-subtle)' }}
+      >
+        <div className="eyebrow" style={{ fontSize: 9.5, opacity: 0.55 }}>Integrations</div>
         <IntegrationDot label="Shopify" connected />
         <IntegrationDot label="Klaviyo" connected />
       </div>
@@ -113,9 +174,20 @@ export function Sidebar() {
 
 function IntegrationDot({ label, connected }: { label: string; connected: boolean }) {
   return (
-    <div className="flex items-center gap-2">
-      <div className={`w-1.5 h-1.5 rounded-full ${connected ? 'bg-[#00e676]' : 'bg-white/20'}`} style={connected ? { boxShadow: '0 0 4px #00e676aa' } : undefined}/>
-      <span className="text-[11px] text-white/30">{label}</span>
+    <div className="flex items-center gap-2.5">
+      <span
+        className="w-1.5 h-1.5 rounded-full pulse-dot"
+        style={{
+          background: connected ? '#3ddc97' : 'rgba(255,255,255,0.18)',
+          boxShadow: connected ? '0 0 6px rgba(61,220,151,0.7)' : undefined,
+        }}
+      />
+      <span className="text-[12px] font-medium" style={{ color: 'rgba(255,255,255,0.55)' }}>
+        {label}
+      </span>
+      <span className="ml-auto text-[10px]" style={{ color: 'rgba(255,255,255,0.30)' }}>
+        {connected ? 'Live' : 'Off'}
+      </span>
     </div>
   )
 }

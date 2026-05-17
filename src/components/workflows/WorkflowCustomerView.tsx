@@ -256,46 +256,43 @@ export function WorkflowCustomerView({
   const initials = customer.name.split(' ').map(n => n[0]).join('')
 
   return (
-    <div className="flex-1 flex flex-col overflow-hidden" style={{ background: '#070714' }}>
+    <div className="flex-1 flex flex-col overflow-hidden" style={{ background: 'var(--bg-base)' }}>
       <div className="flex-1 overflow-y-auto">
         <div className="max-w-[860px] mx-auto px-8 py-8">
 
-          {/* ── Breadcrumb ── */}
-          <div className="flex items-center gap-2 mb-7">
-            <button
-              onClick={onBack}
-              className="flex items-center gap-1.5 text-[11px] text-white/25 hover:text-white/55 transition-colors"
-            >
-              <svg width="10" height="10" fill="none" viewBox="0 0 16 16">
-                <path d="M10 3L5 8l5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-              {workflowName}
-            </button>
-            <span style={{ color: 'rgba(255,255,255,0.12)' }}>·</span>
-            <span className="text-[11px] text-white/40">{customer.name}</span>
-          </div>
+          {/* Back */}
+          <button
+            onClick={onBack}
+            className="flex items-center gap-1.5 mb-5 transition-colors group"
+            style={{ color: 'rgba(255,255,255,0.45)' }}
+          >
+            <svg width="14" height="14" fill="none" viewBox="0 0 16 16" className="transition-transform group-hover:-translate-x-0.5">
+              <path d="M10 3L5 8l5 5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            <span className="text-[12px] font-medium group-hover:text-white/85 transition-colors">{workflowName}</span>
+          </button>
 
-          {/* ── Customer Header ── */}
-          <div className="rounded-2xl p-6 mb-7" style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)' }}>
-            <div className="flex items-start justify-between mb-5">
+          {/* Customer Header */}
+          <div className="rounded-[14px] p-6 mb-6" style={{ background: 'rgba(255,255,255,0.022)', border: '1px solid rgba(255,255,255,0.06)', boxShadow: '0 1px 0 rgba(255,255,255,0.04) inset' }}>
+            <div className="flex items-start justify-between mb-5 gap-4 flex-wrap">
               <div className="flex items-center gap-4">
-                <div className="w-11 h-11 rounded-xl flex items-center justify-center text-[13px] font-bold flex-shrink-0"
-                  style={{ background: 'rgba(0,212,255,0.1)', color: '#00d4ff', border: '1px solid rgba(0,212,255,0.18)' }}>
+                <div className="w-11 h-11 rounded-full flex items-center justify-center text-[13px] font-semibold flex-shrink-0"
+                  style={{ background: 'linear-gradient(135deg, #003824 0%, #006b42 100%)', color: '#fff', border: '1px solid rgba(61,220,151,0.30)' }}>
                   {initials}
                 </div>
                 <div>
-                  <div className="text-[17px] font-semibold text-white/90 tracking-tight">{customer.name}</div>
-                  <div className="text-[12px] text-white/30 mt-0.5">{customer.email}</div>
+                  <div className="text-[20px] font-semibold tracking-[-0.005em]" style={{ color: 'rgba(255,255,255,0.95)' }}>{customer.name}</div>
+                  <div className="text-[12.5px] mt-1" style={{ color: 'rgba(255,255,255,0.45)' }}>{customer.email}</div>
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <span className="px-3 py-1 rounded-full text-[11px] font-medium"
-                  style={{ background: 'rgba(0,212,255,0.08)', color: '#00d4ff', border: '1px solid rgba(0,212,255,0.15)' }}>
+                <span className="inline-flex items-center h-5 px-2 rounded-[6px] text-[10.5px] font-medium tracking-wide"
+                  style={{ background: 'rgba(0,212,255,0.10)', color: '#00d4ff', border: '1px solid rgba(0,212,255,0.25)' }}>
                   {customer.state}
                 </span>
-                <span className="flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-medium"
-                  style={{ background: 'rgba(0,230,118,0.07)', color: '#00e676', border: '1px solid rgba(0,230,118,0.15)' }}>
-                  <span className="w-1.5 h-1.5 rounded-full" style={{ background: '#00e676', boxShadow: '0 0 5px #00e676' }} />
+                <span className="inline-flex items-center gap-1.5 h-5 px-2 rounded-[6px] text-[10.5px] font-medium"
+                  style={{ background: 'rgba(61,220,151,0.10)', color: '#3ddc97', border: '1px solid rgba(61,220,151,0.25)' }}>
+                  <span className="w-1.5 h-1.5 rounded-full" style={{ background: '#3ddc97', boxShadow: '0 0 5px #3ddc97aa' }} />
                   Active in workflow
                 </span>
               </div>

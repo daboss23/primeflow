@@ -1,22 +1,22 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Spinner, PageHeader } from '@/components/ui'
+import { Spinner, PageHeader, Card, SectionLabel, Pill, StatusDot, tokens, Button } from '@/components/ui'
 
 const PLATFORMS = [
-  { id: 'shopify', name: 'Shopify', description: 'Sync orders, customers & products', emoji: '🛍️', color: '#96bf48', category: 'Commerce', phase: 1,
+  { id: 'shopify',     name: 'Shopify',      description: 'Sync orders, customers and products',  color: '#96bf48', category: 'Commerce',  phase: 1,
     fields: [{ key: 'store_url', placeholder: 'your-store.myshopify.com' }, { key: 'api_key', placeholder: 'API Key', type: 'password' }] },
-  { id: 'woocommerce', name: 'WooCommerce', description: 'Import WordPress store data', emoji: '🛒', color: '#7f54b3', category: 'Commerce', phase: 2,
+  { id: 'woocommerce', name: 'WooCommerce',  description: 'Import WordPress store data',           color: '#7f54b3', category: 'Commerce',  phase: 2,
     fields: [{ key: 'store_url', placeholder: 'https://your-store.com' }, { key: 'consumer_key', placeholder: 'Consumer Key' }, { key: 'consumer_secret', placeholder: 'Consumer Secret', type: 'password' }] },
-  { id: 'klaviyo', name: 'Klaviyo', description: 'Email & SMS marketing data', emoji: '📧', color: '#00b499', category: 'Marketing', phase: 2,
+  { id: 'klaviyo',     name: 'Klaviyo',      description: 'Email and SMS marketing data',          color: '#00b499', category: 'Marketing', phase: 2,
     fields: [{ key: 'api_key', placeholder: 'Private API Key', type: 'password' }] },
-  { id: 'zendesk', name: 'Zendesk', description: 'Customer support ticket history', emoji: '🎫', color: '#1f8eed', category: 'Support', phase: 2,
+  { id: 'zendesk',     name: 'Zendesk',      description: 'Customer support ticket history',       color: '#1f8eed', category: 'Support',   phase: 2,
     fields: [{ key: 'subdomain', placeholder: 'your-company.zendesk.com' }, { key: 'api_token', placeholder: 'API Token', type: 'password' }] },
-  { id: 'intercom', name: 'Intercom', description: 'Conversation & event data', emoji: '💬', color: '#1f8eed', category: 'Support', phase: 2,
+  { id: 'intercom',    name: 'Intercom',     description: 'Conversation and event data',           color: '#1f8eed', category: 'Support',   phase: 2,
     fields: [{ key: 'access_token', placeholder: 'Access Token', type: 'password' }] },
-  { id: 'mailchimp', name: 'Mailchimp', description: 'Campaign & list segmentation', emoji: '🐒', color: '#ffe01b', category: 'Marketing', phase: 2,
+  { id: 'mailchimp',   name: 'Mailchimp',    description: 'Campaign and list segmentation',        color: '#ffe01b', category: 'Marketing', phase: 2,
     fields: [{ key: 'api_key', placeholder: 'API Key', type: 'password' }, { key: 'server_prefix', placeholder: 'Server prefix (e.g. us1)' }] },
-  { id: 'hubspot', name: 'HubSpot', description: 'CRM contacts & deal pipeline', emoji: '🔴', color: '#ff7a59', category: 'CRM', phase: 2,
+  { id: 'hubspot',     name: 'HubSpot',      description: 'CRM contacts and deal pipeline',        color: '#ff7a59', category: 'CRM',       phase: 2,
     fields: [{ key: 'api_key', placeholder: 'Private App Token', type: 'password' }] },
 ]
 
@@ -81,32 +81,29 @@ export default function IntegrationsPage() {
   const totalRecords = Object.values(connected).reduce((sum, c) => sum + c.recordsSynced, 0)
 
   return (
-    <div className="p-7 max-w-[1100px]">
-
-      {/* Header */}
+    <div className="px-10 py-10 max-w-[1180px]">
       <PageHeader
+        eyebrow="Data Sources"
         title="Integrations"
-        subtitle="Connect your ecommerce stack to enrich customer data and trigger automated flows."
+        subtitle="Connect your commerce stack to enrich customer data and trigger automated flows."
       />
 
-      {/* Stats */}
       <div className="grid grid-cols-2 gap-4 mb-6">
-        <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-5">
-          <div className="text-[11px] uppercase tracking-[0.12em] text-white/40 mb-2">Connected Platforms</div>
+        <Card padded={false} className="px-5 py-5">
+          <SectionLabel className="mb-3">Connected Platforms</SectionLabel>
           <div className="flex items-baseline gap-2">
-            <span className="text-[40px] font-bold text-white" style={{ fontFamily: 'var(--font-jetbrains)' }}>{connectedCount}</span>
-            <span className="text-[18px] text-white/25">/ {PLATFORMS.length}</span>
+            <span className="metric-num text-[34px] leading-none" style={{ color: tokens.textPrimary }}>{connectedCount}</span>
+            <span className="metric-num text-[18px]" style={{ color: tokens.textMuted }}>/ {PLATFORMS.length}</span>
           </div>
-        </div>
-        <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-5">
-          <div className="text-[11px] uppercase tracking-[0.12em] text-white/40 mb-2">Records Synced</div>
-          <div className="text-[40px] font-bold text-white" style={{ fontFamily: 'var(--font-jetbrains)' }}>
+        </Card>
+        <Card padded={false} className="px-5 py-5">
+          <SectionLabel className="mb-3">Records Synced</SectionLabel>
+          <div className="metric-num text-[34px] leading-none" style={{ color: tokens.accent }}>
             {totalRecords > 0 ? totalRecords.toLocaleString() : '0'}
           </div>
-        </div>
+        </Card>
       </div>
 
-      {/* Grid */}
       <div className="grid grid-cols-2 gap-4">
         {PLATFORMS.map((p) => {
           const isConnected = !!connected[p.id]
@@ -120,69 +117,75 @@ export default function IntegrationsPage() {
           return (
             <div
               key={p.id}
-              className="rounded-xl border bg-white/[0.02] flex flex-col transition-all duration-200"
-              style={{ borderColor: isConnected ? 'rgba(0,230,118,0.15)' : isExpanded ? 'rgba(0,212,255,0.2)' : 'rgba(255,255,255,0.06)' }}
+              className="rounded-[14px] border bg-[rgba(255,255,255,0.022)] flex flex-col transition-all"
+              style={{
+                borderColor: isConnected
+                  ? 'rgba(61,220,151,0.22)'
+                  : isExpanded
+                    ? 'rgba(0,212,255,0.28)'
+                    : tokens.borderSubtle,
+                boxShadow: '0 1px 0 rgba(255,255,255,0.04) inset',
+              }}
             >
-              <div className="p-5 flex flex-col gap-3">
-
-                {/* Top row */}
+              <div className="p-5 flex flex-col gap-3.5">
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-11 h-11 rounded-xl flex items-center justify-center text-[22px] shrink-0" style={{ background: `${p.color}22` }}>
-                      {p.emoji}
+                    <div
+                      className="w-10 h-10 rounded-[10px] flex items-center justify-center shrink-0 text-[13px] font-semibold metric-num"
+                      style={{ background: `${p.color}1a`, color: p.color, border: `1px solid ${p.color}28`, letterSpacing: '0.04em' }}
+                    >
+                      {p.name.slice(0,2).toUpperCase()}
                     </div>
                     <div>
-                      <div className="text-[15px] font-semibold text-white">{p.name}</div>
-                      <div className="text-[12px] text-white/40 mt-0.5">{p.description}</div>
+                      <div className="text-[14px] font-semibold" style={{ color: tokens.textPrimary }}>{p.name}</div>
+                      <div className="text-[12px] mt-0.5" style={{ color: tokens.textTertiary }}>{p.description}</div>
                     </div>
                   </div>
                   <div className="flex items-center gap-1.5 shrink-0">
-                    <div className="w-1.5 h-1.5 rounded-full" style={{ background: isConnected ? '#00e676' : 'rgba(255,255,255,0.2)', boxShadow: isConnected ? '0 0 4px #00e676aa' : 'none' }} />
-                    <span className="text-[11px]" style={{ color: isConnected ? '#00e676' : 'rgba(255,255,255,0.3)' }}>
-                      {isConnected ? 'Connected' : 'Not Connected'}
+                    <StatusDot tone={isConnected ? 'success' : 'neutral'} size={5} glow={isConnected} />
+                    <span className="text-[11px] font-medium" style={{ color: isConnected ? '#3ddc97' : tokens.textMuted }}>
+                      {isConnected ? 'Connected' : 'Not connected'}
                     </span>
                   </div>
                 </div>
 
-                {/* Tags */}
                 <div className="flex items-center gap-2">
-                  <span className="text-[10px] px-2 py-0.5 rounded-full border" style={{ color: 'rgba(255,255,255,0.4)', borderColor: 'rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.03)' }}>
-                    {p.category}
-                  </span>
-                  {p.phase === 1 && <span className="text-[10px] text-[#00d4ff] px-2 py-0.5 rounded-full border border-[#00d4ff]/25 bg-[#00d4ff]/[0.06]">Phase 1 ready</span>}
-                  {p.phase === 2 && <span className="text-[10px] text-[#a78bfa] px-2 py-0.5 rounded-full border border-[#a78bfa]/25 bg-[#a78bfa]/[0.06]">Phase 2</span>}
+                  <Pill tone="neutral">{p.category}</Pill>
+                  {p.phase === 1 && <Pill tone="accent">Phase 1 ready</Pill>}
+                  {p.phase === 2 && <Pill tone="violet">Phase 2</Pill>}
                 </div>
 
-                {/* Connected state */}
                 {isConnected && connData && (
                   <div className="flex flex-col gap-3 pt-1">
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <div className="text-[10px] uppercase tracking-[0.1em] text-white/30 mb-0.5">Records Synced</div>
-                        <div className="text-[13px] font-semibold text-white" style={{ fontFamily: 'var(--font-jetbrains)' }}>{connData.recordsSynced.toLocaleString()}</div>
+                        <SectionLabel className="!text-[9.5px] mb-1.5">Records Synced</SectionLabel>
+                        <div className="metric-num text-[14px]" style={{ color: tokens.textPrimary }}>{connData.recordsSynced.toLocaleString()}</div>
                       </div>
                       <div>
-                        <div className="text-[10px] uppercase tracking-[0.1em] text-white/30 mb-0.5">Last Sync</div>
-                        <div className="text-[13px] font-semibold text-white" style={{ fontFamily: 'var(--font-jetbrains)' }}>{connData.lastSync}</div>
+                        <SectionLabel className="!text-[9.5px] mb-1.5">Last Sync</SectionLabel>
+                        <div className="text-[13px] font-medium" style={{ color: tokens.textPrimary }}>{connData.lastSync}</div>
                       </div>
                     </div>
                     <div className="flex items-center justify-between">
                       <button
                         onClick={() => handleSyncNow(p.id)}
                         disabled={isSyncing}
-                        className="flex items-center gap-1.5 text-[12px] text-white/50 hover:text-white transition-colors disabled:opacity-40"
+                        className="flex items-center gap-1.5 text-[12px] font-medium transition-colors disabled:opacity-40"
+                        style={{ color: tokens.textSecondary }}
                       >
                         {isSyncing
                           ? <Spinner size={12} />
-                          : <svg width="12" height="12" fill="none" viewBox="0 0 16 16"><path d="M2 8a6 6 0 1 0 6-6 6 6 0 0 0-4.24 1.76L2 2v4h4L4.76 4.76A4 4 0 1 1 4 8H2z" fill="currentColor"/></svg>
+                          : <svg width="12" height="12" fill="none" viewBox="0 0 16 16"><path d="M14 8a6 6 0 1 1-1.8-4.2M14 3v3h-3" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/></svg>
                         }
-                        {isSyncing ? 'Syncing...' : 'Sync Now'}
+                        {isSyncing ? 'Syncing…' : 'Sync now'}
                       </button>
                       <button
                         onClick={() => handleDisconnect(p.id)}
                         disabled={isDisconnecting}
-                        className="text-white/20 hover:text-red-400 transition-colors disabled:opacity-30"
+                        className="transition-colors disabled:opacity-30"
                         title="Disconnect"
+                        style={{ color: tokens.textMuted }}
                       >
                         {isDisconnecting
                           ? <Spinner size={12} />
@@ -193,21 +196,14 @@ export default function IntegrationsPage() {
                   </div>
                 )}
 
-                {/* Not connected — connect button */}
                 {!isConnected && !isExpanded && (
-                  <button
-                    onClick={() => setExpanded(p.id)}
-                    className="w-full py-2 rounded-lg text-[12px] font-medium border border-white/[0.08] text-white/35 hover:text-white/70 hover:border-white/20 hover:bg-white/[0.03] transition-all"
-                  >
-                    Connect
-                  </button>
+                  <Button variant="secondary" className="w-full" onClick={() => setExpanded(p.id)}>Connect</Button>
                 )}
               </div>
 
-              {/* Expanded inline form */}
               {isExpanded && (
-                <div className="px-5 pb-4 border-t border-white/[0.05]">
-                  <div className="pt-3 flex flex-col gap-2">
+                <div className="px-5 pb-5" style={{ borderTop: `1px solid ${tokens.borderSubtle}` }}>
+                  <div className="pt-4 flex flex-col gap-2.5">
                     {p.fields.map(field => (
                       <input
                         key={field.key}
@@ -215,23 +211,16 @@ export default function IntegrationsPage() {
                         placeholder={field.placeholder}
                         value={fields[field.key] || ''}
                         onChange={e => handleFieldChange(p.id, field.key, e.target.value)}
-                        className="w-full bg-white/[0.03] border border-white/[0.08] rounded-lg px-3 py-2 text-[12px] text-white placeholder-white/20 focus:outline-none focus:border-[#00d4ff]/40 transition-colors"
+                        className="w-full h-10 rounded-[10px] px-3.5 text-[13px] text-white/90 placeholder:text-white/30 transition-all
+                          bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.08)]
+                          focus:outline-none focus:border-[rgba(0,212,255,0.40)] focus:shadow-[0_0_0_3px_rgba(0,212,255,0.10)]"
                       />
                     ))}
                     <div className="flex gap-2 pt-1">
-                      <button
-                        onClick={() => handleConnect(p.id)}
-                        disabled={isConnecting}
-                        className="flex-1 py-2 rounded-lg text-[12px] font-medium border border-[#00d4ff]/30 text-[#00d4ff] bg-[#00d4ff]/[0.06] hover:bg-[#00d4ff]/[0.12] transition-all disabled:opacity-50 flex items-center justify-center gap-2"
-                      >
-                        {isConnecting ? <><Spinner size={11} /> Connecting...</> : 'Connect'}
-                      </button>
-                      <button
-                        onClick={() => setExpanded(null)}
-                        className="px-4 py-2 rounded-lg text-[12px] border border-white/[0.08] text-white/30 hover:text-white/60 hover:border-white/15 transition-all"
-                      >
-                        Cancel
-                      </button>
+                      <Button variant="primary" className="flex-1" onClick={() => handleConnect(p.id)} disabled={isConnecting}>
+                        {isConnecting ? <><Spinner size={11} /> Connecting…</> : 'Connect'}
+                      </Button>
+                      <Button variant="ghost" onClick={() => setExpanded(null)}>Cancel</Button>
                     </div>
                   </div>
                 </div>
@@ -241,13 +230,11 @@ export default function IntegrationsPage() {
         })}
       </div>
 
-      {/* Footer */}
-      <div className="mt-6 rounded-xl border border-white/[0.04] bg-white/[0.01] p-4 text-center">
-        <p className="text-[12px] text-white/30">
+      <div className="mt-6 rounded-[12px] p-4 text-center" style={{ background: 'rgba(255,255,255,0.015)', border: `1px solid ${tokens.borderSubtle}` }}>
+        <p className="text-[12px]" style={{ color: tokens.textMuted }}>
           Shopify integration is live. Klaviyo, WooCommerce and others are coming in Phase 2.
         </p>
       </div>
-
     </div>
   )
 }

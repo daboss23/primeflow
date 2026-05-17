@@ -50,26 +50,26 @@ export function stateLabel(state: CustomerState): string {
 
 export function stateColor(state: CustomerState): string {
   const colors: Record<CustomerState, string> = {
-    abandoned_cart: '#ff4060',
-    failed_payment: '#ff6b35',
-    dormant_buyer: '#cc3355',
-    repeat_at_risk: '#ffaa00',
-    replenishment: '#00ccff',
+    abandoned_cart:      '#ff4d6a',
+    failed_payment:      '#ff7a3d',
+    dormant_buyer:       '#d1426b',
+    repeat_at_risk:      '#ffaa00',
+    replenishment:       '#00d4ff',
     engaged_unconverted: '#a78bfa',
-    healthy: '#00e676',
+    healthy:             '#3ddc97',
   }
   return colors[state]
 }
 
 export function bandColor(band: HealthBand): string {
-  return { red: '#ff4060', yellow: '#ffaa00', green: '#00e676' }[band]
+  return { red: '#ff4d6a', yellow: '#ffaa00', green: '#3ddc97' }[band]
 }
 
 export function bandBg(band: HealthBand): string {
   return {
-    red: 'linear-gradient(135deg,#8b1a2e,#c0253a)',
-    yellow: 'linear-gradient(135deg,#7a4f00,#b37700)',
-    green: 'linear-gradient(135deg,#005c33,#00a854)',
+    red:    'linear-gradient(135deg, #4a0d1a 0%, #7d1a30 100%)',
+    yellow: 'linear-gradient(135deg, #3d2a00 0%, #6e4d00 100%)',
+    green:  'linear-gradient(135deg, #003824 0%, #006b42 100%)',
   }[band]
 }
 

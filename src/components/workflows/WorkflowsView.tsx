@@ -1136,8 +1136,8 @@ function NewWorkflowModal({ onClose }: { onClose: () => void }) {
               </div>
 
               {activePreview === 'email' && (
-                <div className="rounded-xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.07)' }}>
-                  <div className="px-4 py-3" style={{ background: 'rgba(255,255,255,0.03)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+                <div className="rounded-xl overflow-hidden border border-white/[0.07]">
+                  <div className="px-4 py-3 bg-white/[0.03] border-b border-white/[0.06]">
                     <div className="flex items-center gap-2 mb-1.5">
                       <span className="text-[10px] font-semibold tracking-wider uppercase text-white/25">Subject</span>
                       <span className="text-[12px] font-medium text-white/80">{previewSubject}</span>
@@ -1147,9 +1147,9 @@ function NewWorkflowModal({ onClose }: { onClose: () => void }) {
                       <span className="text-[12px] text-white/50">Your Brand &lt;hello@yourbrand.com&gt;</span>
                     </div>
                   </div>
-                  <div className="p-4" style={{ background: 'rgba(255,255,255,0.015)' }}>
+                  <div className="p-4 bg-white/[0.015]">
                     <div className="text-[12px] leading-relaxed text-white/60 whitespace-pre-line">{previewBody}</div>
-                    <div className="mt-4 pt-3" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+                    <div className="mt-4 pt-3 border-t border-white/[0.06]">
                       <div className="text-[10px] text-white/20">Sent via Revenue Recovery Engine · Unsubscribe</div>
                     </div>
                   </div>
@@ -1159,12 +1159,11 @@ function NewWorkflowModal({ onClose }: { onClose: () => void }) {
               {activePreview === 'sms' && (
                 <div className="flex justify-center py-2">
                   <div className="w-[260px]">
-                    <div className="rounded-3xl p-4" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                    <div className="rounded-3xl p-4 bg-white/[0.03] border border-white/[0.08]">
                       <div className="flex justify-center mb-3">
-                        <div className="w-12 h-1 rounded-full" style={{ background: 'rgba(255,255,255,0.12)' }} />
+                        <div className="w-12 h-1 rounded-full bg-white/[0.12]" />
                       </div>
-                      <div className="rounded-2xl p-3 text-[12px] leading-relaxed text-white/75"
-                        style={{ background: 'rgba(0,212,255,0.08)', border: '1px solid rgba(0,212,255,0.12)' }}>
+                      <div className="rounded-2xl p-3 text-[12px] leading-relaxed text-white/75 bg-cyan-400/[0.08] border border-cyan-400/[0.12]">
                         {previewSMS}
                       </div>
                       <div className="text-center mt-3 text-[10px] text-white/20">SMS · {previewSMS.length} chars</div>
@@ -1173,19 +1172,19 @@ function NewWorkflowModal({ onClose }: { onClose: () => void }) {
                 </div>
               )}
 
-              <div className="p-3 rounded-xl" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)' }}>
-                <div className="text-[10px] font-semibold tracking-wider uppercase text-white/25 mb-2">Personalisation Tokens</div>
+              <Card className="p-3">
+                <SectionLabel>Personalisation Tokens</SectionLabel>
                 <div className="flex flex-wrap gap-1.5">
                   {personalization.map((p) => {
                     const token = `{{${p.toLowerCase().replace(/ /g, '_')}}}`
                     return (
-                      <span key={p} className="px-2 py-0.5 rounded text-[10px] font-mono" style={{ background: 'rgba(0,212,255,0.08)', color: '#00d4ff' }}>{token}</span>
+                      <span key={p} className="px-2 py-0.5 rounded text-[10px] font-mono bg-cyan-400/[0.08] text-cyan-400">{token}</span>
                     )
                   })}
                 </div>
-              </div>
+              </Card>
 
-              <div className="p-3 rounded-xl flex items-center gap-3" style={{ background: 'rgba(0,230,118,0.05)', border: '1px solid rgba(0,230,118,0.1)' }}>
+              <div className="p-3 rounded-xl flex items-center gap-3 bg-green-400/[0.05] border border-green-400/[0.10]">
                 <svg width="14" height="14" fill="none" viewBox="0 0 16 16">
                   <circle cx="8" cy="8" r="6" stroke="#00e676" strokeWidth="1.3"/>
                   <path d="M5 8l2 2 4-4" stroke="#00e676" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
@@ -1204,7 +1203,7 @@ function NewWorkflowModal({ onClose }: { onClose: () => void }) {
                   <div className="text-[11px] text-white/30 mt-0.5">What happens if the first message doesn't convert</div>
                 </div>
                 <div className="flex flex-col items-end gap-1">
-                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg" style={{ background: 'rgba(0,212,255,0.05)', border: '1px solid rgba(0,212,255,0.1)' }}>
+                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-cyan-400/[0.05] border border-cyan-400/[0.10]">
                     <svg width="9" height="9" fill="none" viewBox="0 0 16 16"><path d="M8 1l1.5 4.5H14l-3.7 2.7 1.4 4.3L8 10l-3.7 2.5 1.4-4.3L2 5.5h4.5z" fill="#00d4ff"/></svg>
                     <span className="text-[9px] font-semibold text-[#00d4ff]/70">AI-generated from strategy</span>
                   </div>
@@ -1214,10 +1213,8 @@ function NewWorkflowModal({ onClose }: { onClose: () => void }) {
 
               <div className="space-y-2">
                 {fallback.map((rule, i) => (
-                  <div key={i} className="flex items-start gap-3 p-3.5 rounded-xl"
-                    style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.06)' }}>
-                    <div className="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5"
-                      style={{ background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.35)' }}>{i + 1}</div>
+                  <div key={i} className="flex items-start gap-3 p-3.5 rounded-xl bg-white/[0.025] border border-white/[0.06]">
+                    <div className="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5 bg-white/[0.06] text-white/35">{i + 1}</div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap mb-1">
                         <span className="text-[11px] font-semibold" style={{ color: '#f59e0b' }}>If:</span>
@@ -1235,10 +1232,8 @@ function NewWorkflowModal({ onClose }: { onClose: () => void }) {
                 ))}
               </div>
 
-              <div className="flex items-start gap-3 p-3.5 rounded-xl"
-                style={{ background: 'rgba(255,255,255,0.015)', border: '1px dashed rgba(255,255,255,0.08)' }}>
-                <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5"
-                  style={{ background: 'rgba(255,255,255,0.04)' }}>
+              <div className="flex items-start gap-3 p-3.5 rounded-xl bg-white/[0.015] border border-dashed border-white/[0.08]">
+                <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 bg-white/[0.04]">
                   <svg width="10" height="10" fill="none" viewBox="0 0 16 16">
                     <rect x="2" y="2" width="12" height="12" rx="2" stroke="rgba(255,255,255,0.2)" strokeWidth="1.3"/>
                     <path d="M8 5v6M5 8h6" stroke="rgba(255,255,255,0.2)" strokeWidth="1.3" strokeLinecap="round"/>
@@ -1260,8 +1255,8 @@ function NewWorkflowModal({ onClose }: { onClose: () => void }) {
                 </select>
               </div>
 
-              <div className="p-4 rounded-xl" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)' }}>
-                <div className="text-[10px] font-semibold tracking-[0.14em] uppercase text-white/25 mb-3">Workflow Summary</div>
+              <Card>
+                <SectionLabel>Workflow Summary</SectionLabel>
                 <div className="space-y-2">
                   {[
                     ['Trigger',         TRIGGER_LABELS[trigger]],
@@ -1279,26 +1274,25 @@ function NewWorkflowModal({ onClose }: { onClose: () => void }) {
                     </div>
                   ))}
                 </div>
-              </div>
+              </Card>
             </div>
           )}
         </div>
 
         {/* Footer */}
-        <div className="flex-shrink-0 flex items-center justify-between px-7 py-4" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
-          <button onClick={() => step > 1 ? setStep(step - 1) : onClose()}
-            className="px-4 py-2 rounded-lg text-[12px] font-medium text-white/30 hover:text-white/55 hover:bg-white/[0.04] transition-all">
+        <div className="flex-shrink-0 flex items-center justify-between px-7 py-4 border-t border-white/[0.06]">
+          <Button variant="ghost" onClick={() => step > 1 ? setStep(step - 1) : onClose()}>
             {step === 1 ? 'Cancel' : '← Back'}
-          </button>
+          </Button>
           <div className="flex items-center gap-3">
             <span className="text-[10px] text-white/20">Step {step} of 4</span>
-            <button onClick={() => step < 4 ? setStep(step + 1) : onClose()}
-              className="px-6 py-2 rounded-xl text-[12px] font-semibold transition-all hover:opacity-90 active:scale-[0.98]"
-              style={step === 4
-                ? { background: 'rgba(0,230,118,0.13)', color: '#00e676', border: '1px solid rgba(0,230,118,0.22)' }
-                : { background: 'rgba(0,212,255,0.12)', color: '#00d4ff', border: '1px solid rgba(0,212,255,0.22)' }}>
-              {step < 4 ? 'Continue →' : '✓ Launch Workflow'}
-            </button>
+            {step < 4 ? (
+              <Button variant="default" onClick={() => setStep(step + 1)}>Continue →</Button>
+            ) : (
+              <Button variant="default" onClick={onClose} className="border-green-400/[0.22] text-green-400 hover:bg-green-400/10 hover:border-green-400/40">
+                ✓ Launch Workflow
+              </Button>
+            )}
           </div>
         </div>
       </div>

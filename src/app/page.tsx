@@ -1,4 +1,5 @@
-import { supabaseAdmin } from '@/lib/supabase'
+import { hasSupabase, supabaseAdmin } from '@/lib/supabase'
+import { DEMO, DEMO_COOKIE } from '@/lib/demo-data'
 import { HealthSummaryChart } from '@/components/dashboard/HealthSummaryChart'
 import { SeedButton } from '@/components/dashboard/SeedButton'
 import { PageHeader } from '@/components/ui/PageHeader'
@@ -8,54 +9,86 @@ import {
 import { formatCurrency, stateLabel, stateColor } from '@/lib/utils'
 import type { CustomerState } from '@/types'
 import Link from 'next/link'
+import { cookies } from 'next/headers'
+
+// ─── Demo-mode check ──────────────────────────────────────────────────────────
+
+async function isDemo() {
+  if (!hasSupabase) return true
+  const jar = await cookies()
+  return jar.get(DEMO_COOKIE)?.value === '1'
+}
 
 // ─── Data fetchers ────────────────────────────────────────────────────────────
 
 async function getCustomerCount(): Promise<number> {
-  const { count } = await supabaseAdmin
-    .from('customers')
-    .select('*', { count: 'exact', head: true })
-  return count ?? 0
+  if (await isDemo()) return DEMO.health.length
+  try {
+    const { count } = await supabaseAdmin
+      .from('customers')
+      .select('*', { count: 'exact', head: true })
+    return count ?? 0
+  } catch { return 0 }
 }
 
 async function getHealthData() {
-  const { data } = await supabaseAdmin
-    .from('current_customer_health')
-    .select('health_band, state, opportunity_score, total_spend, average_order_value, health_score')
-  return data ?? []
+  if (await isDemo()) return DEMO.health
+  try {
+    const { data } = await supabaseAdmin
+      .from('current_customer_health')
+      .select('health_band, state, opportunity_score, total_spend, average_order_value, health_score')
+    return data ?? []
+  } catch { return [] }
 }
 
 async function getRecentActivity() {
-  const { data } = await supabaseAdmin
-    .from('outreach_drafts')
-    .select('id, channel, status, generated_at, customer_id')
-    .order('generated_at', { ascending: false })
-    .limit(6)
-  return data ?? []
+  if (await isDemo()) return DEMO.drafts
+  try {
+    const { data } = await supabaseAdmin
+      .from('outreach_drafts')
+      .select('id, channel, status, generated_at, customer_id')
+      .order('generated_at', { ascending: false })
+      .limit(6)
+    return data ?? []
+  } catch { return [] }
 }
 
 async function getDraftStats() {
-  const { data } = await supabaseAdmin
-    .from('outreach_drafts')
-    .select('status, channel')
-  return data ?? []
+  if (await isDemo()) return DEMO.drafts
+  try {
+    const { data } = await supabaseAdmin
+      .from('outreach_drafts')
+      .select('status, channel')
+    return data ?? []
+  } catch { return [] }
 }
 
 async function getOutcomes() {
-  const { data } = await supabaseAdmin
-    .from('outcomes')
-    .select('outcome_type, revenue_value')
-  return data ?? []
+  if (await isDemo()) return DEMO.outcomes
+  try {
+    const { data } = await supabaseAdmin
+      .from('outcomes')
+      .select('outcome_type, revenue_value')
+    return data ?? []
+  } catch { return [] }
 }
 
 async function getTopAtRiskCustomers() {
-  const { data } = await supabaseAdmin
-    .from('current_customer_health')
-    .select('customer_id, first_name, last_name, health_band, health_score, opportunity_score, state, total_spend, last_purchase_at')
-    .eq('health_band', 'red')
-    .order('opportunity_score', { ascending: false })
-    .limit(5)
-  return data ?? []
+  if (await isDemo()) {
+    return DEMO.health
+      .filter((c) => c.health_band === 'red')
+      .sort((a, b) => b.opportunity_score - a.opportunity_score)
+      .slice(0, 5)
+  }
+  try {
+    const { data } = await supabaseAdmin
+      .from('current_customer_health')
+      .select('customer_id, first_name, last_name, health_band, health_score, opportunity_score, state, total_spend, last_purchase_at')
+      .eq('health_band', 'red')
+      .order('opportunity_score', { ascending: false })
+      .limit(5)
+    return data ?? []
+  } catch { return [] }
 }
 
 // ─── Config ───────────────────────────────────────────────────────────────────
@@ -148,7 +181,7 @@ export default async function DashboardPage() {
   const totalForState      = health.length
 
   return (
-    <div className="px-10 py-10 w-full relative">
+    <div className="pl-7 pr-8 py-9 w-full relative">
       <PageHeader
         eyebrow="Intelligence Core"
         title="Operator Overview"
@@ -194,7 +227,7 @@ export default async function DashboardPage() {
               <div className="space-y-3.5">
                 {by_state.map(({ state, count }) => (
                   <div key={state} className="flex items-center justify-between gap-3">
-                    <span className="text-[13px]" style={{ color: tokens.textSecondary }}>
+                    <span className="text-[13.5px]" style={{ color: tokens.textSecondary }}>
                       {stateLabel(state)}
                     </span>
                     <div className="flex items-center gap-3 min-w-0">
@@ -205,7 +238,7 @@ export default async function DashboardPage() {
                           height={3}
                         />
                       </div>
-                      <span className="metric-num text-[13.5px] w-5 text-right" style={{ color: tokens.textPrimary }}>
+                      <span className="metric-num text-[14px] w-5 text-right" style={{ color: tokens.textPrimary }}>
                         {count}
                       </span>
                     </div>
@@ -225,11 +258,11 @@ export default async function DashboardPage() {
                   return (
                     <div key={a.id} className="flex items-center gap-3 py-3 first:pt-0 last:pb-0" style={{ borderColor: tokens.borderSubtle }}>
                       <StatusDot tone={tone} />
-                      <span className="text-[12.5px] capitalize" style={{ color: tokens.textSecondary }}>
+                      <span className="text-[13px] capitalize" style={{ color: tokens.textSecondary }}>
                         {a.channel}
                       </span>
                       <Pill tone={tone}>{a.status}</Pill>
-                      <span className="ml-auto text-[11.5px]" style={{ color: tokens.textMuted }}>
+                      <span className="ml-auto text-[12px]" style={{ color: tokens.textMuted }}>
                         {a.generated_at ? new Date(a.generated_at).toLocaleDateString() : '—'}
                       </span>
                     </div>
@@ -269,10 +302,10 @@ export default async function DashboardPage() {
                       {(c.first_name?.[0] ?? '') + (c.last_name?.[0] ?? '')}
                     </div>
                     <div className="min-w-0">
-                      <div className="text-[13.5px] font-medium truncate" style={{ color: tokens.textPrimary }}>
+                      <div className="text-[14px] font-medium truncate" style={{ color: tokens.textPrimary }}>
                         {c.first_name} {c.last_name}
                       </div>
-                      <div className="text-[12px] truncate mt-0.5" style={{ color: tokens.textMuted }}>
+                      <div className="text-[12.5px] truncate mt-0.5" style={{ color: tokens.textMuted }}>
                         {stateLabel(c.state as CustomerState)}
                       </div>
                     </div>
@@ -291,13 +324,13 @@ export default async function DashboardPage() {
                     </div>
                     <div>
                       <div className="eyebrow mb-2" style={{ fontSize: 10 }}>LTV</div>
-                      <div className="text-[13.5px] font-medium" style={{ color: tokens.textPrimary }}>
+                      <div className="text-[14px] font-medium" style={{ color: tokens.textPrimary }}>
                         {formatCurrency(c.total_spend)}
                       </div>
                     </div>
                     <div>
                       <div className="eyebrow mb-2" style={{ fontSize: 10 }}>Last</div>
-                      <div className="text-[12.5px]" style={{ color: tokens.textSecondary }}>
+                      <div className="text-[13px]" style={{ color: tokens.textSecondary }}>
                         {daysSinceLabel(c.last_purchase_at)}
                       </div>
                     </div>

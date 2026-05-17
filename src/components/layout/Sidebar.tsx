@@ -126,10 +126,10 @@ export function Sidebar() {
               onClick={() => handleNav(href)}
               className={`
                 w-full flex items-center gap-3 px-3 h-9 rounded-[10px]
-                text-[13px] font-medium text-left transition-all relative
+                text-[13.5px] font-medium text-left transition-all relative
                 ${active
                   ? 'text-white'
-                  : 'text-white/60 hover:text-white/92 hover:bg-[rgba(255,255,255,0.042)]'
+                  : 'text-white/62 hover:text-white/92 hover:bg-[rgba(255,255,255,0.042)]'
                 }
               `}
               style={

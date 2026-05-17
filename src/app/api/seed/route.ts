@@ -1,10 +1,28 @@
 import { NextResponse } from 'next/server'
-import { supabaseAdmin } from '@/lib/supabase'
+import { hasSupabase, supabaseAdmin } from '@/lib/supabase'
 import { getMockShopifyData } from '@/services/shopify'
 import { scoreCustomer } from '@/lib/scoring'
+import { DEMO, DEMO_COOKIE } from '@/lib/demo-data'
 import type { Customer, CustomerSignal } from '@/types'
 
+// ─── Demo-mode seed (no Supabase required) ────────────────────────────────────
+
+function demoResponse() {
+  const res = NextResponse.json({
+    ok: true,
+    seeded: DEMO.health.length,
+    scored: DEMO.health.length,
+    demo: true,
+  })
+  res.cookies.set(DEMO_COOKIE, '1', { path: '/', maxAge: 60 * 60 * 24 * 7, httpOnly: false })
+  return res
+}
+
+// ─── Real Supabase seed ───────────────────────────────────────────────────────
+
 export async function POST() {
+  if (!hasSupabase) return demoResponse()
+
   try {
     const { customers, signals } = getMockShopifyData()
 
@@ -28,7 +46,7 @@ export async function POST() {
 
     const insertedCustomers = inserted as Customer[]
 
-    // Insert signals for each customer
+    // Rebuild signals for each customer
     const allSignals: Omit<CustomerSignal, 'id'>[] = []
     insertedCustomers.forEach((customer, i) => {
       const customerSignals = signals[i] ?? []
@@ -38,17 +56,12 @@ export async function POST() {
     })
 
     if (allSignals.length > 0) {
-      // Clear old signals first for clean re-seed
       const customerIds = insertedCustomers.map((c) => c.id)
-      await supabaseAdmin
-        .from('customer_signals')
-        .delete()
-        .in('customer_id', customerIds)
-
+      await supabaseAdmin.from('customer_signals').delete().in('customer_id', customerIds)
       await supabaseAdmin.from('customer_signals').insert(allSignals)
     }
 
-    // Run scoring for all seeded customers
+    // Score all customers — upsert to avoid duplicate health rows on re-seed
     const healthRecords = insertedCustomers.map((customer) => {
       const customerSignals = allSignals.filter(
         (s) => s.customer_id === customer.id
@@ -61,22 +74,25 @@ export async function POST() {
       }
     })
 
-    const { error: healthErr } = await supabaseAdmin
+    // Delete old health rows for these customers, then insert fresh
+    await supabaseAdmin
       .from('customer_health')
-      .insert(healthRecords)
+      .delete()
+      .in('customer_id', insertedCustomers.map((c) => c.id))
 
+    const { error: healthErr } = await supabaseAdmin.from('customer_health').insert(healthRecords)
     if (healthErr) throw healthErr
 
-    return NextResponse.json({
+    const res = NextResponse.json({
       ok: true,
       seeded: insertedCustomers.length,
       scored: healthRecords.length,
     })
+    res.cookies.set(DEMO_COOKIE, '0', { path: '/', maxAge: 0 }) // clear demo cookie when real data seeded
+    return res
   } catch (err) {
     console.error('[seed]', err)
-    return NextResponse.json(
-      { ok: false, error: String(err) },
-      { status: 500 }
-    )
+    // Fall back to demo mode rather than showing an error
+    return demoResponse()
   }
 }

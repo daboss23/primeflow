@@ -3,7 +3,7 @@ import { PageHeader } from '@/components/ui/PageHeader'
 
 export default function CalculatorPage() {
   return (
-    <div className="px-10 py-10 max-w-[1100px]">
+    <div className="pl-7 pr-8 py-9 max-w-[1100px]">
       <PageHeader
         eyebrow="Revenue Intelligence"
         title="Revenue Gap Calculator"

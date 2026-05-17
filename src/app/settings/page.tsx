@@ -16,7 +16,7 @@ async function getSettings() {
 export default async function SettingsPage() {
   const settings = await getSettings()
   return (
-    <div className="px-10 py-10 max-w-[840px]">
+    <div className="pl-7 pr-8 py-9 max-w-[840px]">
       <PageHeader
         eyebrow="Brand Vault"
         title="Brand Knowledge"

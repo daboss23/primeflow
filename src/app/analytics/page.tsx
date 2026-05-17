@@ -138,7 +138,7 @@ export default function AnalyticsPage() {
   ]
 
   return (
-    <div className="px-10 py-10 w-full relative">
+    <div className="pl-7 pr-8 py-9 w-full relative">
       <PageHeader
         eyebrow="Performance"
         title="Analytics"
@@ -255,8 +255,8 @@ export default function AnalyticsPage() {
                         {i + 1}
                       </div>
                       <div>
-                        <div className="text-[13.5px] font-medium" style={{ color: tokens.textPrimary }}>{c.name}</div>
-                        <div className="text-[11.5px] mt-0.5" style={{ color: tokens.textMuted }}>{c.trigger}</div>
+                        <div className="text-[14px] font-medium" style={{ color: tokens.textPrimary }}>{c.name}</div>
+                        <div className="text-[12px] mt-0.5" style={{ color: tokens.textMuted }}>{c.trigger}</div>
                       </div>
                     </div>
                     <Pill tone="success">{c.trend}</Pill>
@@ -294,11 +294,11 @@ export default function AnalyticsPage() {
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
                     <span className="w-1.5 h-1.5 rounded-full" style={{ background: color, boxShadow: `0 0 5px ${color}aa` }} />
-                    <span className="text-[13px]" style={{ color: tokens.textSecondary }}>{label}</span>
+                    <span className="text-[13.5px]" style={{ color: tokens.textSecondary }}>{label}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="metric-num text-[12.5px]" style={{ color }}>${amount.toLocaleString()}</span>
-                    <span className="text-[11px] w-7 text-right" style={{ color: tokens.textMuted }}>{pct}%</span>
+                    <span className="metric-num text-[13px]" style={{ color }}>${amount.toLocaleString()}</span>
+                    <span className="text-[11.5px] w-8 text-right" style={{ color: tokens.textMuted }}>{pct}%</span>
                   </div>
                 </div>
                 <ProgressBar value={pct} color={color} height={2} />

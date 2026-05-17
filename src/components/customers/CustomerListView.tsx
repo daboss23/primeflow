@@ -147,7 +147,7 @@ export function CustomerListView({
 
   return (
     <div className="flex-1 overflow-y-auto h-full">
-      <div className="px-10 py-10 max-w-[1440px]">
+      <div className="pl-7 pr-8 py-9 w-full">
         <PageHeader
           eyebrow="Customer Intelligence"
           title="Customers"
@@ -164,10 +164,10 @@ export function CustomerListView({
                   key={key}
                   onClick={() => setBand(key as HealthBand | 'all')}
                   className={`
-                    flex items-center gap-1.5 h-8 px-3 rounded-[8px] text-[11.5px] font-medium transition-all border
+                    flex items-center gap-1.5 h-8 px-3 rounded-[8px] text-[12px] font-medium transition-all border
                     ${active
-                      ? 'text-white border-[rgba(255,255,255,0.18)] bg-[rgba(255,255,255,0.05)]'
-                      : 'text-white/45 border-transparent hover:text-white/80 hover:bg-[rgba(255,255,255,0.035)]'
+                      ? 'text-white border-[rgba(255,255,255,0.18)] bg-[rgba(255,255,255,0.055)]'
+                      : 'text-white/52 border-transparent hover:text-white/82 hover:bg-[rgba(255,255,255,0.042)]'
                     }
                   `}
                 >
@@ -181,10 +181,10 @@ export function CustomerListView({
           <select
             value={state}
             onChange={(e) => setState(e.target.value as CustomerState | 'all')}
-            className="h-8 px-3 rounded-[8px] text-[11.5px] font-medium outline-none cursor-pointer transition-all
-              text-white/65 hover:text-white/85
-              border border-[rgba(255,255,255,0.10)] bg-[rgba(255,255,255,0.025)]
-              focus:border-[rgba(0,212,255,0.40)] focus:shadow-[0_0_0_3px_rgba(0,212,255,0.10)]"
+            className="h-8 px-3 rounded-[8px] text-[12px] font-medium outline-none cursor-pointer transition-all
+              text-white/68 hover:text-white/88
+              border border-[rgba(255,255,255,0.10)] bg-[rgba(255,255,255,0.038)]
+              focus:border-[rgba(0,212,255,0.42)] focus:shadow-[0_0_0_3px_rgba(0,212,255,0.12)]"
           >
             {STATES.map(({ key, label }) => (
               <option key={key} value={key} style={{ background: '#0a0a14' }}>{label}</option>
@@ -228,13 +228,13 @@ export function CustomerListView({
             }}
           >
             {['Customer', 'State', 'Health', 'Score', 'Opp.', 'Spend', 'Last Purchase', 'Action'].map((h) => (
-              <span key={h} className="eyebrow" style={{ fontSize: 9.5 }}>{h}</span>
+              <span key={h} className="eyebrow" style={{ fontSize: 10.5 }}>{h}</span>
             ))}
           </div>
 
           {loading ? (
             <div
-              className="flex items-center justify-center gap-2 py-16 text-[13px]"
+              className="flex items-center justify-center gap-2 py-16 text-[13.5px]"
               style={{ color: tokens.textMuted }}
             >
               <Spinner size={14} /> Loading customers…
@@ -280,7 +280,7 @@ export function CustomerListView({
                     </div>
                     <div className="min-w-0">
                       <div className="flex items-center gap-1.5">
-                        <span className="text-[13px] font-medium truncate" style={{ color: tokens.textPrimary }}>
+                        <span className="text-[13.5px] font-medium truncate" style={{ color: tokens.textPrimary }}>
                           {name}
                         </span>
                         {isVIP && (
@@ -289,7 +289,7 @@ export function CustomerListView({
                           </svg>
                         )}
                       </div>
-                      <div className="text-[11px] truncate mt-0.5" style={{ color: tokens.textMuted }}>
+                      <div className="text-[12px] truncate mt-0.5" style={{ color: tokens.textMuted }}>
                         {c.email}
                       </div>
                     </div>
@@ -322,10 +322,10 @@ export function CustomerListView({
                   {/* Spend */}
                   <div className="flex items-center">
                     <div>
-                      <div className="text-[13px] font-medium" style={{ color: tokens.textPrimary }}>
+                      <div className="text-[13.5px] font-medium" style={{ color: tokens.textPrimary }}>
                         {formatCurrency(c.total_spend)}
                       </div>
-                      <div className="text-[10.5px] mt-0.5" style={{ color: tokens.textMuted }}>
+                      <div className="text-[11px] mt-0.5" style={{ color: tokens.textMuted }}>
                         {c.total_orders} orders
                       </div>
                     </div>
@@ -334,11 +334,11 @@ export function CustomerListView({
                   {/* Last purchase */}
                   <div className="flex items-center">
                     <div>
-                      <div className="text-[12px]" style={{ color: tokens.textSecondary }}>
+                      <div className="text-[13px]" style={{ color: tokens.textSecondary }}>
                         {daysSinceLabel(c.last_purchase_at)}
                       </div>
                       {gap !== null && gap > 30 && (
-                        <div className="text-[10.5px] mt-0.5 font-medium" style={{ color: gap > 90 ? '#ff4d6a' : '#ffaa00' }}>
+                        <div className="text-[11px] mt-0.5 font-medium" style={{ color: gap > 90 ? '#ff4d6a' : '#ffaa00' }}>
                           {gap}d gap
                         </div>
                       )}

@@ -37,8 +37,8 @@ export function PageHeader({
           </h1>
           {subtitle && (
             <p
-              className="text-[13.5px] mt-2 leading-relaxed max-w-[68ch]"
-              style={{ color: 'rgba(255,255,255,0.54)' }}
+              className="text-[14px] mt-2 leading-relaxed max-w-[68ch]"
+              style={{ color: 'rgba(255,255,255,0.56)' }}
             >
               {subtitle}
             </p>

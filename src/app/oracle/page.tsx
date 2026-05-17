@@ -144,7 +144,7 @@ RESPONSE STYLE:
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', color: 'var(--text-primary)' }}>
 
       {/* Header */}
-      <div style={{ padding: '26px 44px 20px', borderBottom: '1px solid var(--border-subtle)', flexShrink: 0, background: 'rgba(255,255,255,0.016)' }}>
+      <div style={{ padding: '24px 36px 18px', borderBottom: '1px solid var(--border-subtle)', flexShrink: 0, background: 'rgba(255,255,255,0.016)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
           <div style={{ position: 'relative', width: 38, height: 38 }}>
             <div style={{
@@ -164,7 +164,7 @@ RESPONSE STYLE:
           </div>
           <div>
             <div className="eyebrow" style={{ fontSize: 10, color: 'rgba(0,212,255,0.75)', marginBottom: 2 }}>Store Intelligence</div>
-            <div style={{ fontSize: 18, fontWeight: 600, letterSpacing: '-0.005em', color: 'var(--text-primary)' }}>Axiom Oracle</div>
+            <div style={{ fontSize: 19, fontWeight: 600, letterSpacing: '-0.008em', color: 'var(--text-primary)' }}>Axiom Oracle</div>
           </div>
           <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 8 }}>
             <span className="w-1.5 h-1.5 rounded-full pulse-dot" style={{ background: '#3ddc97', boxShadow: '0 0 6px rgba(61,220,151,0.7)' }} />
@@ -189,7 +189,7 @@ RESPONSE STYLE:
       </div>
 
       {/* Messages */}
-      <div style={{ flex: 1, overflowY: 'auto', padding: '24px 44px', display: 'flex', flexDirection: 'column', gap: 18 }}>
+      <div style={{ flex: 1, overflowY: 'auto', padding: '22px 36px', display: 'flex', flexDirection: 'column', gap: 18 }}>
 
         {messages.map((msg, i) => (
           <div key={i} style={{ display: 'flex', gap: 12, alignItems: 'flex-start', flexDirection: msg.role === 'user' ? 'row-reverse' : 'row' }}>
@@ -214,7 +214,7 @@ RESPONSE STYLE:
               border: msg.role === 'assistant' ? '1px solid rgba(255,255,255,0.08)' : '1px solid rgba(0,212,255,0.28)',
               borderRadius: msg.role === 'assistant' ? '4px 16px 16px 16px' : '16px 4px 16px 16px',
               padding: '16px 20px',
-              fontSize: 14,
+              fontSize: 14.5,
               lineHeight: 1.7,
               color: 'rgba(255,255,255,0.93)',
               boxShadow: '0 1px 0 rgba(255,255,255,0.055) inset, 0 8px 24px -8px rgba(0,0,0,0.4)',
@@ -257,7 +257,7 @@ RESPONSE STYLE:
 
       {/* Suggested questions */}
       {messages.length <= 1 && (
-        <div style={{ padding: '0 44px 16px', display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+        <div style={{ padding: '0 36px 14px', display: 'flex', gap: 8, flexWrap: 'wrap' }}>
           {SUGGESTED_QUESTIONS.map(q => (
             <button key={q} onClick={() => sendMessage(q)} style={{
               background: 'rgba(255,255,255,0.032)', border: '1px solid rgba(255,255,255,0.08)',
@@ -274,7 +274,7 @@ RESPONSE STYLE:
       )}
 
       {/* Input */}
-      <div style={{ padding: '16px 44px 26px', borderTop: '1px solid var(--border-subtle)', flexShrink: 0, background: 'rgba(255,255,255,0.010)' }}>
+      <div style={{ padding: '14px 36px 24px', borderTop: '1px solid var(--border-subtle)', flexShrink: 0, background: 'rgba(255,255,255,0.010)' }}>
         <div style={{
           display: 'flex', gap: 12, alignItems: 'flex-end',
           background: 'rgba(255,255,255,0.038)', border: '1px solid rgba(255,255,255,0.10)',

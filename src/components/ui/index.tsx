@@ -30,7 +30,7 @@ export function SectionLabel({ children, className = '' }: { children: React.Rea
 
 export function MetaLabel({ children, className = '' }: { children: React.ReactNode; className?: string }) {
   return (
-    <span className={`text-[11.5px] font-medium ${className}`} style={{ color: tokens.textTertiary }}>
+    <span className={`text-[12px] font-medium ${className}`} style={{ color: tokens.textTertiary }}>
       {children}
     </span>
   )
@@ -106,7 +106,7 @@ export function StatCard({
           </span>
         )}
       </div>
-      {sub && <div className="text-[12px] mt-2.5" style={{ color: tokens.textMuted }}>{sub}</div>}
+      {sub && <div className="text-[12.5px] mt-2.5" style={{ color: tokens.textMuted }}>{sub}</div>}
     </Card>
   )
 }
@@ -317,8 +317,8 @@ export function ProgressBar({ value, max = 100, color = tokens.accent, height = 
 export function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <div className="flex items-center justify-between gap-4 py-3 border-b last:border-0" style={{ borderColor: tokens.borderSubtle }}>
-      <span className="text-[12px]" style={{ color: tokens.textTertiary }}>{label}</span>
-      <span className="text-[13px] font-medium text-right" style={{ color: tokens.textPrimary }}>{value}</span>
+      <span className="text-[12.5px]" style={{ color: tokens.textTertiary }}>{label}</span>
+      <span className="text-[13.5px] font-medium text-right" style={{ color: tokens.textPrimary }}>{value}</span>
     </div>
   )
 }
@@ -380,7 +380,7 @@ export function Empty({
           {icon}
         </div>
       )}
-      <p className="text-[13px]" style={{ color: tokens.textTertiary }}>{message}</p>
+      <p className="text-[13.5px]" style={{ color: tokens.textTertiary }}>{message}</p>
       {action && <div className="mt-4">{action}</div>}
     </div>
   )

@@ -7,7 +7,9 @@ export async function GET() {
     // Health distribution from latest scores
     const { data: health } = await supabaseAdmin
       .from('current_customer_health')
-      .select('health_band, state, opportunity_score, total_spend, average_order_value')
+      .select('health_band, state, opportunity_score, total_spend, average_order_value') as {
+        data: Array<{ health_band: string; state: string; opportunity_score: number; total_spend: number; average_order_value: number }> | null
+      }
 
     const red = health?.filter((r) => r.health_band === 'red').length ?? 0
     const yellow = health?.filter((r) => r.health_band === 'yellow').length ?? 0
@@ -23,7 +25,9 @@ export async function GET() {
     // Draft stats
     const { data: drafts } = await supabaseAdmin
       .from('outreach_drafts')
-      .select('status, channel')
+      .select('status, channel') as {
+        data: Array<{ status: string; channel: string }> | null
+      }
 
     const drafts_generated = drafts?.length ?? 0
     const drafts_approved =
@@ -33,7 +37,9 @@ export async function GET() {
     // Outcomes
     const { data: outcomes } = await supabaseAdmin
       .from('outcomes')
-      .select('outcome_type, revenue_value')
+      .select('outcome_type, revenue_value') as {
+        data: Array<{ outcome_type: string; revenue_value: number | null }> | null
+      }
 
     const replies = outcomes?.filter((o) => o.outcome_type === 'replied').length ?? 0
     const purchases = outcomes?.filter((o) => o.outcome_type === 'purchased').length ?? 0

@@ -31,7 +31,7 @@ async function getCustomerCount(): Promise<number> {
   } catch { return 0 }
 }
 
-async function getHealthData() {
+async function getHealthData(): Promise<Array<{ health_band: string; state: string; opportunity_score: number; total_spend: number; average_order_value: number; health_score?: number }>> {
   if (await isDemo()) return DEMO.health
   try {
     const { data } = await supabaseAdmin

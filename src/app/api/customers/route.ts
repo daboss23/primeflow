@@ -4,7 +4,7 @@ import { DEMO, DEMO_COOKIE } from '@/lib/demo-data'
 import type { HealthBand, CustomerState } from '@/types'
 
 export async function GET(req: NextRequest) {
-  const { searchParams, cookies } = req.nextUrl
+  const { searchParams } = req.nextUrl
   const band  = searchParams.get('band')  as HealthBand  | null
   const state = searchParams.get('state') as CustomerState | null
   const limit = parseInt(searchParams.get('limit') ?? '100')

@@ -53,7 +53,7 @@ async function getRecentActivity() {
   } catch { return [] }
 }
 
-async function getDraftStats() {
+async function getDraftStats(): Promise<Array<{ status: string; channel: string }>> {
   if (await isDemo()) return DEMO.drafts
   try {
     const { data } = await supabaseAdmin
@@ -63,7 +63,7 @@ async function getDraftStats() {
   } catch { return [] }
 }
 
-async function getOutcomes() {
+async function getOutcomes(): Promise<Array<{ outcome_type: string; revenue_value: number | null }>> {
   if (await isDemo()) return DEMO.outcomes
   try {
     const { data } = await supabaseAdmin

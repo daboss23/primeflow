@@ -141,10 +141,10 @@ RESPONSE STYLE:
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', background: 'var(--bg-base)', color: 'var(--text-primary)' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', color: 'var(--text-primary)' }}>
 
       {/* Header */}
-      <div style={{ padding: '24px 40px 18px', borderBottom: '1px solid var(--border-subtle)', flexShrink: 0 }}>
+      <div style={{ padding: '26px 44px 20px', borderBottom: '1px solid var(--border-subtle)', flexShrink: 0, background: 'rgba(255,255,255,0.016)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
           <div style={{ position: 'relative', width: 38, height: 38 }}>
             <div style={{
@@ -173,7 +173,7 @@ RESPONSE STYLE:
         </div>
 
         {/* Metrics strip */}
-        <div style={{ display: 'flex', gap: 28, marginTop: 18, paddingTop: 16, borderTop: '1px solid var(--border-subtle)' }}>
+        <div style={{ display: 'flex', gap: 36, marginTop: 20, paddingTop: 18, borderTop: '1px solid var(--border-subtle)' }}>
           {[
             { label: 'Revenue leak',    value: `$${STORE_METRICS.liveRevenueLeak.toLocaleString()}`, color: '#ff4d6a' },
             { label: 'Recoverable',     value: `$${STORE_METRICS.recoverableThisWeek}`,              color: '#3ddc97' },
@@ -181,15 +181,15 @@ RESPONSE STYLE:
             { label: 'Total LTV',       value: `$${STORE_METRICS.totalRevenue.toLocaleString()}`,    color: '#00d4ff' },
           ].map(m => (
             <div key={m.label}>
-              <div className="eyebrow" style={{ fontSize: 9.5, marginBottom: 4 }}>{m.label}</div>
-              <div className="metric-num" style={{ fontSize: 16, color: m.color }}>{m.value}</div>
+              <div className="eyebrow" style={{ fontSize: 10, marginBottom: 5 }}>{m.label}</div>
+              <div className="metric-num" style={{ fontSize: 17, color: m.color }}>{m.value}</div>
             </div>
           ))}
         </div>
       </div>
 
       {/* Messages */}
-      <div style={{ flex: 1, overflowY: 'auto', padding: '20px 28px', display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <div style={{ flex: 1, overflowY: 'auto', padding: '24px 44px', display: 'flex', flexDirection: 'column', gap: 18 }}>
 
         {messages.map((msg, i) => (
           <div key={i} style={{ display: 'flex', gap: 12, alignItems: 'flex-start', flexDirection: msg.role === 'user' ? 'row-reverse' : 'row' }}>
@@ -209,15 +209,15 @@ RESPONSE STYLE:
 
             {/* Bubble */}
             <div style={{
-              maxWidth: '76%',
-              background: msg.role === 'assistant' ? 'var(--bg-surface)' : 'rgba(0,212,255,0.08)',
-              border: msg.role === 'assistant' ? '1px solid var(--border-subtle)' : '1px solid rgba(0,212,255,0.24)',
-              borderRadius: msg.role === 'assistant' ? '4px 14px 14px 14px' : '14px 4px 14px 14px',
-              padding: '14px 16px',
+              maxWidth: '78%',
+              background: msg.role === 'assistant' ? 'rgba(255,255,255,0.030)' : 'rgba(0,212,255,0.09)',
+              border: msg.role === 'assistant' ? '1px solid rgba(255,255,255,0.08)' : '1px solid rgba(0,212,255,0.28)',
+              borderRadius: msg.role === 'assistant' ? '4px 16px 16px 16px' : '16px 4px 16px 16px',
+              padding: '16px 20px',
               fontSize: 14,
-              lineHeight: 1.65,
-              color: msg.role === 'assistant' ? 'rgba(255,255,255,0.92)' : 'rgba(255,255,255,0.92)',
-              boxShadow: '0 1px 0 rgba(255,255,255,0.04) inset',
+              lineHeight: 1.7,
+              color: 'rgba(255,255,255,0.93)',
+              boxShadow: '0 1px 0 rgba(255,255,255,0.055) inset, 0 8px 24px -8px rgba(0,0,0,0.4)',
             }}>
               {formatContent(msg.content)}
               <div className="eyebrow" style={{ fontSize: 9.5, marginTop: 6, opacity: 0.5 }}>
@@ -257,11 +257,11 @@ RESPONSE STYLE:
 
       {/* Suggested questions */}
       {messages.length <= 1 && (
-        <div style={{ padding: '0 40px 14px', display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+        <div style={{ padding: '0 44px 16px', display: 'flex', gap: 8, flexWrap: 'wrap' }}>
           {SUGGESTED_QUESTIONS.map(q => (
             <button key={q} onClick={() => sendMessage(q)} style={{
-              background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)',
-              borderRadius: 8, padding: '7px 12px', fontSize: 12, color: 'rgba(255,255,255,0.65)',
+              background: 'rgba(255,255,255,0.032)', border: '1px solid rgba(255,255,255,0.08)',
+              borderRadius: 8, padding: '8px 13px', fontSize: 12.5, color: 'rgba(255,255,255,0.68)',
               cursor: 'pointer', transition: 'all 0.15s',
             }}
               onMouseEnter={e => { (e.target as HTMLElement).style.background = 'rgba(0,212,255,0.08)'; (e.target as HTMLElement).style.color = '#00d4ff'; (e.target as HTMLElement).style.borderColor = 'rgba(0,212,255,0.30)' }}
@@ -274,12 +274,13 @@ RESPONSE STYLE:
       )}
 
       {/* Input */}
-      <div style={{ padding: '14px 40px 22px', borderTop: '1px solid var(--border-subtle)', flexShrink: 0 }}>
+      <div style={{ padding: '16px 44px 26px', borderTop: '1px solid var(--border-subtle)', flexShrink: 0, background: 'rgba(255,255,255,0.010)' }}>
         <div style={{
           display: 'flex', gap: 12, alignItems: 'flex-end',
-          background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)',
-          borderRadius: 12, padding: '10px 12px 10px 14px',
+          background: 'rgba(255,255,255,0.038)', border: '1px solid rgba(255,255,255,0.10)',
+          borderRadius: 14, padding: '12px 14px 12px 18px',
           transition: 'border-color 0.15s',
+          boxShadow: '0 1px 0 rgba(255,255,255,0.05) inset',
         }}>
           <textarea
             ref={inputRef}

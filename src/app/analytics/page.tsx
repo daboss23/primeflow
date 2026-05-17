@@ -138,7 +138,7 @@ export default function AnalyticsPage() {
   ]
 
   return (
-    <div className="px-10 py-10 max-w-[1440px] relative">
+    <div className="px-10 py-10 w-full relative">
       <PageHeader
         eyebrow="Performance"
         title="Analytics"
@@ -192,20 +192,20 @@ export default function AnalyticsPage() {
       />
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-4 gap-4 mb-5">
+      <div className="grid grid-cols-4 gap-5 mb-6">
         {kpis.map(({ label, value, sub, color }) => (
-          <Card key={label} padded={false} className="px-5 py-5">
+          <Card key={label} padded={false} className="px-6 py-6">
             <SectionLabel className="mb-4">{label}</SectionLabel>
-            <div className="metric-num text-[30px] leading-none tracking-tight mb-2" style={{ color }}>
+            <div className="metric-num text-[32px] leading-none tracking-tight mb-2.5" style={{ color }}>
               {value}
             </div>
-            <div className="text-[11.5px]" style={{ color: tokens.textMuted }}>{sub}</div>
+            <div className="text-[12px]" style={{ color: tokens.textMuted }}>{sub}</div>
           </Card>
         ))}
       </div>
 
       {/* Revenue Trend */}
-      <Card className="mb-5">
+      <Card className="mb-6">
         <CardHeader
           label={
             <span>
@@ -232,10 +232,10 @@ export default function AnalyticsPage() {
       </Card>
 
       {/* Top Campaigns + Recovery Sources */}
-      <div className="grid grid-cols-[1fr_380px] gap-5 mb-5">
+      <div className="grid grid-cols-[1fr_360px] gap-6 mb-6">
         <Card>
           <CardHeader label="Top High-Performing Campaigns" />
-          <div className="space-y-3">
+          <div className="space-y-3.5">
             {TOP_CAMPAIGNS.map((c, i) => {
               const convRate = Math.round((c.converted / c.enrolled) * 100)
               const colorMap: Record<Tone, string> = { accent:'#00d4ff', violet:'#a78bfa', success:'#3ddc97', warn:'#ffaa00', danger:'#ff4d6a' }
@@ -243,25 +243,25 @@ export default function AnalyticsPage() {
               return (
                 <div
                   key={c.name}
-                  className="p-4 rounded-[12px]"
-                  style={{ background: 'rgba(255,255,255,0.02)', border: `1px solid ${tokens.borderSubtle}` }}
+                  className="p-5 rounded-[12px]"
+                  style={{ background: 'rgba(255,255,255,0.030)', border: `1px solid ${tokens.borderSubtle}` }}
                 >
-                  <div className="flex items-start justify-between mb-3">
+                  <div className="flex items-start justify-between mb-3.5">
                     <div className="flex items-center gap-3">
                       <div
-                        className="w-7 h-7 rounded-[8px] flex items-center justify-center text-[11px] font-semibold metric-num"
+                        className="w-8 h-8 rounded-[9px] flex items-center justify-center text-[12px] font-semibold metric-num"
                         style={{ background: `${color}14`, color, border: `1px solid ${color}28` }}
                       >
                         {i + 1}
                       </div>
                       <div>
-                        <div className="text-[13px] font-medium" style={{ color: tokens.textPrimary }}>{c.name}</div>
-                        <div className="text-[11px] mt-0.5" style={{ color: tokens.textMuted }}>{c.trigger}</div>
+                        <div className="text-[13.5px] font-medium" style={{ color: tokens.textPrimary }}>{c.name}</div>
+                        <div className="text-[11.5px] mt-0.5" style={{ color: tokens.textMuted }}>{c.trigger}</div>
                       </div>
                     </div>
                     <Pill tone="success">{c.trend}</Pill>
                   </div>
-                  <div className="grid grid-cols-3 gap-2.5">
+                  <div className="grid grid-cols-3 gap-3">
                     {[
                       { label: 'Enrolled',  value: String(c.enrolled),               color: tokens.textPrimary },
                       { label: 'Converted', value: `${c.converted} (${convRate}%)`,  color },
@@ -269,15 +269,15 @@ export default function AnalyticsPage() {
                     ].map(({ label, value, color: vColor }) => (
                       <div
                         key={label}
-                        className="px-3 py-2 rounded-[8px]"
-                        style={{ background: 'rgba(255,255,255,0.025)' }}
+                        className="px-3 py-2.5 rounded-[8px]"
+                        style={{ background: 'rgba(255,255,255,0.028)' }}
                       >
-                        <SectionLabel className="!text-[9.5px] mb-1">{label}</SectionLabel>
-                        <div className="metric-num text-[13px]" style={{ color: vColor }}>{value}</div>
+                        <SectionLabel className="!text-[10px] mb-1.5">{label}</SectionLabel>
+                        <div className="metric-num text-[13.5px]" style={{ color: vColor }}>{value}</div>
                       </div>
                     ))}
                   </div>
-                  <div className="mt-3">
+                  <div className="mt-3.5">
                     <ProgressBar value={convRate} color={color} height={3} />
                   </div>
                 </div>
@@ -291,14 +291,14 @@ export default function AnalyticsPage() {
           <div className="space-y-4">
             {data.sources.map(({ label, pct, color, amount }) => (
               <div key={label}>
-                <div className="flex items-center justify-between mb-1.5">
+                <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
                     <span className="w-1.5 h-1.5 rounded-full" style={{ background: color, boxShadow: `0 0 5px ${color}aa` }} />
-                    <span className="text-[12.5px]" style={{ color: tokens.textSecondary }}>{label}</span>
+                    <span className="text-[13px]" style={{ color: tokens.textSecondary }}>{label}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="metric-num text-[12px]" style={{ color }}>${amount.toLocaleString()}</span>
-                    <span className="text-[10.5px] w-7 text-right" style={{ color: tokens.textMuted }}>{pct}%</span>
+                    <span className="metric-num text-[12.5px]" style={{ color }}>${amount.toLocaleString()}</span>
+                    <span className="text-[11px] w-7 text-right" style={{ color: tokens.textMuted }}>{pct}%</span>
                   </div>
                 </div>
                 <ProgressBar value={pct} color={color} height={2} />
@@ -323,24 +323,24 @@ export default function AnalyticsPage() {
       {/* Segment Performance */}
       <Card>
         <CardHeader label="Segment Performance" />
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid grid-cols-4 gap-5">
           {SEGMENT_PERFORMANCE.map(({ label, rate, color, revenue }) => (
             <div
               key={label}
-              className="p-4 rounded-[12px]"
-              style={{ background: 'rgba(255,255,255,0.02)', border: `1px solid ${tokens.borderSubtle}` }}
+              className="p-5 rounded-[12px]"
+              style={{ background: 'rgba(255,255,255,0.030)', border: `1px solid ${tokens.borderSubtle}` }}
             >
-              <div className="flex items-center gap-2 mb-3">
+              <div className="flex items-center gap-2 mb-3.5">
                 <span className="w-1.5 h-1.5 rounded-full" style={{ background: color, boxShadow: `0 0 5px ${color}aa` }} />
-                <span className="text-[11.5px] font-medium" style={{ color: tokens.textSecondary }}>{label}</span>
+                <span className="text-[12px] font-medium" style={{ color: tokens.textSecondary }}>{label}</span>
               </div>
-              <div className="metric-num text-[28px] leading-none tracking-tight mb-1" style={{ color }}>{rate}%</div>
-              <div className="text-[10.5px] mb-3" style={{ color: tokens.textMuted }}>conversion rate</div>
+              <div className="metric-num text-[30px] leading-none tracking-tight mb-1" style={{ color }}>{rate}%</div>
+              <div className="text-[11px] mb-3.5" style={{ color: tokens.textMuted }}>conversion rate</div>
               <ProgressBar value={rate} color={color} height={3} />
-              <div className="mt-3 metric-num text-[12.5px]" style={{ color: '#3ddc97' }}>
+              <div className="mt-3.5 metric-num text-[13px]" style={{ color: '#3ddc97' }}>
                 ${revenue.toLocaleString()}
               </div>
-              <div className="text-[10.5px] mt-0.5" style={{ color: tokens.textMuted }}>recovered</div>
+              <div className="text-[11px] mt-0.5" style={{ color: tokens.textMuted }}>recovered</div>
             </div>
           ))}
         </div>

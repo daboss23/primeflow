@@ -15,7 +15,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         style={{ background: 'var(--bg-base)', color: 'var(--text-primary)' }}
       >
         <Sidebar />
-        <main className="flex-1 overflow-y-auto relative">
+        <main
+          className="flex-1 overflow-y-auto relative"
+          style={{ background: 'var(--bg-workspace)' }}
+        >
           {children}
         </main>
       </body>

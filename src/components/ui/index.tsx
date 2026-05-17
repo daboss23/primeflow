@@ -3,17 +3,17 @@ import { bandColor, stateColor, stateLabel } from '@/lib/utils'
 
 /* ─── Design tokens (mirror of globals.css for inline usage) ─────────────── */
 export const tokens = {
-  surface:        'rgba(255,255,255,0.022)',
-  surfaceHover:   'rgba(255,255,255,0.035)',
-  elevated:       'rgba(255,255,255,0.045)',
-  borderSubtle:   'rgba(255,255,255,0.06)',
-  borderDefault:  'rgba(255,255,255,0.08)',
-  borderStrong:   'rgba(255,255,255,0.12)',
-  textPrimary:    'rgba(255,255,255,0.95)',
-  textSecondary:  'rgba(255,255,255,0.62)',
-  textTertiary:   'rgba(255,255,255,0.45)',
-  textMuted:      'rgba(255,255,255,0.32)',
-  textFaint:      'rgba(255,255,255,0.22)',
+  surface:        'rgba(255,255,255,0.030)',
+  surfaceHover:   'rgba(255,255,255,0.048)',
+  elevated:       'rgba(255,255,255,0.068)',
+  borderSubtle:   'rgba(255,255,255,0.07)',
+  borderDefault:  'rgba(255,255,255,0.10)',
+  borderStrong:   'rgba(255,255,255,0.15)',
+  textPrimary:    'rgba(255,255,255,0.96)',
+  textSecondary:  'rgba(255,255,255,0.68)',
+  textTertiary:   'rgba(255,255,255,0.50)',
+  textMuted:      'rgba(255,255,255,0.38)',
+  textFaint:      'rgba(255,255,255,0.26)',
   accent:         '#00d4ff',
   accentSoft:     'rgba(0,212,255,0.10)',
   accentBorder:   'rgba(0,212,255,0.22)',
@@ -30,7 +30,7 @@ export function SectionLabel({ children, className = '' }: { children: React.Rea
 
 export function MetaLabel({ children, className = '' }: { children: React.ReactNode; className?: string }) {
   return (
-    <span className={`text-[11px] font-medium ${className}`} style={{ color: tokens.textTertiary }}>
+    <span className={`text-[11.5px] font-medium ${className}`} style={{ color: tokens.textTertiary }}>
       {children}
     </span>
   )
@@ -52,8 +52,8 @@ export function Card({ children, className = '', padded = true, tone = 'default'
   }
   return (
     <div
-      className={`rounded-[14px] border ${padded ? 'p-6' : ''} ${className}`}
-      style={{ ...tones[tone], boxShadow: '0 1px 0 rgba(255,255,255,0.04) inset' }}
+      className={`rounded-[14px] border ${padded ? 'p-7' : ''} ${className}`}
+      style={{ ...tones[tone], boxShadow: '0 1px 0 rgba(255,255,255,0.055) inset, 0 12px 32px -16px rgba(0,0,0,0.5)' }}
     >
       {children}
     </div>
@@ -64,7 +64,7 @@ export function CardHeader({
   label, action, className = '',
 }: { label: React.ReactNode; action?: React.ReactNode; className?: string }) {
   return (
-    <div className={`flex items-center justify-between mb-5 ${className}`}>
+    <div className={`flex items-center justify-between mb-6 ${className}`}>
       <SectionLabel>{label}</SectionLabel>
       {action}
     </div>
@@ -84,29 +84,29 @@ export function StatCard({
 }) {
   const c = accent ?? tokens.textPrimary
   return (
-    <Card padded={false} className="px-5 py-5">
-      <div className="flex items-start justify-between mb-3">
+    <Card padded={false} className="px-6 py-6">
+      <div className="flex items-start justify-between mb-4">
         <SectionLabel>{label}</SectionLabel>
         {icon && (
           <div
-            className="w-7 h-7 rounded-[8px] flex items-center justify-center"
-            style={{ background: `${c}14`, color: c, border: `1px solid ${c}22` }}
+            className="w-8 h-8 rounded-[9px] flex items-center justify-center"
+            style={{ background: `${c}14`, color: c, border: `1px solid ${c}26` }}
           >
             {icon}
           </div>
         )}
       </div>
       <div className="flex items-baseline gap-2">
-        <div className="metric-num text-[30px] leading-none" style={{ color: c }}>
+        <div className="metric-num text-[32px] leading-none" style={{ color: c }}>
           {value}
         </div>
         {trend && (
-          <span className="text-[11px] font-medium" style={{ color: trend.positive ? tokens.success : tokens.danger }}>
+          <span className="text-[11.5px] font-medium" style={{ color: trend.positive ? tokens.success : tokens.danger }}>
             {trend.value}
           </span>
         )}
       </div>
-      {sub && <div className="text-[11.5px] mt-2" style={{ color: tokens.textMuted }}>{sub}</div>}
+      {sub && <div className="text-[12px] mt-2.5" style={{ color: tokens.textMuted }}>{sub}</div>}
     </Card>
   )
 }
@@ -169,10 +169,10 @@ export function Input({ className = '', ...rest }: InputProps) {
       {...rest}
       className={`
         w-full h-10 rounded-[10px] px-3.5 text-[13px] text-white/90
-        bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.08)]
-        placeholder:text-white/30
-        transition-all focus:outline-none focus:border-[rgba(0,212,255,0.40)]
-        focus:shadow-[0_0_0_3px_rgba(0,212,255,0.10)]
+        bg-[rgba(255,255,255,0.042)] border border-[rgba(255,255,255,0.10)]
+        placeholder:text-white/32
+        transition-all focus:outline-none focus:border-[rgba(0,212,255,0.45)]
+        focus:shadow-[0_0_0_3px_rgba(0,212,255,0.12)]
         ${className}
       `}
     />
@@ -186,10 +186,10 @@ export function Textarea({ className = '', ...rest }: TextareaProps) {
       {...rest}
       className={`
         w-full rounded-[10px] px-3.5 py-3 text-[13px] text-white/90 leading-relaxed
-        bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.08)]
-        placeholder:text-white/30 resize-none
-        transition-all focus:outline-none focus:border-[rgba(0,212,255,0.40)]
-        focus:shadow-[0_0_0_3px_rgba(0,212,255,0.10)]
+        bg-[rgba(255,255,255,0.042)] border border-[rgba(255,255,255,0.10)]
+        placeholder:text-white/32 resize-none
+        transition-all focus:outline-none focus:border-[rgba(0,212,255,0.45)]
+        focus:shadow-[0_0_0_3px_rgba(0,212,255,0.12)]
         ${className}
       `}
     />
@@ -203,9 +203,9 @@ export function Select({ className = '', children, ...rest }: SelectProps) {
       {...rest}
       className={`
         h-9 rounded-[10px] px-3 text-[12.5px] text-white/85 cursor-pointer
-        bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.08)]
-        transition-all focus:outline-none focus:border-[rgba(0,212,255,0.40)]
-        focus:shadow-[0_0_0_3px_rgba(0,212,255,0.10)]
+        bg-[rgba(255,255,255,0.042)] border border-[rgba(255,255,255,0.10)]
+        transition-all focus:outline-none focus:border-[rgba(0,212,255,0.45)]
+        focus:shadow-[0_0_0_3px_rgba(0,212,255,0.12)]
         ${className}
       `}
     >
@@ -316,9 +316,9 @@ export function ProgressBar({ value, max = 100, color = tokens.accent, height = 
 /* ─── Info row ───────────────────────────────────────────────────────────── */
 export function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
   return (
-    <div className="flex items-center justify-between gap-4 py-2.5 border-b last:border-0" style={{ borderColor: tokens.borderSubtle }}>
-      <span className="text-[11.5px]" style={{ color: tokens.textTertiary }}>{label}</span>
-      <span className="text-[12.5px] font-medium text-right" style={{ color: tokens.textPrimary }}>{value}</span>
+    <div className="flex items-center justify-between gap-4 py-3 border-b last:border-0" style={{ borderColor: tokens.borderSubtle }}>
+      <span className="text-[12px]" style={{ color: tokens.textTertiary }}>{label}</span>
+      <span className="text-[13px] font-medium text-right" style={{ color: tokens.textPrimary }}>{value}</span>
     </div>
   )
 }

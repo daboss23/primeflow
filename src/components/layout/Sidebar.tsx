@@ -113,7 +113,7 @@ export function Sidebar() {
 
       {/* Section label */}
       <div className="px-5 pt-5 pb-2">
-        <div className="eyebrow" style={{ fontSize: 9.5, opacity: 0.55 }}>Operations</div>
+        <div className="eyebrow" style={{ fontSize: 10, opacity: 0.65 }}>Operations</div>
       </div>
 
       {/* Nav */}
@@ -129,14 +129,14 @@ export function Sidebar() {
                 text-[13px] font-medium text-left transition-all relative
                 ${active
                   ? 'text-white'
-                  : 'text-white/55 hover:text-white/90 hover:bg-[rgba(255,255,255,0.035)]'
+                  : 'text-white/60 hover:text-white/92 hover:bg-[rgba(255,255,255,0.042)]'
                 }
               `}
               style={
                 active
                   ? {
-                      background: 'rgba(0,212,255,0.06)',
-                      boxShadow: '0 0 0 1px rgba(0,212,255,0.16) inset',
+                      background: 'rgba(0,212,255,0.075)',
+                      boxShadow: '0 0 0 1px rgba(0,212,255,0.20) inset',
                     }
                   : undefined
               }
@@ -146,9 +146,9 @@ export function Sidebar() {
                   className="absolute left-0 top-1/2 -translate-y-1/2 rounded-r-full"
                   style={{
                     width: 2,
-                    height: 16,
+                    height: 18,
                     background: 'linear-gradient(180deg,#00d4ff,#a78bfa)',
-                    boxShadow: '0 0 8px rgba(0,212,255,0.7)',
+                    boxShadow: '0 0 8px rgba(0,212,255,0.65)',
                   }}
                 />
               )}
@@ -161,10 +161,10 @@ export function Sidebar() {
 
       {/* Footer status */}
       <div
-        className="px-5 py-4 space-y-2.5"
+        className="px-5 py-4 space-y-3"
         style={{ borderTop: '1px solid var(--border-subtle)' }}
       >
-        <div className="eyebrow" style={{ fontSize: 9.5, opacity: 0.55 }}>Integrations</div>
+        <div className="eyebrow" style={{ fontSize: 10, opacity: 0.65 }}>Integrations</div>
         <IntegrationDot label="Shopify" connected />
         <IntegrationDot label="Klaviyo" connected />
       </div>
@@ -178,14 +178,14 @@ function IntegrationDot({ label, connected }: { label: string; connected: boolea
       <span
         className="w-1.5 h-1.5 rounded-full pulse-dot"
         style={{
-          background: connected ? '#3ddc97' : 'rgba(255,255,255,0.18)',
+          background: connected ? '#3ddc97' : 'rgba(255,255,255,0.20)',
           boxShadow: connected ? '0 0 6px rgba(61,220,151,0.7)' : undefined,
         }}
       />
-      <span className="text-[12px] font-medium" style={{ color: 'rgba(255,255,255,0.55)' }}>
+      <span className="text-[12px] font-medium" style={{ color: 'rgba(255,255,255,0.62)' }}>
         {label}
       </span>
-      <span className="ml-auto text-[10px]" style={{ color: 'rgba(255,255,255,0.30)' }}>
+      <span className="ml-auto text-[10.5px]" style={{ color: 'rgba(255,255,255,0.38)' }}>
         {connected ? 'Live' : 'Off'}
       </span>
     </div>

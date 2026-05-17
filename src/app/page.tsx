@@ -148,7 +148,7 @@ export default async function DashboardPage() {
   const totalForState      = health.length
 
   return (
-    <div className="px-10 py-10 max-w-[1440px] relative">
+    <div className="px-10 py-10 w-full relative">
       <PageHeader
         eyebrow="Intelligence Core"
         title="Operator Overview"
@@ -169,7 +169,7 @@ export default async function DashboardPage() {
           )}
 
           {/* Metric row */}
-          <div className="grid grid-cols-4 gap-4 mb-4">
+          <div className="grid grid-cols-4 gap-5 mb-5">
             <StatCard label="Total Customers"     value={totalCustomers.toString()}        icon={I.users}    accent={tokens.violet} />
             <StatCard label="Critical & At-Risk"  value={red.toString()}                   icon={I.alert}    accent="#ff4d6a"
               sub={`${watchlistCount} on watchlist`} />
@@ -177,24 +177,24 @@ export default async function DashboardPage() {
             <StatCard label="Recovered Revenue"   value={formatCurrency(recovered_revenue)} icon={I.trendUp} accent="#3ddc97" />
           </div>
 
-          <div className="grid grid-cols-3 gap-4 mb-8">
+          <div className="grid grid-cols-3 gap-5 mb-9">
             <StatCard label="Drafts Generated" value={drafts_generated.toString()} icon={I.doc}   accent={tokens.violet} />
             <StatCard label="Drafts Approved"  value={drafts_approved.toString()}  icon={I.check} accent={tokens.accent} />
             <StatCard label="Watchlist"        value={watchlistCount.toString()}   icon={I.eye}   accent="#ffaa00" />
           </div>
 
           {/* Distribution + state breakdown */}
-          <div className="grid grid-cols-3 gap-4 mb-4">
+          <div className="grid grid-cols-3 gap-5 mb-5">
             <Card className="col-span-2">
               <CardHeader label="Health Distribution" />
               <HealthSummaryChart distribution={dist} />
             </Card>
             <Card>
               <CardHeader label="State Breakdown" />
-              <div className="space-y-3">
+              <div className="space-y-3.5">
                 {by_state.map(({ state, count }) => (
                   <div key={state} className="flex items-center justify-between gap-3">
-                    <span className="text-[12.5px]" style={{ color: tokens.textSecondary }}>
+                    <span className="text-[13px]" style={{ color: tokens.textSecondary }}>
                       {stateLabel(state)}
                     </span>
                     <div className="flex items-center gap-3 min-w-0">
@@ -205,7 +205,7 @@ export default async function DashboardPage() {
                           height={3}
                         />
                       </div>
-                      <span className="metric-num text-[13px] w-5 text-right" style={{ color: tokens.textPrimary }}>
+                      <span className="metric-num text-[13.5px] w-5 text-right" style={{ color: tokens.textPrimary }}>
                         {count}
                       </span>
                     </div>
@@ -217,13 +217,13 @@ export default async function DashboardPage() {
 
           {/* Recent activity */}
           {recentActivity.length > 0 && (
-            <Card className="mb-4">
+            <Card className="mb-5">
               <CardHeader label="Recent Outreach Activity" />
               <div className="divide-y" style={{ borderColor: tokens.borderSubtle }}>
                 {recentActivity.map((a) => {
                   const tone = STATUS_TONE[a.status] ?? 'neutral'
                   return (
-                    <div key={a.id} className="flex items-center gap-3 py-2.5 first:pt-0 last:pb-0" style={{ borderColor: tokens.borderSubtle }}>
+                    <div key={a.id} className="flex items-center gap-3 py-3 first:pt-0 last:pb-0" style={{ borderColor: tokens.borderSubtle }}>
                       <StatusDot tone={tone} />
                       <span className="text-[12.5px] capitalize" style={{ color: tokens.textSecondary }}>
                         {a.channel}
@@ -251,12 +251,12 @@ export default async function DashboardPage() {
                   </Link>
                 }
               />
-              <div className="space-y-1">
+              <div className="space-y-1.5">
                 {topAtRisk.map((c) => (
                   <Link
                     key={c.customer_id}
                     href={`/customers/${c.customer_id}`}
-                    className="grid items-center gap-4 px-3 py-3 rounded-[10px] border border-transparent transition-all hover:bg-[rgba(255,255,255,0.025)] hover:border-[rgba(255,255,255,0.06)]"
+                    className="grid items-center gap-5 px-4 py-3.5 rounded-[10px] border border-transparent transition-all hover:bg-[rgba(255,255,255,0.028)] hover:border-[rgba(255,255,255,0.07)]"
                     style={{ gridTemplateColumns: '36px 1.6fr 1fr 0.7fr 0.9fr 0.9fr auto' }}
                   >
                     <div
@@ -269,35 +269,35 @@ export default async function DashboardPage() {
                       {(c.first_name?.[0] ?? '') + (c.last_name?.[0] ?? '')}
                     </div>
                     <div className="min-w-0">
-                      <div className="text-[13px] font-medium truncate" style={{ color: tokens.textPrimary }}>
+                      <div className="text-[13.5px] font-medium truncate" style={{ color: tokens.textPrimary }}>
                         {c.first_name} {c.last_name}
                       </div>
-                      <div className="text-[11.5px] truncate" style={{ color: tokens.textMuted }}>
+                      <div className="text-[12px] truncate mt-0.5" style={{ color: tokens.textMuted }}>
                         {stateLabel(c.state as CustomerState)}
                       </div>
                     </div>
                     <div>
-                      <div className="eyebrow mb-1.5" style={{ fontSize: 9.5 }}>Health</div>
+                      <div className="eyebrow mb-2" style={{ fontSize: 10 }}>Health</div>
                       <div className="flex items-center gap-2">
                         <div className="flex-1 max-w-[64px]">
                           <ProgressBar value={c.health_score} color="#ff4d6a" height={3} />
                         </div>
-                        <span className="metric-num text-[12.5px]" style={{ color: '#ff4d6a' }}>{c.health_score}</span>
+                        <span className="metric-num text-[13px]" style={{ color: '#ff4d6a' }}>{c.health_score}</span>
                       </div>
                     </div>
                     <div>
-                      <div className="eyebrow mb-1.5" style={{ fontSize: 9.5 }}>Opp</div>
-                      <div className="metric-num text-[14px]" style={{ color: tokens.accent }}>{c.opportunity_score}</div>
+                      <div className="eyebrow mb-2" style={{ fontSize: 10 }}>Opp</div>
+                      <div className="metric-num text-[15px]" style={{ color: tokens.accent }}>{c.opportunity_score}</div>
                     </div>
                     <div>
-                      <div className="eyebrow mb-1.5" style={{ fontSize: 9.5 }}>LTV</div>
-                      <div className="text-[13px] font-medium" style={{ color: tokens.textPrimary }}>
+                      <div className="eyebrow mb-2" style={{ fontSize: 10 }}>LTV</div>
+                      <div className="text-[13.5px] font-medium" style={{ color: tokens.textPrimary }}>
                         {formatCurrency(c.total_spend)}
                       </div>
                     </div>
                     <div>
-                      <div className="eyebrow mb-1.5" style={{ fontSize: 9.5 }}>Last</div>
-                      <div className="text-[12px]" style={{ color: tokens.textSecondary }}>
+                      <div className="eyebrow mb-2" style={{ fontSize: 10 }}>Last</div>
+                      <div className="text-[12.5px]" style={{ color: tokens.textSecondary }}>
                         {daysSinceLabel(c.last_purchase_at)}
                       </div>
                     </div>
@@ -325,11 +325,11 @@ function LiveLeakScore({ total, totalCustomers, breakdown }: {
 
   return (
     <div
-      className="rounded-[18px] mb-6 relative overflow-hidden p-7"
+      className="rounded-[18px] mb-7 relative overflow-hidden p-8"
       style={{
-        background: 'linear-gradient(135deg, rgba(255,77,106,0.06) 0%, rgba(6,6,13,0) 55%), rgba(255,255,255,0.022)',
-        border: '1px solid rgba(255,77,106,0.18)',
-        boxShadow: '0 1px 0 rgba(255,255,255,0.04) inset',
+        background: 'linear-gradient(135deg, rgba(255,77,106,0.07) 0%, rgba(6,6,13,0) 55%), rgba(255,255,255,0.030)',
+        border: '1px solid rgba(255,77,106,0.20)',
+        boxShadow: '0 1px 0 rgba(255,255,255,0.06) inset, 0 12px 32px -16px rgba(0,0,0,0.5)',
       }}
     >
       <div
@@ -378,21 +378,21 @@ function LiveLeakScore({ total, totalCustomers, breakdown }: {
           {top.map((source) => (
             <div
               key={source.key}
-              className="rounded-[12px] px-4 py-3"
+              className="rounded-[12px] px-4 py-3.5"
               style={{
-                background: 'rgba(255,255,255,0.025)',
-                border: `1px solid ${source.color}24`,
+                background: 'rgba(255,255,255,0.032)',
+                border: `1px solid ${source.color}28`,
               }}
             >
-              <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center justify-between mb-2.5">
                 <div className="flex items-center gap-2">
                   <StatusDot tone="neutral" glow={false} size={5} />
-                  <span className="text-[11.5px] font-medium" style={{ color: tokens.textSecondary }}>
+                  <span className="text-[12px] font-medium" style={{ color: tokens.textSecondary }}>
                     {source.label}
                   </span>
                 </div>
                 <span
-                  className="text-[10px] font-semibold metric-num px-1.5 h-4 inline-flex items-center rounded-[5px]"
+                  className="text-[10.5px] font-semibold metric-num px-1.5 h-4 inline-flex items-center rounded-[5px]"
                   style={{ background: `${source.color}1a`, color: source.color }}
                 >
                   {source.count}
@@ -400,7 +400,7 @@ function LiveLeakScore({ total, totalCustomers, breakdown }: {
               </div>
               <ProgressBar value={(source.amount / maxAmount) * 100} color={source.color} height={2} />
               <div
-                className="metric-num text-[18px] mt-2 tracking-tight"
+                className="metric-num text-[19px] mt-2.5 tracking-tight"
                 style={{ color: source.color }}
               >
                 {formatCurrency(source.amount)}

@@ -2,7 +2,7 @@
 
 // FILE: src/components/workflows/WorkflowCustomerView.tsx
 
-import { useState, useRef, useEffect } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -243,7 +243,7 @@ export function WorkflowCustomerView({
       timestamp: 'Just now',
       status: 'sent',
     }
-    setThread(prev => [...prev, msg])
+    setThread((prev: ConversationMessage[]) => [...prev, msg])
     setManualText('')
     setShowDraft(false)
     setFlashSent(true)
@@ -384,7 +384,7 @@ export function WorkflowCustomerView({
 
             {/* Thread */}
             <div className="px-6 py-6 space-y-6" style={{ background: '#08081b', minHeight: '380px' }}>
-              {thread.map((msg) => {
+              {thread.map((msg: ConversationMessage) => {
                 const isCustomer = msg.role === 'customer'
                 const isOperator = msg.role === 'operator'
                 return (
@@ -445,7 +445,7 @@ export function WorkflowCustomerView({
                     </div>
                     <textarea
                       value={draftText}
-                      onChange={(e) => setDraftText(e.target.value)}
+                      onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setDraftText(e.target.value)}
                       rows={6}
                       className="w-full text-[12px] leading-[1.75] rounded-xl px-4 py-3.5 resize-none"
                       style={{
@@ -546,7 +546,7 @@ export function WorkflowCustomerView({
               <div className="relative">
                 <textarea
                   value={manualText}
-                  onChange={(e) => setManualText(e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setManualText(e.target.value)}
                   placeholder={aiPaused
                     ? `Write a message to ${customer.name.split(' ')[0]}…`
                     : 'Write a manual message, or approve the AI draft above…'}
@@ -560,8 +560,8 @@ export function WorkflowCustomerView({
                     fontFamily: 'inherit',
                     transition: 'border-color 0.15s',
                   }}
-                  onFocus={(e) => { e.target.style.borderColor = 'rgba(245,158,11,0.3)' }}
-                  onBlur={(e)  => { e.target.style.borderColor = 'rgba(255,255,255,0.07)' }}
+                  onFocus={(e: React.FocusEvent<HTMLTextAreaElement>) => { e.target.style.borderColor = 'rgba(245,158,11,0.3)' }}
+                  onBlur={(e: React.FocusEvent<HTMLTextAreaElement>)  => { e.target.style.borderColor = 'rgba(255,255,255,0.07)' }}
                 />
                 <button
                   onClick={() => manualText.trim() && sendMessage(manualText, 'operator')}

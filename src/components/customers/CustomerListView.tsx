@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import type { CustomerWithHealth, HealthBand, CustomerState } from '@/types'
 import {
   Empty, Spinner, PageHeader, Pill, StatusDot, tokens, ProgressBar,
@@ -116,7 +116,7 @@ export function CustomerListView({
 
   useEffect(() => { fetchCustomers() }, [fetchCustomers])
 
-  const filtered = customers.filter((c) => {
+  const filtered = customers.filter((c: CustomerWithHealth) => {
     if (!search.trim()) return true
     const q = search.toLowerCase()
     return (
@@ -128,7 +128,7 @@ export function CustomerListView({
 
   // ── Detail view ──
   if (selectedId) {
-    const selected = customers.find(c => c.customer_id === selectedId)
+    const selected = customers.find((c: CustomerWithHealth) => c.customer_id === selectedId)
     if (selected) {
       return (
         <div className="flex-1 h-full" style={{ background: 'var(--bg-base)' }}>
@@ -142,8 +142,8 @@ export function CustomerListView({
     }
   }
 
-  const criticalCount = customers.filter(c => c.health_band === 'red').length
-  const watchCount    = customers.filter(c => c.health_band === 'yellow').length
+  const criticalCount = customers.filter((c: CustomerWithHealth) => c.health_band === 'red').length
+  const watchCount    = customers.filter((c: CustomerWithHealth) => c.health_band === 'yellow').length
 
   return (
     <div className="flex-1 overflow-y-auto h-full">
@@ -180,7 +180,7 @@ export function CustomerListView({
 
           <select
             value={state}
-            onChange={(e) => setState(e.target.value as CustomerState | 'all')}
+            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setState(e.target.value as CustomerState | 'all')}
             className="h-8 px-3 rounded-[8px] text-[12px] font-medium outline-none cursor-pointer transition-all
               text-white/68 hover:text-white/88
               border border-[rgba(255,255,255,0.10)] bg-[rgba(255,255,255,0.038)]
@@ -204,7 +204,7 @@ export function CustomerListView({
               type="text"
               placeholder="Search by name or email…"
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearch(e.target.value)}
               className="pl-9 pr-3.5 h-8 rounded-[8px] text-[12px] outline-none w-64 transition-all
                 text-white/85 placeholder:text-white/30
                 bg-[rgba(255,255,255,0.025)] border border-[rgba(255,255,255,0.10)]
@@ -242,7 +242,7 @@ export function CustomerListView({
           ) : filtered.length === 0 ? (
             <Empty message="No customers match this filter." />
           ) : (
-            filtered.map((c, i) => {
+            filtered.map((c: CustomerWithHealth, i: number) => {
               const name      = fullName(c.first_name, c.last_name)
               const isUrgent  = c.health_band === 'red'
               const isVIP     = (c.total_spend ?? 0) > 2000
@@ -259,8 +259,8 @@ export function CustomerListView({
                     gridTemplateColumns: GRID_COLUMNS,
                     borderBottom: i < filtered.length - 1 ? `1px solid ${tokens.borderSubtle}` : undefined,
                   }}
-                  onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.background = 'rgba(255,255,255,0.022)' }}
-                  onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.background = 'transparent' }}
+                  onMouseEnter={(e: React.MouseEvent<HTMLDivElement>) => { (e.currentTarget as HTMLDivElement).style.background = 'rgba(255,255,255,0.022)' }}
+                  onMouseLeave={(e: React.MouseEvent<HTMLDivElement>) => { (e.currentTarget as HTMLDivElement).style.background = 'transparent' }}
                   onClick={() => setSelectedId(c.customer_id)}
                 >
                   {isUrgent && (

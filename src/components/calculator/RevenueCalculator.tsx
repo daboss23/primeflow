@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import React, { useState, useMemo } from 'react'
 
 const INDUSTRY_BENCHMARKS: Record<string, {
   label: string
@@ -117,7 +117,7 @@ export function RevenueCalculator() {
     [monthly_customers, aov, monthly_revenue, industry]
   )
 
-  const maxAt = Math.max(...results.by_state.map(s => s.at_risk), 1)
+  const maxAt = Math.max(...results.by_state.map((s: Results['by_state'][number]) => s.at_risk), 1)
   const roi = Math.round(results.monthly_recoverable / 300)
 
   const handleSaveReport = async () => {
@@ -171,7 +171,7 @@ export function RevenueCalculator() {
             type="text"
             placeholder="yourstore.myshopify.com"
             value={store_url}
-            onChange={e => setStoreUrl(e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setStoreUrl(e.target.value)}
             className="w-full rounded-lg border border-white/[0.08] bg-white/[0.03] px-4 py-2.5 text-[13px] text-white/80 placeholder:text-white/20 outline-none focus:border-[#00d4ff]/40 transition-colors"
           />
         </div>
@@ -268,7 +268,7 @@ export function RevenueCalculator() {
               Revenue Gap Breakdown — {INDUSTRY_BENCHMARKS[industry]?.label}
             </div>
             <div className="space-y-4">
-              {results.by_state.map((s) => (
+              {results.by_state.map((s: Results['by_state'][number]) => (
                 <div key={s.label}>
                   <div className="flex justify-between items-center mb-1.5">
                     <div className="flex items-center gap-2">
@@ -334,7 +334,7 @@ export function RevenueCalculator() {
                 type="email"
                 placeholder="your@email.com (optional)"
                 value={email}
-                onChange={e => setEmail(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
                 className="flex-1 rounded-lg border border-white/[0.08] bg-white/[0.03] px-4 py-2.5 text-[13px] text-white/80 placeholder:text-white/20 outline-none focus:border-[#00d4ff]/40 transition-colors"
               />
               <button
@@ -395,7 +395,7 @@ function SliderField({ label, hint, value, min, max, step, display, onChange }: 
       </div>
       <input
         type="range" min={min} max={max} step={step} value={value}
-        onChange={e => onChange(Number(e.target.value))}
+        onChange={(e: React.ChangeEvent<HTMLInputElement>) => onChange(Number(e.target.value))}
         className="w-full" style={{ accentColor: '#00d4ff' }}
       />
       <div className="flex justify-between text-[10px] text-white/25 mt-1">

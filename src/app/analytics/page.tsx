@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import React, { useState } from 'react'
 import {
   LineChart, Line, BarChart, Bar,
   XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
@@ -175,13 +175,13 @@ export default function AnalyticsPage() {
                   <path d="M1 6h14M5 1v2M11 1v2" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
                 </svg>
                 <input
-                  type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)}
+                  type="date" value={startDate} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setStartDate(e.target.value)}
                   className="text-[11.5px] outline-none bg-transparent"
                   style={{ color: startDate ? tokens.textSecondary : tokens.textMuted, colorScheme: 'dark' }}
                 />
                 <span style={{ color: tokens.textMuted, fontSize: 11 }}>→</span>
                 <input
-                  type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)}
+                  type="date" value={endDate} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEndDate(e.target.value)}
                   className="text-[11.5px] outline-none bg-transparent"
                   style={{ color: endDate ? tokens.textSecondary : tokens.textMuted, colorScheme: 'dark' }}
                 />
@@ -222,7 +222,7 @@ export default function AnalyticsPage() {
             <LineChart data={data.trend} margin={{ top: 4, right: 4, bottom: 0, left: 0 }}>
               <CartesianGrid strokeDasharray="2 4" stroke="rgba(255,255,255,0.04)" vertical={false} />
               <XAxis dataKey="month" tick={{ fill: 'rgba(255,255,255,0.35)', fontSize: 11 }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fill: 'rgba(255,255,255,0.35)', fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`} width={40} />
+              <YAxis tick={{ fill: 'rgba(255,255,255,0.35)', fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={(v: number) => `$${(v / 1000).toFixed(0)}k`} width={40} />
               <Tooltip content={<ChartTooltip />} />
               <Line type="monotone" dataKey="recovered" stroke="#00d4ff" strokeWidth={2} dot={false}
                     activeDot={{ r: 4, fill: '#00d4ff', stroke: '#06060d', strokeWidth: 2 }} />

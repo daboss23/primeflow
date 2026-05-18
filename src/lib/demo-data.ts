@@ -15,15 +15,10 @@ function buildDemoData() {
   const health: CustomerWithHealth[] = customers.map((c, i) => {
     const id = `demo-cust-${String(i).padStart(3, '0')}`
     const customerObj = {
+      ...c,
       id,
       created_at: daysAgo(90),
       updated_at: daysAgo(1),
-      shopify_customer_id: c.shopify_customer_id,
-      phone: c.phone,
-      klaviyo_profile_id: c.klaviyo_profile_id,
-      sms_engaged: c.sms_engaged,
-      tags: c.tags,
-      ...c,
     }
     const cSigs = (signals[i] ?? []).map((s, j) => ({
       id: `demo-sig-${i}-${j}`,

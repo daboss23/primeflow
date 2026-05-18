@@ -42,7 +42,7 @@ export function SeedButton({ hasData }: { hasData: boolean }) {
     scoring: 'Scoring engine running…',
     done:    '✓ Ready',
     error:   'Failed — retry?',
-  }[status]
+  }[status as 'idle' | 'seeding' | 'scoring' | 'done' | 'error']
 
   return (
     <div className="flex gap-2 items-center">

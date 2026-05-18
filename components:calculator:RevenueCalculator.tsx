@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import React, { useState, useMemo } from 'react'
 
 // ─── Industry benchmarks ──────────────────────────────────────────────────────
 // Based on published ecommerce averages across DTC brands
@@ -125,7 +125,7 @@ export function RevenueCalculator() {
     [monthly_customers, aov, monthly_revenue]
   )
 
-  const maxAt = Math.max(...results.by_state.map(s => s.at_risk))
+  const maxAt = Math.max(...results.by_state.map((s: Results['by_state'][number]) => s.at_risk))
 
   return (
     <div className="space-y-5">
@@ -206,7 +206,7 @@ export function RevenueCalculator() {
               Revenue Gap Breakdown
             </div>
             <div className="space-y-4">
-              {results.by_state.map((s) => (
+              {results.by_state.map((s: Results['by_state'][number]) => (
                 <div key={s.label}>
                   <div className="flex justify-between items-center mb-1.5">
                     <div className="flex items-center gap-2">
@@ -298,7 +298,7 @@ function SliderField({
         max={max}
         step={step}
         value={value}
-        onChange={e => onChange(Number(e.target.value))}
+        onChange={(e: React.ChangeEvent<HTMLInputElement>) => onChange(Number(e.target.value))}
         className="w-full"
         style={{ accentColor: '#00d4ff' }}
       />

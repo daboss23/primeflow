@@ -249,8 +249,8 @@ export async function generateDraft(
   })
 
   const raw = message.content
-    .filter((b) => b.type === 'text')
-    .map((b) => (b as { type: 'text'; text: string }).text)
+    .filter((b: { type: string }) => b.type === 'text')
+    .map((b: { type: string }) => (b as { type: 'text'; text: string }).text)
     .join('')
     .trim()
 

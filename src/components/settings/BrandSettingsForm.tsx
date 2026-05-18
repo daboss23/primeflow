@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { Card, SectionLabel, Button, Pill, tokens } from '@/components/ui'
 
 type Tab = 'settings' | 'vault'
@@ -119,12 +119,12 @@ function VaultCard({ mod, value, onChange }: { mod: VaultModule; value: string; 
           <textarea
             rows={4}
             value={value}
-            onChange={(e) => onChange(e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => onChange(e.target.value)}
             placeholder={mod.placeholder}
             className={textareaCls}
             style={{ borderColor: `${mod.accent}28` }}
-            onFocus={(e) => (e.target.style.borderColor = `${mod.accent}55`)}
-            onBlur={(e) => (e.target.style.borderColor = `${mod.accent}28`)}
+            onFocus={(e: React.FocusEvent<HTMLTextAreaElement>) => (e.target.style.borderColor = `${mod.accent}55`)}
+            onBlur={(e: React.FocusEvent<HTMLTextAreaElement>) => (e.target.style.borderColor = `${mod.accent}28`)}
           />
         </div>
       )}
@@ -148,13 +148,13 @@ export function BrandSettingsForm({ initial }: { initial: Record<string, string>
   )
 
   const [vault, setVault] = useState<Record<string, string>>(
-    VAULT_MODULES.reduce((acc, m) => ({ ...acc, [m.id]: initial[`vault_${m.id}`] ?? '' }), {})
+    VAULT_MODULES.reduce<Record<string, string>>((acc, m) => ({ ...acc, [m.id]: initial[`vault_${m.id}`] ?? '' }), {})
   )
 
   const addAvoid = () => {
     const val = avoidInput.trim()
     if (val && !avoidTags.includes(val)) {
-      setAvoidTags((t) => [...t, val])
+      setAvoidTags((t: string[]) => [...t, val])
       setAvoidInput('')
     }
   }
@@ -183,7 +183,7 @@ export function BrandSettingsForm({ initial }: { initial: Record<string, string>
     }
   }
 
-  const configuredVault = Object.values(vault).filter((v) => v.trim()).length
+  const configuredVault = (Object.values(vault) as string[]).filter((v) => v.trim()).length
 
   return (
     <div>
@@ -222,15 +222,15 @@ export function BrandSettingsForm({ initial }: { initial: Record<string, string>
             <SectionHead label="Brand Identity" sub="Core identifiers the AI uses in every interaction." />
             <div className="grid grid-cols-2 gap-4">
               <Field label="Brand Name">
-                <input type="text" value={brandName} onChange={(e) => setBrandName(e.target.value)} placeholder="e.g. Luxe Skin Co." className={inputCls} />
+                <input type="text" value={brandName} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setBrandName(e.target.value)} placeholder="e.g. Luxe Skin Co." className={inputCls} />
               </Field>
               <Field label="Industry / Category">
-                <input type="text" value={industry} onChange={(e) => setIndustry(e.target.value)} placeholder="e.g. Skincare, Supplements, Coffee" className={inputCls} />
+                <input type="text" value={industry} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setIndustry(e.target.value)} placeholder="e.g. Skincare, Supplements, Coffee" className={inputCls} />
               </Field>
             </div>
             <div className="mt-4">
               <Field label="Brand Tagline" hint="One line — what makes this brand different">
-                <input type="text" value={tagline} onChange={(e) => setTagline(e.target.value)} placeholder="e.g. Skincare that actually tells you what's in it." className={inputCls} />
+                <input type="text" value={tagline} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTagline(e.target.value)} placeholder="e.g. Skincare that actually tells you what's in it." className={inputCls} />
               </Field>
             </div>
           </Card>
@@ -262,7 +262,7 @@ export function BrandSettingsForm({ initial }: { initial: Record<string, string>
           <Card>
             <SectionHead label="Sign-Off Style" sub="How every AI message ends." />
             <Field label="Sign-Off">
-              <input type="text" value={signoff} onChange={(e) => setSignoff(e.target.value)} placeholder="e.g. Warmly, The Luxe Skin Team" className={inputCls} />
+              <input type="text" value={signoff} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSignoff(e.target.value)} placeholder="e.g. Warmly, The Luxe Skin Team" className={inputCls} />
             </Field>
           </Card>
 
@@ -272,8 +272,8 @@ export function BrandSettingsForm({ initial }: { initial: Record<string, string>
               <input
                 type="text"
                 value={avoidInput}
-                onChange={(e) => setAvoidInput(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addAvoid())}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAvoidInput(e.target.value)}
+                onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => e.key === 'Enter' && (e.preventDefault(), addAvoid())}
                 placeholder="Type a word or phrase and press Enter"
                 className={`${inputCls} flex-1`}
               />
@@ -281,14 +281,14 @@ export function BrandSettingsForm({ initial }: { initial: Record<string, string>
             </div>
             {avoidTags.length > 0 && (
               <div className="flex flex-wrap gap-2">
-                {avoidTags.map((tag) => (
+                {avoidTags.map((tag: string) => (
                   <span
                     key={tag}
                     className="inline-flex items-center gap-2 h-7 pl-3 pr-2 rounded-[8px] text-[12px] font-medium"
                     style={{ background: 'rgba(255,77,106,0.08)', color: '#ff4d6a', border: '1px solid rgba(255,77,106,0.22)' }}
                   >
                     {tag}
-                    <button onClick={() => setAvoidTags((t) => t.filter((x) => x !== tag))} className="opacity-60 hover:opacity-100 transition-opacity text-[14px] leading-none">
+                    <button onClick={() => setAvoidTags((t: string[]) => t.filter((x: string) => x !== tag))} className="opacity-60 hover:opacity-100 transition-opacity text-[14px] leading-none">
                       ×
                     </button>
                   </span>
@@ -330,7 +330,7 @@ export function BrandSettingsForm({ initial }: { initial: Record<string, string>
               key={mod.id}
               mod={mod}
               value={vault[mod.id] ?? ''}
-              onChange={(v) => setVault((prev) => ({ ...prev, [mod.id]: v }))}
+              onChange={(v) => setVault((prev: Record<string, string>) => ({ ...prev, [mod.id]: v }))}
             />
           ))}
         </div>

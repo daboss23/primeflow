@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 
 const DEMO_CUSTOMERS = [
   { id: '1', name: 'Sarah Chen', state: 'VIP at Risk', health: 25, ltv: 847, lastPurchase: '3 months ago', opportunity: 100, email: 'sarah@example.com' },
@@ -69,7 +69,7 @@ export default function OraclePage() {
     setInput('')
 
     const userMsg: Message = { role: 'user', content: userText, timestamp: new Date() }
-    setMessages(prev => [...prev, userMsg])
+    setMessages((prev: Message[]) => [...prev, userMsg])
     setLoading(true)
 
     const systemPrompt = `You are AXIOM ORACLE — the AI intelligence engine inside the AXIOM platform, a premium ecommerce customer health and reactivation system.
@@ -101,7 +101,7 @@ RESPONSE STYLE:
 - Sign off with a short follow-up question or action suggestion when relevant.`
 
     try {
-      const history = messages.slice(-8).map(m => ({ role: m.role, content: m.content }))
+      const history = messages.slice(-8).map((m: Message) => ({ role: m.role, content: m.content }))
 
       const response = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
@@ -117,9 +117,9 @@ RESPONSE STYLE:
       const data = await response.json()
       const reply = data.content?.[0]?.text || 'Signal lost. Please try again.'
 
-      setMessages(prev => [...prev, { role: 'assistant', content: reply, timestamp: new Date() }])
+      setMessages((prev: Message[]) => [...prev, { role: 'assistant', content: reply, timestamp: new Date() }])
     } catch {
-      setMessages(prev => [...prev, { role: 'assistant', content: 'Connection interrupted. Check your network and try again.', timestamp: new Date() }])
+      setMessages((prev: Message[]) => [...prev, { role: 'assistant', content: 'Connection interrupted. Check your network and try again.', timestamp: new Date() }])
     } finally {
       setLoading(false)
     }
@@ -191,7 +191,7 @@ RESPONSE STYLE:
       {/* Messages */}
       <div style={{ flex: 1, overflowY: 'auto', padding: '22px 36px', display: 'flex', flexDirection: 'column', gap: 18 }}>
 
-        {messages.map((msg, i) => (
+        {messages.map((msg: Message, i: number) => (
           <div key={i} style={{ display: 'flex', gap: 12, alignItems: 'flex-start', flexDirection: msg.role === 'user' ? 'row-reverse' : 'row' }}>
             {/* Avatar */}
             <div style={{
@@ -264,8 +264,8 @@ RESPONSE STYLE:
               borderRadius: 8, padding: '8px 13px', fontSize: 12.5, color: 'rgba(255,255,255,0.68)',
               cursor: 'pointer', transition: 'all 0.15s',
             }}
-              onMouseEnter={e => { (e.target as HTMLElement).style.background = 'rgba(0,212,255,0.08)'; (e.target as HTMLElement).style.color = '#00d4ff'; (e.target as HTMLElement).style.borderColor = 'rgba(0,212,255,0.30)' }}
-              onMouseLeave={e => { (e.target as HTMLElement).style.background = 'var(--bg-surface)'; (e.target as HTMLElement).style.color = 'rgba(255,255,255,0.65)'; (e.target as HTMLElement).style.borderColor = 'var(--border-subtle)' }}
+              onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => { (e.target as HTMLElement).style.background = 'rgba(0,212,255,0.08)'; (e.target as HTMLElement).style.color = '#00d4ff'; (e.target as HTMLElement).style.borderColor = 'rgba(0,212,255,0.30)' }}
+              onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => { (e.target as HTMLElement).style.background = 'var(--bg-surface)'; (e.target as HTMLElement).style.color = 'rgba(255,255,255,0.65)'; (e.target as HTMLElement).style.borderColor = 'var(--border-subtle)' }}
             >
               {q}
             </button>
@@ -285,7 +285,7 @@ RESPONSE STYLE:
           <textarea
             ref={inputRef}
             value={input}
-            onChange={e => setInput(e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Ask Oracle anything about your store…"
             rows={1}

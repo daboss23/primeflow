@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Spinner, PageHeader, Card, SectionLabel, Pill, StatusDot, tokens, Button } from '@/components/ui'
 
 const PLATFORMS = [
@@ -46,7 +46,7 @@ export default function IntegrationsPage() {
   }
 
   const handleFieldChange = (id: string, key: string, value: string) => {
-    setFormValues(prev => ({ ...prev, [id]: { ...(prev[id] || {}), [key]: value } }))
+    setFormValues((prev: Record<string, Record<string, string>>) => ({ ...prev, [id]: { ...(prev[id] || {}), [key]: value } }))
   }
 
   const handleConnect = async (id: string) => {
@@ -78,7 +78,7 @@ export default function IntegrationsPage() {
   }
 
   const connectedCount = Object.keys(connected).length
-  const totalRecords = Object.values(connected).reduce((sum, c) => sum + c.recordsSynced, 0)
+  const totalRecords = (Object.values(connected) as ConnectedState[]).reduce((sum, c) => sum + c.recordsSynced, 0)
 
   return (
     <div className="px-10 py-10 max-w-[1180px]">
@@ -210,7 +210,7 @@ export default function IntegrationsPage() {
                         type={field.type || 'text'}
                         placeholder={field.placeholder}
                         value={fields[field.key] || ''}
-                        onChange={e => handleFieldChange(p.id, field.key, e.target.value)}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleFieldChange(p.id, field.key, e.target.value)}
                         className="w-full h-10 rounded-[10px] px-3.5 text-[13px] text-white/90 placeholder:text-white/30 transition-all
                           bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.08)]
                           focus:outline-none focus:border-[rgba(0,212,255,0.40)] focus:shadow-[0_0_0_3px_rgba(0,212,255,0.10)]"

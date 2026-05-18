@@ -2,7 +2,7 @@
 
 // FILE: src/components/workflows/WorkflowsView.tsx
 
-import { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { PageHeader } from '@/components/ui/PageHeader'
 import { Card, CardHeader, SectionLabel, Pill, StatusDot, tokens } from '@/components/ui'
 import { WorkflowCustomerView, type WorkflowCustomer } from './WorkflowCustomerView'
@@ -557,7 +557,7 @@ function WorkflowActionsMenu({
   return (
     <div ref={ref} className="absolute right-0 top-8 z-50 w-40 rounded-xl overflow-hidden py-1"
       style={{ background: '#10101f', border: '1px solid rgba(255,255,255,0.1)', boxShadow: '0 16px 40px rgba(0,0,0,0.6)' }}
-      onClick={(e) => e.stopPropagation()}>
+      onClick={(e: React.MouseEvent<HTMLDivElement>) => e.stopPropagation()}>
       {items.map((item) => (
         <button key={item.label} onClick={() => { item.action(); onClose() }}
           className="w-full flex items-center gap-2.5 px-3.5 py-2 text-[12px] font-medium text-left transition-all hover:bg-white/[0.05]"
@@ -691,26 +691,26 @@ function NewWorkflowModal({ onClose }: { onClose: () => void }) {
     setObjective(AI_AUTO)
     setOfferAngle(AI_AUTO)
     setTone(AI_AUTO)
-    setRecKey(k => k + 1)
+    setRecKey((k: number) => k + 1)
   }, [trigger])
 
   // Animate rec panel when any strategy field changes
   useEffect(() => {
     if (isFirstRender.current) { isFirstRender.current = false; return }
-    setRecKey(k => k + 1)
+    setRecKey((k: number) => k + 1)
     setShowUpdated(true)
     const t = setTimeout(() => setShowUpdated(false), 1800)
     return () => clearTimeout(t)
   }, [msgStyle, urgency, objective, offerAngle, tone, channels])
 
   // Derived computed values
-  const baseDefault   = AI_DEFAULTS[trigger]
+  const baseDefault   = AI_DEFAULTS[trigger as TriggerState]
   const aiRecs        = computeAIRecs(trigger, msgStyle, urgency, tone, offerAngle, channels, objective)
   const insights      = computeInsights(trigger, msgStyle, urgency, tone, offerAngle, channels)
   const styleFamily   = getStyleFamily(msgStyle)
-  const previewBody   = PREVIEW_BODIES[trigger][styleFamily]
-  const previewSubject = PREVIEW_SUBJECTS[trigger][urgency] ?? PREVIEW_SUBJECTS[trigger]['Medium']
-  const previewSMS    = PREVIEW_SMS[trigger][urgency] ?? PREVIEW_SMS[trigger]['Medium']
+  const previewBody   = PREVIEW_BODIES[trigger as TriggerState][styleFamily]
+  const previewSubject = PREVIEW_SUBJECTS[trigger as TriggerState][urgency] ?? PREVIEW_SUBJECTS[trigger as TriggerState]['Medium']
+  const previewSMS    = PREVIEW_SMS[trigger as TriggerState][urgency] ?? PREVIEW_SMS[trigger as TriggerState]['Medium']
   const fallback      = generateFallback(trigger, urgency, channels, msgStyle)
 
   // Check if a field is overriding the AI default
@@ -723,7 +723,7 @@ function NewWorkflowModal({ onClose }: { onClose: () => void }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center"
       style={{ background: 'rgba(0,0,0,0.72)', backdropFilter: 'blur(8px)' }}
-      onClick={(e) => e.target === e.currentTarget && onClose()}>
+      onClick={(e: React.MouseEvent<HTMLDivElement>) => e.target === e.currentTarget && onClose()}>
       <div className="w-[620px] max-h-[90vh] flex flex-col rounded-2xl overflow-hidden"
         style={{ background: '#09091b', border: '1px solid rgba(255,255,255,0.08)', boxShadow: '0 40px 100px rgba(0,0,0,0.85)' }}>
 
@@ -774,7 +774,7 @@ function NewWorkflowModal({ onClose }: { onClose: () => void }) {
               </div>
               <div>
                 <FieldLabel>Trigger State</FieldLabel>
-                <select className="w-full mfi" value={trigger} onChange={(e) => setTrigger(e.target.value as TriggerState)}>
+                <select className="w-full mfi" value={trigger} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setTrigger(e.target.value as TriggerState)}>
                   <option value="abandoned_cart">Abandoned Cart</option>
                   <option value="failed_payment">Failed Payment</option>
                   <option value="dormant_buyer">Dormant Buyer</option>
@@ -797,7 +797,7 @@ function NewWorkflowModal({ onClose }: { onClose: () => void }) {
                 </div>
                 <div>
                   <FieldLabel>Channels</FieldLabel>
-                  <select className="w-full mfi" value={channels} onChange={(e) => setChannels(e.target.value)}>
+                  <select className="w-full mfi" value={channels} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setChannels(e.target.value)}>
                     <option>Email</option>
                     <option>SMS</option>
                     <option>Email + SMS</option>
@@ -833,7 +833,7 @@ function NewWorkflowModal({ onClose }: { onClose: () => void }) {
                 <div className="flex items-center gap-2 px-4 py-3" style={{ background: 'rgba(0,212,255,0.05)', borderBottom: '1px solid rgba(0,212,255,0.08)' }}>
                   <svg width="12" height="12" fill="none" viewBox="0 0 16 16"><path d="M8 1l1.5 4.5H14l-3.7 2.7 1.4 4.3L8 10l-3.7 2.5 1.4-4.3L2 5.5h4.5z" fill="#00d4ff"/></svg>
                   <span className="text-[11px] font-semibold text-[#00d4ff]">AI Recommendations</span>
-                  <span className="text-[10px] text-white/22 ml-1">— live · based on {TRIGGER_LABELS[trigger]}</span>
+                  <span className="text-[10px] text-white/22 ml-1">— live · based on {TRIGGER_LABELS[trigger as TriggerState]}</span>
                   {showUpdated && (
                     <span className="ml-auto flex items-center gap-1 text-[9px] font-semibold text-[#00d4ff]/55 rec-updated">
                       <svg width="8" height="8" viewBox="0 0 16 16" fill="none"><path d="M2 8a6 6 0 1110.83-3.5M14 2v4h-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
@@ -844,7 +844,7 @@ function NewWorkflowModal({ onClose }: { onClose: () => void }) {
 
                 {/* Workflow context — headline + avoid note */}
                 {(() => {
-                  const ctx = WORKFLOW_CONTEXT[trigger]
+                  const ctx = WORKFLOW_CONTEXT[trigger as TriggerState]
                   return (
                     <div className="px-4 pt-3 pb-2">
                       <div className="flex items-center gap-2 mb-1.5">
@@ -922,7 +922,7 @@ function NewWorkflowModal({ onClose }: { onClose: () => void }) {
                       <span className="text-[8px] px-1 rounded font-semibold" style={{ background: 'rgba(245,158,11,0.1)', color: 'rgba(245,158,11,0.7)' }}>custom</span>
                     )}
                   </div>
-                  <select className="w-full mfi" value={msgStyle} onChange={(e) => setMsgStyle(e.target.value)}>
+                  <select className="w-full mfi" value={msgStyle} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setMsgStyle(e.target.value)}>
                     <option value={AI_AUTO}>✦ AI Decide</option>
                     <option>Reminder</option>
                     <option>Recovery</option>
@@ -940,7 +940,7 @@ function NewWorkflowModal({ onClose }: { onClose: () => void }) {
                       <span className="text-[8px] px-1 rounded font-semibold" style={{ background: 'rgba(245,158,11,0.1)', color: 'rgba(245,158,11,0.7)' }}>custom</span>
                     )}
                   </div>
-                  <select className="w-full mfi" value={urgency} onChange={(e) => setUrgency(e.target.value)}>
+                  <select className="w-full mfi" value={urgency} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setUrgency(e.target.value)}>
                     <option value={AI_AUTO}>✦ AI Decide</option>
                     <option>Low</option>
                     <option>Medium</option>
@@ -958,7 +958,7 @@ function NewWorkflowModal({ onClose }: { onClose: () => void }) {
                     <span className="text-[8px] px-1 rounded font-semibold" style={{ background: 'rgba(245,158,11,0.1)', color: 'rgba(245,158,11,0.7)' }}>custom</span>
                   )}
                 </div>
-                <select className="w-full mfi" value={objective} onChange={(e) => setObjective(e.target.value)}>
+                <select className="w-full mfi" value={objective} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setObjective(e.target.value)}>
                   <option value={AI_AUTO}>✦ AI Decide</option>
                   <option>Drive purchase</option>
                   <option>Recover failed payment</option>
@@ -977,7 +977,7 @@ function NewWorkflowModal({ onClose }: { onClose: () => void }) {
                     <span className="text-[8px] px-1 rounded font-semibold" style={{ background: 'rgba(245,158,11,0.1)', color: 'rgba(245,158,11,0.7)' }}>custom</span>
                   )}
                 </div>
-                <select className="w-full mfi" value={offerAngle} onChange={(e) => setOfferAngle(e.target.value)}>
+                <select className="w-full mfi" value={offerAngle} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setOfferAngle(e.target.value)}>
                   <option value={AI_AUTO}>✦ AI Decide</option>
                   <option>Free shipping or discount</option>
                   <option>VIP-only benefit or access</option>
@@ -997,7 +997,7 @@ function NewWorkflowModal({ onClose }: { onClose: () => void }) {
                     <span className="text-[8px] px-1 rounded font-semibold" style={{ background: 'rgba(245,158,11,0.1)', color: 'rgba(245,158,11,0.7)' }}>custom</span>
                   )}
                 </div>
-                <select className="w-full mfi" value={tone} onChange={(e) => setTone(e.target.value)}>
+                <select className="w-full mfi" value={tone} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setTone(e.target.value)}>
                   <option value={AI_AUTO}>✦ AI Decide</option>
                   <option>Friendly, direct</option>
                   <option>Helpful, clear</option>
@@ -1015,7 +1015,7 @@ function NewWorkflowModal({ onClose }: { onClose: () => void }) {
                   {['First name', 'Last order date', 'Cart value', 'Product name', 'LTV tier', 'Days since last purchase'].map((p) => {
                     const active = personalization.includes(p)
                     return (
-                      <button key={p} onClick={() => setPersonalization(prev => active ? prev.filter(x => x !== p) : [...prev, p])}
+                      <button key={p} onClick={() => setPersonalization((prev: string[]) => active ? prev.filter((x: string) => x !== p) : [...prev, p])}
                         className="px-2.5 py-1 rounded-md text-[10px] font-medium transition-all"
                         style={active
                           ? { background: 'rgba(0,212,255,0.1)', color: '#00d4ff', border: '1px solid rgba(0,212,255,0.2)' }
@@ -1103,7 +1103,7 @@ function NewWorkflowModal({ onClose }: { onClose: () => void }) {
               {/* Strategy summary chips */}
               <div className="flex flex-wrap gap-1.5">
                 {[
-                  { label: TRIGGER_LABELS[trigger], color: TRIGGER_COLORS[trigger] },
+                  { label: TRIGGER_LABELS[trigger as TriggerState], color: TRIGGER_COLORS[trigger as TriggerState] },
                   { label: msgStyle,   color: '#00d4ff' },
                   { label: urgency,    color: urgency === 'Critical' ? '#ff4d4d' : urgency === 'High' ? '#f59e0b' : urgency === 'Low' ? '#a78bfa' : '#00d4ff' },
                   { label: channels,  color: 'rgba(255,255,255,0.4)' },
@@ -1156,7 +1156,7 @@ function NewWorkflowModal({ onClose }: { onClose: () => void }) {
               <div className="p-3 rounded-xl" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)' }}>
                 <div className="text-[10px] font-semibold tracking-wider uppercase text-white/25 mb-2">Personalisation Tokens</div>
                 <div className="flex flex-wrap gap-1.5">
-                  {personalization.map((p) => {
+                  {personalization.map((p: string) => {
                     const token = `{{${p.toLowerCase().replace(/ /g, '_')}}}`
                     return (
                       <span key={p} className="px-2 py-0.5 rounded text-[10px] font-mono" style={{ background: 'rgba(0,212,255,0.08)', color: '#00d4ff' }}>{token}</span>
@@ -1244,7 +1244,7 @@ function NewWorkflowModal({ onClose }: { onClose: () => void }) {
                 <div className="text-[10px] font-semibold tracking-[0.14em] uppercase text-white/25 mb-3">Workflow Summary</div>
                 <div className="space-y-2">
                   {[
-                    ['Trigger',         TRIGGER_LABELS[trigger]],
+                    ['Trigger',         TRIGGER_LABELS[trigger as TriggerState]],
                     ['Channels',        channels],
                     ['Style',           msgStyle],
                     ['Urgency',         urgency],
@@ -1298,22 +1298,22 @@ export function WorkflowsView() {
   const [selectedWorkflow, setSelectedWorkflow] = useState<Workflow | null>(null)
   const [selectedCustomer, setSelectedCustomer] = useState<WorkflowCustomer | null>(null)
 
-  const filtered       = filter === 'all' ? workflows : workflows.filter(w => w.status === filter)
-  const totalEnrolled  = workflows.reduce((s, w) => s + w.enrolled, 0)
-  const totalRevenue   = workflows.reduce((s, w) => s + w.revenue, 0)
-  const totalConverted = workflows.reduce((s, w) => s + w.converted, 0)
+  const filtered       = filter === 'all' ? workflows : workflows.filter((w: Workflow) => w.status === filter)
+  const totalEnrolled  = workflows.reduce((s: number, w: Workflow) => s + w.enrolled, 0)
+  const totalRevenue   = workflows.reduce((s: number, w: Workflow) => s + w.revenue, 0)
+  const totalConverted = workflows.reduce((s: number, w: Workflow) => s + w.converted, 0)
   const convRate       = totalEnrolled > 0 ? ((totalConverted / totalEnrolled) * 100).toFixed(1) : '0'
-  const activeCount    = workflows.filter(w => w.status === 'active').length
+  const activeCount    = workflows.filter((w: Workflow) => w.status === 'active').length
 
   function handleTogglePause(id: string) {
-    setWorkflows(prev => prev.map(w => w.id === id ? { ...w, status: w.status === 'active' ? 'paused' : 'active' } : w))
+    setWorkflows((prev: Workflow[]) => prev.map((w: Workflow) => w.id === id ? { ...w, status: w.status === 'active' ? 'paused' : 'active' } : w))
   }
   function handleDuplicate(wf: Workflow) {
     const copy: Workflow = { ...wf, id: `${Date.now()}`, name: `${wf.name} (Copy)`, status: 'draft', enrolled: 0, converted: 0, revenue: 0, lastUpdated: 'Just now' }
-    setWorkflows(prev => [...prev, copy])
+    setWorkflows((prev: Workflow[]) => [...prev, copy])
   }
   function handleArchive(id: string) {
-    setWorkflows(prev => prev.filter(w => w.id !== id))
+    setWorkflows((prev: Workflow[]) => prev.filter((w: Workflow) => w.id !== id))
   }
 
   // Recovery conversation drill-down
@@ -1435,9 +1435,9 @@ export function WorkflowsView() {
               ))}
             </div>
 
-            {filtered.map((wf, i) => {
+            {filtered.map((wf: Workflow, i: number) => {
               const convPct = wf.enrolled > 0 ? `${((wf.converted / wf.enrolled) * 100).toFixed(0)}%` : null
-              const tc = TRIGGER_COLORS[wf.trigger]
+              const tc = TRIGGER_COLORS[wf.trigger as TriggerState]
               return (
                 <div key={wf.id} className="wf-row grid px-6 py-3.5 cursor-pointer relative"
                   style={{ gridTemplateColumns: COLS, borderBottom: i < filtered.length - 1 ? `1px solid ${tokens.borderSubtle}` : undefined, background: 'transparent' }}
@@ -1457,7 +1457,7 @@ export function WorkflowsView() {
                   <div className="flex items-center">
                     <span className="inline-flex items-center h-5 px-2 rounded-[6px] text-[10.5px] font-medium tracking-wide"
                       style={{ color: tc, background: `${tc}14`, border: `1px solid ${tc}28` }}>
-                      {TRIGGER_LABELS[wf.trigger]}
+                      {TRIGGER_LABELS[wf.trigger as TriggerState]}
                     </span>
                   </div>
                   <div className="flex items-center"><span className="text-[12px]" style={{ color: tokens.textSecondary }}>{wf.actionType}</span></div>
@@ -1474,7 +1474,7 @@ export function WorkflowsView() {
                     </span>
                   </div>
                   {/* Actions column */}
-                  <div className="flex items-center justify-end relative" onClick={(e) => e.stopPropagation()}>
+                  <div className="flex items-center justify-end relative" onClick={(e: React.MouseEvent<HTMLDivElement>) => e.stopPropagation()}>
                     <button
                       className="w-7 h-7 rounded-lg flex items-center justify-center transition-all"
                       style={{

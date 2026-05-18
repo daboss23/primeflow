@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import React, { useState } from 'react'
 
 interface Props {
   connected?: boolean
@@ -63,7 +63,7 @@ export function ConnectShopify({ connected, shopDomain, lastSynced }: Props) {
               type="text"
               placeholder="yourstore.myshopify.com"
               value={domain}
-              onChange={e => setDomain(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setDomain(e.target.value)}
               className="w-full rounded-lg border border-white/[0.08] bg-white/[0.03] px-4 py-2.5 text-[13px] text-white/80 placeholder:text-white/20 outline-none focus:border-[#00d4ff]/40 transition-colors"
             />
           </div>
@@ -75,7 +75,7 @@ export function ConnectShopify({ connected, shopDomain, lastSynced }: Props) {
               type="password"
               placeholder="shpat_..."
               value={token}
-              onChange={e => setToken(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setToken(e.target.value)}
               className="w-full rounded-lg border border-white/[0.08] bg-white/[0.03] px-4 py-2.5 text-[13px] text-white/80 placeholder:text-white/20 outline-none focus:border-[#00d4ff]/40 transition-colors"
             />
           </div>

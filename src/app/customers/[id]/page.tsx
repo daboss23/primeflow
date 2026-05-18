@@ -21,5 +21,5 @@ export default async function CustomerDetailPage({ params }: Props) {
   const customer = await getCustomer(id)
   if (!customer) notFound()
 
-  return <CustomerDetail customer={customer} onRefresh={async () => {}} />
+  return <CustomerDetail customer={customer!} onRefresh={async () => {}} />
 }

@@ -131,10 +131,10 @@ export default function AnalyticsPage() {
 
   const data = DATA_BY_RANGE[active]
   const kpis = [
-    { label: 'Recovered Revenue',    value: data.kpis.revenue,     sub: 'across active workflows',           color: '#3ddc97' },
-    { label: 'Customers Recovered',  value: data.kpis.customers,   sub: 'converted this period',             color: '#00d4ff' },
-    { label: 'Avg Conversion Rate',  value: data.kpis.rate,        sub: 'across all campaigns',              color: '#a78bfa' },
-    { label: 'Workflow Performance', value: data.kpis.performance, sub: 'avg success across 4 workflows',    color: '#ffaa00' },
+    { label: 'Recovered Revenue',    value: data.kpis.revenue,     sub: 'across active workflows',        color: '#3ddc97', delta: '+29%' },
+    { label: 'Customers Recovered',  value: data.kpis.customers,   sub: 'converted this period',          color: '#00d4ff', delta: '+18%' },
+    { label: 'Avg Conversion Rate',  value: data.kpis.rate,        sub: 'across all campaigns',           color: '#a78bfa', delta: '+2.4pp' },
+    { label: 'Workflow Performance', value: data.kpis.performance, sub: 'avg success across 4 workflows', color: '#ffaa00', delta: '+5%' },
   ]
 
   return (
@@ -193,9 +193,15 @@ export default function AnalyticsPage() {
 
       {/* KPI Cards */}
       <div className="grid grid-cols-4 gap-5 mb-6">
-        {kpis.map(({ label, value, sub, color }) => (
+        {kpis.map(({ label, value, sub, color, delta }) => (
           <Card key={label} padded={false} className="px-6 py-6">
-            <SectionLabel className="mb-4">{label}</SectionLabel>
+            <div className="flex items-start justify-between mb-4">
+              <SectionLabel>{label}</SectionLabel>
+              <span className="text-[11px] font-semibold px-2 py-0.5 rounded-md"
+                style={{ background: 'rgba(0,230,118,0.08)', color: '#3ddc97', border: '1px solid rgba(0,230,118,0.14)' }}>
+                {delta}
+              </span>
+            </div>
             <div className="metric-num text-[32px] leading-none tracking-tight mb-2.5" style={{ color }}>
               {value}
             </div>
@@ -217,7 +223,7 @@ export default function AnalyticsPage() {
           }
           action={<Pill tone="success">+29% vs last period</Pill>}
         />
-        <div style={{ height: 210 }}>
+        <div style={{ height: 230 }}>
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={data.trend} margin={{ top: 4, right: 4, bottom: 0, left: 0 }}>
               <CartesianGrid strokeDasharray="2 4" stroke="rgba(255,255,255,0.04)" vertical={false} />

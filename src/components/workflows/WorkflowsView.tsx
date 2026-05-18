@@ -492,7 +492,7 @@ function ChannelBadge({ channel }: { channel: Channel }) {
 }
 
 function FieldLabel({ children }: { children: React.ReactNode }) {
-  return <label className="block text-[10px] font-semibold tracking-[0.13em] uppercase text-white/35 mb-1.5">{children}</label>
+  return <label className="block text-[10.5px] font-semibold tracking-[0.12em] uppercase text-white/40 mb-2">{children}</label>
 }
 
 function AiBadge() {
@@ -583,7 +583,7 @@ function WorkflowCustomerListView({
   const tc = TRIGGER_COLORS[workflow.trigger]
   return (
     <div>
-      <div className="max-w-[1180px] mx-auto px-10 py-10">
+      <div className="pl-7 pr-8 py-9 w-full">
 
         {/* Breadcrumb */}
         <button onClick={onBack} className="flex items-center gap-1.5 mb-5 transition-colors group" style={{ color: tokens.textTertiary }}>
@@ -603,9 +603,9 @@ function WorkflowCustomerListView({
 
         {/* Customer table */}
         <div className="rounded-[14px] overflow-hidden" style={{ border: `1px solid ${tokens.borderSubtle}`, background: tokens.surface }}>
-          <div className="grid px-6 py-3" style={{ gridTemplateColumns: '2fr 1fr 1fr 1fr 1fr 1fr', borderBottom: `1px solid ${tokens.borderSubtle}`, background: 'rgba(255,255,255,0.015)' }}>
+          <div className="grid px-6 py-3.5" style={{ gridTemplateColumns: '2fr 1fr 1fr 1fr 1fr 1fr', borderBottom: `1px solid ${tokens.borderSubtle}`, background: 'rgba(255,255,255,0.015)' }}>
             {['Customer', 'State', 'Health', 'Spend', 'Step', 'Status'].map((h) => (
-              <span key={h} className="eyebrow" style={{ fontSize: 9.5 }}>{h}</span>
+              <span key={h} className="eyebrow" style={{ fontSize: 10.5 }}>{h}</span>
             ))}
           </div>
 
@@ -627,8 +627,8 @@ function WorkflowCustomerListView({
                     {c.name.split(' ').map(n => n[0]).join('')}
                   </div>
                   <div className="min-w-0">
-                    <div className="text-[13px] font-medium" style={{ color: tokens.textPrimary }}>{c.name}</div>
-                    <div className="text-[11px] mt-0.5 truncate" style={{ color: tokens.textMuted }}>{c.email}</div>
+                    <div className="text-[13.5px] font-medium" style={{ color: tokens.textPrimary }}>{c.name}</div>
+                    <div className="text-[11.5px] mt-0.5 truncate" style={{ color: tokens.textMuted }}>{c.email}</div>
                   </div>
                 </div>
                 <div className="flex items-center">
@@ -643,7 +643,7 @@ function WorkflowCustomerListView({
                   <span className="metric-num text-[13.5px]" style={{ color: tokens.textPrimary }}>${c.totalSpend.toLocaleString()}</span>
                 </div>
                 <div className="flex items-center">
-                  <span className="text-[11.5px]" style={{ color: tokens.textSecondary }}>{c.currentStep}</span>
+                  <span className="text-[12px]" style={{ color: tokens.textSecondary }}>{c.currentStep}</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <Pill tone={wsTone}>
@@ -664,8 +664,10 @@ function WorkflowCustomerListView({
 
 // ─── 4-Step Centered Modal (Dynamic Intelligence) ─────────────────────────────
 
-function NewWorkflowModal({ onClose }: { onClose: () => void }) {
+function NewWorkflowModal({ onClose, onLaunch }: { onClose: () => void; onLaunch: (wf: Workflow) => void }) {
   const [step,          setStep]          = useState(1)
+  const [launched,      setLaunched]      = useState(false)
+  const [workflowName,  setWorkflowName]  = useState('')
   const [trigger,       setTrigger]       = useState<TriggerState>('abandoned_cart')
   const [channels,      setChannels]      = useState<string>('Email + SMS')
   const [abTest,        setAbTest]        = useState(false)
@@ -718,26 +720,43 @@ function NewWorkflowModal({ onClose }: { onClose: () => void }) {
     return currentVal.trim() !== baseVal.trim()
   }
 
-  const STEPS = [{ n: 1, label: 'Setup' }, { n: 2, label: 'Message Strategy' }, { n: 3, label: 'Preview' }, { n: 4, label: 'Fallback Logic' }]
+  const STEPS = [{ n: 1, label: 'Setup' }, { n: 2, label: 'Strategy' }, { n: 3, label: 'Preview' }, { n: 4, label: 'Fallback' }]
+
+  function handleLaunch() {
+    const newWf: Workflow = {
+      id: `${Date.now()}`,
+      name: workflowName.trim() || `${TRIGGER_LABELS[trigger as TriggerState]} Recovery`,
+      trigger: trigger as TriggerState,
+      actionType: msgStyle === AI_AUTO ? (AI_DEFAULTS[trigger as TriggerState]?.style ?? 'Multi-step sequence') : msgStyle,
+      channels: (channels as Channel) ?? 'Email',
+      status: 'active',
+      enrolled: 0,
+      converted: 0,
+      revenue: 0,
+      lastUpdated: 'Just now',
+    }
+    onLaunch(newWf)
+    setLaunched(true)
+  }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center"
       style={{ background: 'rgba(0,0,0,0.72)', backdropFilter: 'blur(8px)' }}
       onClick={(e: React.MouseEvent<HTMLDivElement>) => e.target === e.currentTarget && onClose()}>
-      <div className="w-[620px] max-h-[90vh] flex flex-col rounded-2xl overflow-hidden"
+      <div className="w-[700px] max-h-[90vh] flex flex-col rounded-2xl overflow-hidden"
         style={{ background: '#09091b', border: '1px solid rgba(255,255,255,0.08)', boxShadow: '0 40px 100px rgba(0,0,0,0.85)' }}>
 
         {/* Header */}
-        <div className="flex-shrink-0 px-7 pt-6 pb-5" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+        <div className="flex-shrink-0 px-8 pt-7 pb-6" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
           <div className="flex items-start justify-between mb-5">
             <div>
-              <div className="flex items-center gap-2 mb-1">
+              <div className="flex items-center gap-2 mb-1.5">
                 <div className="w-1 h-4 rounded-full" style={{ background: 'linear-gradient(to bottom, #00d4ff, #7c3aed)' }} />
-                <span className="text-[10px] font-semibold tracking-[0.15em] uppercase text-white/30">New Workflow</span>
+                <span className="text-[11px] font-semibold tracking-[0.14em] uppercase text-white/35">New Workflow</span>
               </div>
-              <h2 className="text-[17px] font-semibold text-white">Configure Recovery Workflow</h2>
+              <h2 className="text-[19px] font-semibold text-white">Configure Recovery Workflow</h2>
             </div>
-            <button onClick={onClose} className="w-7 h-7 rounded-lg flex items-center justify-center text-white/25 hover:text-white/60 hover:bg-white/[0.06] transition-all mt-1">
+            <button onClick={onClose} className="w-8 h-8 rounded-lg flex items-center justify-center text-white/25 hover:text-white/60 hover:bg-white/[0.06] transition-all mt-1">
               <svg width="11" height="11" fill="none" viewBox="0 0 16 16"><path d="M2 2l12 12M14 2L2 14" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/></svg>
             </button>
           </div>
@@ -745,32 +764,53 @@ function NewWorkflowModal({ onClose }: { onClose: () => void }) {
           <div className="flex items-center gap-0">
             {STEPS.map((s, i) => (
               <div key={s.n} className="flex items-center">
-                <button onClick={() => setStep(s.n)} className="flex items-center gap-1.5 px-2 py-1 rounded-lg transition-all"
+                <button onClick={() => setStep(s.n)} className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg transition-all"
                   style={step === s.n ? { background: 'rgba(0,212,255,0.08)' } : {}}>
                   <div className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0"
                     style={step === s.n ? { background: '#00d4ff', color: '#000' } : s.n < step ? { background: 'rgba(0,212,255,0.2)', color: '#00d4ff' } : { background: 'rgba(255,255,255,0.07)', color: 'rgba(255,255,255,0.3)' }}>
                     {s.n < step ? '✓' : s.n}
                   </div>
-                  <span className="text-[11px] font-medium whitespace-nowrap"
+                  <span className="text-[12px] font-medium whitespace-nowrap"
                     style={{ color: step === s.n ? '#00d4ff' : s.n < step ? 'rgba(255,255,255,0.45)' : 'rgba(255,255,255,0.25)' }}>
                     {s.label}
                   </span>
                 </button>
-                {i < STEPS.length - 1 && <div className="w-4 h-px mx-0.5" style={{ background: 'rgba(255,255,255,0.08)' }} />}
+                {i < STEPS.length - 1 && <div className="w-5 h-px mx-1" style={{ background: 'rgba(255,255,255,0.08)' }} />}
               </div>
             ))}
           </div>
         </div>
 
         {/* Body */}
-        <div className="flex-1 overflow-y-auto px-7 py-6">
+        <div className="flex-1 overflow-y-auto px-8 py-7">
+
+          {/* ── SUCCESS STATE ── */}
+          {launched && (
+            <div className="flex flex-col items-center justify-center py-14 text-center">
+              <div className="w-14 h-14 rounded-full flex items-center justify-center mb-5"
+                style={{ background: 'rgba(0,230,118,0.1)', border: '1px solid rgba(0,230,118,0.2)' }}>
+                <svg width="24" height="24" fill="none" viewBox="0 0 24 24">
+                  <path d="M5 12l5 5L19 7" stroke="#00e676" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </div>
+              <div className="text-[18px] font-semibold text-white mb-2">New Workflow Has Been Created</div>
+              <div className="text-[13px] text-white/40 mb-8 max-w-[320px] leading-relaxed">
+                Your workflow is now active and will begin enrolling customers automatically.
+              </div>
+              <button onClick={onClose}
+                className="px-8 py-2.5 rounded-xl text-[13px] font-semibold transition-all hover:opacity-90"
+                style={{ background: 'rgba(0,230,118,0.13)', color: '#00e676', border: '1px solid rgba(0,230,118,0.25)' }}>
+                OK
+              </button>
+            </div>
+          )}
 
           {/* ── STEP 1: Setup + Live AI Recommendations ── */}
-          {step === 1 && (
+          {!launched && step === 1 && (
             <div className="space-y-4">
               <div>
                 <FieldLabel>Workflow Name</FieldLabel>
-                <input type="text" placeholder="e.g. Abandoned Cart Recovery — High Value" className="w-full mfi" />
+                <input type="text" value={workflowName} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setWorkflowName(e.target.value)} placeholder="e.g. Abandoned Cart Recovery — High Value" className="w-full mfi" />
               </div>
               <div>
                 <FieldLabel>Trigger State</FieldLabel>
@@ -849,9 +889,9 @@ function NewWorkflowModal({ onClose }: { onClose: () => void }) {
                     <div className="px-4 pt-3 pb-2">
                       <div className="flex items-center gap-2 mb-1.5">
                         <div className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: ctx.color, boxShadow: `0 0 4px ${ctx.color}` }} />
-                        <span className="text-[11px] font-semibold" style={{ color: ctx.color }}>{ctx.headline}</span>
+                        <span className="text-[12px] font-semibold" style={{ color: ctx.color }}>{ctx.headline}</span>
                       </div>
-                      <p className="text-[11px] text-white/38 leading-relaxed mb-3">{ctx.description}</p>
+                      <p className="text-[12px] text-white/42 leading-relaxed mb-3">{ctx.description}</p>
                     </div>
                   )
                 })()}
@@ -867,8 +907,8 @@ function NewWorkflowModal({ onClose }: { onClose: () => void }) {
                     { label: 'Offer',     rec: aiRecs.offer   },
                   ].map(({ label, rec }) => (
                     <div key={label} className="px-2.5 py-2 rounded-lg" style={{ background: 'rgba(0,212,255,0.07)', border: '1px solid transparent' }}>
-                      <div className="text-[9px] font-semibold tracking-wider uppercase mb-0.5" style={{ color: 'rgba(0,212,255,0.5)' }}>{label}</div>
-                      <div className="text-[11px] font-medium text-white/75">{rec}</div>
+                      <div className="text-[10px] font-semibold tracking-wider uppercase mb-1" style={{ color: 'rgba(0,212,255,0.5)' }}>{label}</div>
+                      <div className="text-[12px] font-medium text-white/80">{rec}</div>
                     </div>
                   ))}
                 </div>
@@ -884,8 +924,8 @@ function NewWorkflowModal({ onClose }: { onClose: () => void }) {
                       }[ins.type]
                       return (
                         <div key={i} className="flex items-start gap-2 px-2.5 py-1.5 rounded-lg" style={{ background: cfg.bg }}>
-                          <span className="text-[10px] font-bold flex-shrink-0 mt-0.5" style={{ color: cfg.color }}>{cfg.icon}</span>
-                          <span className="text-[10px] text-white/48 leading-relaxed">{ins.text}</span>
+                          <span className="text-[11px] font-bold flex-shrink-0 mt-0.5" style={{ color: cfg.color }}>{cfg.icon}</span>
+                          <span className="text-[11px] text-white/50 leading-relaxed">{ins.text}</span>
                         </div>
                       )
                     })}
@@ -900,15 +940,15 @@ function NewWorkflowModal({ onClose }: { onClose: () => void }) {
           )}
 
           {/* ── STEP 2: Message Strategy Refinement ── */}
-          {step === 2 && (
+          {!launched && step === 2 && (
             <div className="space-y-5">
 
               {/* Refinement header */}
-              <div className="flex items-center gap-3 px-4 py-3 rounded-xl" style={{ background: 'rgba(0,212,255,0.04)', border: '1px solid rgba(0,212,255,0.1)' }}>
-                <svg width="13" height="13" fill="none" viewBox="0 0 16 16"><path d="M8 1l1.5 4.5H14l-3.7 2.7 1.4 4.3L8 10l-3.7 2.5 1.4-4.3L2 5.5h4.5z" fill="#00d4ff"/></svg>
+              <div className="flex items-center gap-3.5 px-5 py-4 rounded-xl" style={{ background: 'rgba(0,212,255,0.04)', border: '1px solid rgba(0,212,255,0.1)' }}>
+                <svg width="14" height="14" fill="none" viewBox="0 0 16 16"><path d="M8 1l1.5 4.5H14l-3.7 2.7 1.4 4.3L8 10l-3.7 2.5 1.4-4.3L2 5.5h4.5z" fill="#00d4ff"/></svg>
                 <div>
-                  <div className="text-[12px] font-semibold text-white/75">Refine AI Strategy</div>
-                  <div className="text-[11px] text-white/30 mt-0.5">AI recommendations from Step 1 are pre-filled. Override any field or leave as <span style={{ color: '#00d4ff' }}>AI Decide</span> to let the system adapt per-customer.</div>
+                  <div className="text-[13px] font-semibold text-white/80">Refine AI Strategy</div>
+                  <div className="text-[12px] text-white/35 mt-1 leading-relaxed">AI recommendations from Step 1 are pre-filled. Override any field or leave as <span style={{ color: '#00d4ff' }}>AI Decide</span> to let the system adapt per-customer.</div>
                 </div>
               </div>
 
@@ -1078,7 +1118,7 @@ function NewWorkflowModal({ onClose }: { onClose: () => void }) {
           )}
 
           {/* ── STEP 3: Message Preview (Dynamic) ── */}
-          {step === 3 && (
+          {!launched && step === 3 && (
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div>
@@ -1176,12 +1216,12 @@ function NewWorkflowModal({ onClose }: { onClose: () => void }) {
           )}
 
           {/* ── STEP 4: Fallback Logic (Dynamic) ── */}
-          {step === 4 && (
+          {!launched && step === 4 && (
             <div className="space-y-4">
               <div className="flex items-start justify-between">
                 <div>
-                  <div className="text-[13px] font-semibold text-white/80">Fallback Sequence</div>
-                  <div className="text-[11px] text-white/30 mt-0.5">What happens if the first message doesn't convert</div>
+                  <div className="text-[14px] font-semibold text-white/85">Fallback Sequence</div>
+                  <div className="text-[12px] text-white/35 mt-1">What happens if the first message doesn't convert</div>
                 </div>
                 <div className="flex flex-col items-end gap-1">
                   <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg" style={{ background: 'rgba(0,212,255,0.05)', border: '1px solid rgba(0,212,255,0.1)' }}>
@@ -1241,7 +1281,7 @@ function NewWorkflowModal({ onClose }: { onClose: () => void }) {
               </div>
 
               <div className="p-4 rounded-xl" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)' }}>
-                <div className="text-[10px] font-semibold tracking-[0.14em] uppercase text-white/25 mb-3">Workflow Summary</div>
+                <div className="text-[11px] font-semibold tracking-[0.14em] uppercase text-white/25 mb-3">Workflow Summary</div>
                 <div className="space-y-2">
                   {[
                     ['Trigger',         TRIGGER_LABELS[trigger as TriggerState]],
@@ -1254,8 +1294,8 @@ function NewWorkflowModal({ onClose }: { onClose: () => void }) {
                     ['A/B Testing',     abTest ? 'Enabled' : 'Disabled'],
                   ].map(([k, v]) => (
                     <div key={k} className="flex items-center justify-between">
-                      <span className="text-[11px] text-white/30">{k}</span>
-                      <span className="text-[11px] text-white/65 font-medium">{v}</span>
+                      <span className="text-[12px] text-white/30">{k}</span>
+                      <span className="text-[12px] text-white/65 font-medium">{v}</span>
                     </div>
                   ))}
                 </div>
@@ -1265,22 +1305,24 @@ function NewWorkflowModal({ onClose }: { onClose: () => void }) {
         </div>
 
         {/* Footer */}
-        <div className="flex-shrink-0 flex items-center justify-between px-7 py-4" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
-          <button onClick={() => step > 1 ? setStep(step - 1) : onClose()}
-            className="px-4 py-2 rounded-lg text-[12px] font-medium text-white/30 hover:text-white/55 hover:bg-white/[0.04] transition-all">
-            {step === 1 ? 'Cancel' : '← Back'}
-          </button>
-          <div className="flex items-center gap-3">
-            <span className="text-[10px] text-white/20">Step {step} of 4</span>
-            <button onClick={() => step < 4 ? setStep(step + 1) : onClose()}
-              className="px-6 py-2 rounded-xl text-[12px] font-semibold transition-all hover:opacity-90 active:scale-[0.98]"
-              style={step === 4
-                ? { background: 'rgba(0,230,118,0.13)', color: '#00e676', border: '1px solid rgba(0,230,118,0.22)' }
-                : { background: 'rgba(0,212,255,0.12)', color: '#00d4ff', border: '1px solid rgba(0,212,255,0.22)' }}>
-              {step < 4 ? 'Continue →' : '✓ Launch Workflow'}
+        {!launched && (
+          <div className="flex-shrink-0 flex items-center justify-between px-8 py-5" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+            <button onClick={() => step > 1 ? setStep(step - 1) : onClose()}
+              className="px-4 py-2 rounded-lg text-[13px] font-medium text-white/30 hover:text-white/55 hover:bg-white/[0.04] transition-all">
+              {step === 1 ? 'Cancel' : '← Back'}
             </button>
+            <div className="flex items-center gap-3">
+              <span className="text-[11px] text-white/20">Step {step} of 4</span>
+              <button onClick={() => step < 4 ? setStep(step + 1) : handleLaunch()}
+                className="px-6 py-2 rounded-xl text-[13px] font-semibold transition-all hover:opacity-90 active:scale-[0.98]"
+                style={step === 4
+                  ? { background: 'rgba(0,230,118,0.13)', color: '#00e676', border: '1px solid rgba(0,230,118,0.22)' }
+                  : { background: 'rgba(0,212,255,0.12)', color: '#00d4ff', border: '1px solid rgba(0,212,255,0.22)' }}>
+                {step < 4 ? 'Continue →' : '✓ Launch Workflow'}
+              </button>
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   )
@@ -1344,7 +1386,7 @@ export function WorkflowsView() {
   return (
     <>
       <style>{`
-        .mfi { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 8px 11px; font-size: 12px; color: rgba(255,255,255,0.7); outline: none; transition: border-color 0.15s; appearance: none; -webkit-appearance: none; width: 100%; }
+        .mfi { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 9px 12px; font-size: 13px; color: rgba(255,255,255,0.7); outline: none; transition: border-color 0.15s; appearance: none; -webkit-appearance: none; width: 100%; }
         .mfi:focus { border-color: rgba(0,212,255,0.35); }
         .mfi::placeholder { color: rgba(255,255,255,0.18); }
         .wf-row { transition: background 0.1s; }
@@ -1356,7 +1398,7 @@ export function WorkflowsView() {
       `}</style>
 
       <div>
-        <div className="max-w-[1440px] mx-auto px-10 py-10">
+        <div className="pl-7 pr-8 py-9 w-full">
 
           {/* Header */}
           <PageHeader
@@ -1379,17 +1421,17 @@ export function WorkflowsView() {
           />
 
           {/* KPI Cards */}
-          <div className="grid grid-cols-4 gap-4 mb-6">
+          <div className="grid grid-cols-4 gap-5 mb-7">
             {[
-              { label: 'Active Workflows',   value: String(activeCount),                 sub: `${workflows.length} total`,             accent: '#00d4ff' },
-              { label: 'Customers Enrolled', value: totalEnrolled.toLocaleString(),      sub: 'across all workflows',                  accent: '#a78bfa' },
-              { label: 'Recovered Revenue',  value: `$${totalRevenue.toLocaleString()}`, sub: 'this period',                           accent: '#3ddc97' },
-              { label: 'Conversion Rate',    value: `${convRate}%`,                      sub: `${totalConverted} customers converted`, accent: '#ffaa00' },
+              { label: 'Active Workflows',   value: String(activeCount),                 sub: `${workflows.length} total configured`,  accent: '#00d4ff' },
+              { label: 'Customers Enrolled', value: totalEnrolled.toLocaleString(),      sub: 'across all active workflows',            accent: '#a78bfa' },
+              { label: 'Recovered Revenue',  value: `$${totalRevenue.toLocaleString()}`, sub: 'attributed this period',                 accent: '#3ddc97' },
+              { label: 'Conversion Rate',    value: `${convRate}%`,                      sub: `${totalConverted} customers converted`,  accent: '#ffaa00' },
             ].map(({ label, value, sub, accent }) => (
-              <Card key={label} padded={false} className="px-5 py-5">
+              <Card key={label} padded={false} className="px-6 py-6">
                 <SectionLabel className="mb-4">{label}</SectionLabel>
-                <div className="metric-num text-[28px] leading-none tracking-tight mb-2" style={{ color: accent }}>{value}</div>
-                <div className="text-[11.5px]" style={{ color: tokens.textMuted }}>{sub}</div>
+                <div className="metric-num text-[30px] leading-none tracking-tight mb-2.5" style={{ color: accent }}>{value}</div>
+                <div className="text-[12px]" style={{ color: tokens.textMuted }}>{sub}</div>
               </Card>
             ))}
           </div>
@@ -1429,9 +1471,9 @@ export function WorkflowsView() {
             </div>
 
             {/* Column headers */}
-            <div className="grid px-6 py-3" style={{ gridTemplateColumns: COLS, borderBottom: `1px solid ${tokens.borderSubtle}`, background: 'rgba(255,255,255,0.015)' }}>
+            <div className="grid px-6 py-3.5" style={{ gridTemplateColumns: COLS, borderBottom: `1px solid ${tokens.borderSubtle}`, background: 'rgba(255,255,255,0.015)' }}>
               {['Workflow', 'Trigger', 'Action', 'Channels', 'Status', 'Enrolled', 'Conv.', 'Revenue', ''].map((h, i) => (
-                <span key={i} className="eyebrow" style={{ fontSize: 9.5 }}>{h}</span>
+                <span key={i} className="eyebrow" style={{ fontSize: 10.5 }}>{h}</span>
               ))}
             </div>
 
@@ -1439,34 +1481,34 @@ export function WorkflowsView() {
               const convPct = wf.enrolled > 0 ? `${((wf.converted / wf.enrolled) * 100).toFixed(0)}%` : null
               const tc = TRIGGER_COLORS[wf.trigger as TriggerState]
               return (
-                <div key={wf.id} className="wf-row grid px-6 py-3.5 cursor-pointer relative"
+                <div key={wf.id} className="wf-row grid px-6 py-4 cursor-pointer relative"
                   style={{ gridTemplateColumns: COLS, borderBottom: i < filtered.length - 1 ? `1px solid ${tokens.borderSubtle}` : undefined, background: 'transparent' }}
                   onMouseEnter={() => setHoveredRow(wf.id)}
                   onMouseLeave={() => setHoveredRow(null)}
                   onClick={() => { setSelectedWorkflow(wf); setView('customers') }}>
                   <div className="flex items-center gap-3 pr-3">
-                    <div className="w-[2px] h-8 rounded-full flex-shrink-0"
+                    <div className="w-[2px] h-9 rounded-full flex-shrink-0"
                       style={{ background: tc, opacity: wf.status === 'draft' ? 0.30 : 0.85, boxShadow: wf.status === 'active' ? `0 0 6px ${tc}66` : undefined }} />
                     <div className="min-w-0">
-                      <div className="text-[13px] font-medium leading-tight truncate" style={{ color: tokens.textPrimary }}>{wf.name}</div>
+                      <div className="text-[13.5px] font-medium leading-tight truncate" style={{ color: tokens.textPrimary }}>{wf.name}</div>
                       {wf.status === 'active' && (
-                        <div className="text-[11px] mt-1" style={{ color: tokens.textMuted }}>Running · {WORKFLOW_CUSTOMERS[wf.id]?.length ?? 0} customers</div>
+                        <div className="text-[11.5px] mt-1" style={{ color: tokens.textMuted }}>Running · {WORKFLOW_CUSTOMERS[wf.id]?.length ?? 0} customers</div>
                       )}
                     </div>
                   </div>
                   <div className="flex items-center">
-                    <span className="inline-flex items-center h-5 px-2 rounded-[6px] text-[10.5px] font-medium tracking-wide"
+                    <span className="inline-flex items-center h-5 px-2 rounded-[6px] text-[11px] font-medium tracking-wide"
                       style={{ color: tc, background: `${tc}14`, border: `1px solid ${tc}28` }}>
                       {TRIGGER_LABELS[wf.trigger as TriggerState]}
                     </span>
                   </div>
-                  <div className="flex items-center"><span className="text-[12px]" style={{ color: tokens.textSecondary }}>{wf.actionType}</span></div>
+                  <div className="flex items-center"><span className="text-[13px]" style={{ color: tokens.textSecondary }}>{wf.actionType}</span></div>
                   <div className="flex items-center"><ChannelBadge channel={wf.channels} /></div>
                   <div className="flex items-center"><StatusPill status={wf.status} /></div>
                   <div className="flex items-center"><span className="metric-num text-[13.5px]" style={{ color: tokens.textPrimary }}>{wf.enrolled > 0 ? wf.enrolled.toLocaleString() : '—'}</span></div>
                   <div className="flex items-center gap-1.5">
                     <span className="metric-num text-[13.5px]" style={{ color: tokens.textPrimary }}>{wf.converted > 0 ? wf.converted : '—'}</span>
-                    {convPct && <span className="text-[10.5px]" style={{ color: tokens.textMuted }}>{convPct}</span>}
+                    {convPct && <span className="text-[11px]" style={{ color: tokens.textMuted }}>{convPct}</span>}
                   </div>
                   <div className="flex items-center">
                     <span className="metric-num text-[13.5px]" style={{ color: wf.revenue > 0 ? '#3ddc97' : tokens.textMuted }}>
@@ -1518,7 +1560,12 @@ export function WorkflowsView() {
         </div>
       </div>
 
-      {showModal && <NewWorkflowModal onClose={() => setShowModal(false)} />}
+      {showModal && (
+        <NewWorkflowModal
+          onClose={() => setShowModal(false)}
+          onLaunch={(wf: Workflow) => setWorkflows((prev: Workflow[]) => [wf, ...prev])}
+        />
+      )}
     </>
   )
 }

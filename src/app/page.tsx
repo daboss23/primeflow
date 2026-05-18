@@ -73,7 +73,7 @@ async function getOutcomes(): Promise<Array<{ outcome_type: string; revenue_valu
   } catch { return [] }
 }
 
-async function getTopAtRiskCustomers() {
+async function getTopAtRiskCustomers(): Promise<Array<{ customer_id: string; first_name: string | null; last_name: string | null; health_band: string; health_score: number; opportunity_score: number; state: string; total_spend: number; last_purchase_at: string | null }>> {
   if (await isDemo()) {
     return DEMO.health
       .filter((c) => c.health_band === 'red')

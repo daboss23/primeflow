@@ -1,7 +1,7 @@
 import { supabaseAdmin } from '@/lib/supabase'
 import { formatDate } from '@/lib/utils'
 
-async function getRecentDrafts() {
+async function getRecentDrafts(): Promise<Array<{ id: string; channel: string; status: string; generated_at: string; customer_id: string }>> {
   const { data } = await supabaseAdmin
     .from('outreach_drafts')
     .select('id, channel, status, generated_at, customer_id')

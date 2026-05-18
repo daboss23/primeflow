@@ -17,6 +17,12 @@ const BANDS: { key: HealthBand | 'all'; label: string; tone?: 'danger' | 'warn' 
   { key: 'green',  label: 'Healthy',  tone: 'success' },
 ]
 
+const BAND_DOT_COLORS: Record<string, string> = {
+  danger:  '#ff4d6a',
+  warn:    '#ffaa00',
+  success: '#3ddc97',
+}
+
 const STATES: { key: CustomerState | 'all'; label: string }[] = [
   { key: 'all',                 label: 'All States'             },
   { key: 'abandoned_cart',      label: 'Abandoned Cart'         },
@@ -171,7 +177,15 @@ export function CustomerListView({
                     }
                   `}
                 >
-                  {tone && <StatusDot tone={tone} size={5} />}
+                  {tone && (() => {
+                    const c = BAND_DOT_COLORS[tone]
+                    return (
+                      <span
+                        className="inline-block rounded-full flex-shrink-0"
+                        style={{ width: 7, height: 7, background: c, boxShadow: `0 0 6px ${c}bb, 0 0 2px ${c}` }}
+                      />
+                    )
+                  })()}
                   {label}
                 </button>
               )

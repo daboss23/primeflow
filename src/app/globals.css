@@ -150,7 +150,33 @@ body::before {
 .logo-pulse-inner { animation: logo-pulse-inner 3.6s ease-in-out infinite; }
 .logo-pulse-outer { animation: logo-pulse-outer 3.6s ease-in-out infinite; }
 
-/* ─── Electric title (legacy support, toned down) ───────────────────────── */
+/* ─── Workflow table rows ────────────────────────────────────────────────── */
+.wf-row { transition: background 0.1s; }
+.wf-row:hover { background: rgba(255, 255, 255, 0.022) !important; }
+
+/* ─── Modal form inputs ──────────────────────────────────────────────────── */
+.mfi {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 8px;
+  padding: 10px 13px;
+  font-size: 13.5px;
+  color: rgba(255,255,255,0.78);
+  outline: none;
+  transition: border-color 0.15s;
+  appearance: none;
+  -webkit-appearance: none;
+  width: 100%;
+}
+.mfi:focus { border-color: rgba(0,212,255,0.35); }
+.mfi::placeholder { color: rgba(255,255,255,0.20); }
+
+/* ─── Modal rec-panel animation ──────────────────────────────────────────── */
+@keyframes recFade { from { opacity: 0.35; transform: translateY(-3px); } to { opacity: 1; transform: translateY(0); } }
+.rec-panel { animation: recFade 0.3s ease-out; }
+@keyframes updatedFade { 0% { opacity: 0; transform: translateX(4px); } 20% { opacity: 1; transform: translateX(0); } 80% { opacity: 1; } 100% { opacity: 0; } }
+.rec-updated { animation: updatedFade 1.8s ease-out forwards; }
+
 .electric-title-wrap { position: relative; display: inline-block; }
 .electric-title {
   font-family: var(--font-display);

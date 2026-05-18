@@ -1399,67 +1399,69 @@ export function WorkflowsView() {
     )
   }
 
+  // Derived values for right panel
+  const pausedCount = workflows.filter((w: Workflow) => w.status === 'paused').length
+  const draftCount  = workflows.filter((w: Workflow) => w.status === 'draft').length
+  const topWorkflow = workflows.filter((w: Workflow) => w.revenue > 0).sort((a: Workflow, b: Workflow) => b.revenue - a.revenue)[0] ?? null
+  const channelCounts = {
+    Email: workflows.filter((w: Workflow) => w.channels === 'Email').length,
+    SMS:   workflows.filter((w: Workflow) => w.channels === 'SMS').length,
+    Both:  workflows.filter((w: Workflow) => w.channels === 'Both').length,
+  }
+  const totalWf = workflows.length || 1
+
   // Main workflow list
   return (
-    <>
-      <style>{`
-        .mfi { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 10px 13px; font-size: 13.5px; color: rgba(255,255,255,0.75); outline: none; transition: border-color 0.15s; appearance: none; -webkit-appearance: none; width: 100%; }
-        .mfi:focus { border-color: rgba(0,212,255,0.35); }
-        .mfi::placeholder { color: rgba(255,255,255,0.18); }
-        .wf-row { transition: background 0.1s; }
-        .wf-row:hover { background: rgba(255,255,255,0.022) !important; }
-        @keyframes recFade { from { opacity: 0.35; transform: translateY(-3px); } to { opacity: 1; transform: translateY(0); } }
-        .rec-panel { animation: recFade 0.3s ease-out; }
-        @keyframes updatedFade { 0% { opacity: 0; transform: translateX(4px); } 20% { opacity: 1; transform: translateX(0); } 80% { opacity: 1; } 100% { opacity: 0; } }
-        .rec-updated { animation: updatedFade 1.8s ease-out forwards; }
-      `}</style>
+    <div className="pl-8 pr-8 pt-10 pb-20 w-full">
 
-      <div className="min-h-full">
-        <div className="pl-7 pr-8 pt-9 pb-16 w-full">
-
-          {/* Header */}
-          <PageHeader
-            eyebrow="Recovery Operations"
-            title="Workflows"
-            subtitle="Automated multi-channel sequences triggered by customer health, lifecycle state, and behaviour."
-            actions={
-              <button
-                onClick={() => setShowModal(true)}
-                className="inline-flex items-center gap-1.5 h-9 px-4 rounded-[10px] text-[12.5px] font-medium transition-all
-                  text-white border border-[rgba(0,212,255,0.35)] bg-[rgba(0,212,255,0.12)]
-                  hover:bg-[rgba(0,212,255,0.18)] hover:border-[rgba(0,212,255,0.55)]"
-              >
-                <svg width="12" height="12" fill="none" viewBox="0 0 16 16">
-                  <path d="M8 2v12M2 8h12" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/>
-                </svg>
-                New Workflow
-              </button>
-            }
-          />
-
-          {/* KPI Cards */}
-          <div className="grid grid-cols-4 gap-5 mb-7">
-            {[
-              { label: 'Active Workflows',   value: String(activeCount),                 sub: `${workflows.length} total configured`,  accent: '#00d4ff' },
-              { label: 'Customers Enrolled', value: totalEnrolled.toLocaleString(),      sub: 'across all active workflows',            accent: '#a78bfa' },
-              { label: 'Recovered Revenue',  value: `$${totalRevenue.toLocaleString()}`, sub: 'attributed this period',                 accent: '#3ddc97' },
-              { label: 'Conversion Rate',    value: `${convRate}%`,                      sub: `${totalConverted} customers converted`,  accent: '#ffaa00' },
-            ].map(({ label, value, sub, accent }) => (
-              <Card key={label} padded={false} className="px-6 py-6">
-                <SectionLabel className="mb-4">{label}</SectionLabel>
-                <div className="metric-num text-[30px] leading-none tracking-tight mb-2.5" style={{ color: accent }}>{value}</div>
-                <div className="text-[12px]" style={{ color: tokens.textMuted }}>{sub}</div>
-              </Card>
-            ))}
-          </div>
-
-          {/* Table */}
-          <div
-            className="rounded-[14px] overflow-hidden"
-            style={{ border: `1px solid ${tokens.borderSubtle}`, background: tokens.surface }}
+      {/* Header */}
+      <PageHeader
+        eyebrow="Recovery Operations"
+        title="Workflows"
+        subtitle="Automated multi-channel sequences triggered by customer health, lifecycle state, and behaviour."
+        actions={
+          <button
+            onClick={() => setShowModal(true)}
+            className="inline-flex items-center gap-1.5 h-9 px-4 rounded-[10px] text-[12.5px] font-medium transition-all
+              text-white border border-[rgba(0,212,255,0.35)] bg-[rgba(0,212,255,0.12)]
+              hover:bg-[rgba(0,212,255,0.18)] hover:border-[rgba(0,212,255,0.55)]"
           >
+            <svg width="12" height="12" fill="none" viewBox="0 0 16 16">
+              <path d="M8 2v12M2 8h12" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/>
+            </svg>
+            New Workflow
+          </button>
+        }
+      />
+
+      {/* KPI Cards */}
+      <div className="grid grid-cols-4 gap-5 mb-8">
+        {[
+          { label: 'Active Workflows',   value: String(activeCount),                 sub: `${workflows.length} total configured`,  accent: '#00d4ff' },
+          { label: 'Customers Enrolled', value: totalEnrolled.toLocaleString(),      sub: 'across all active workflows',            accent: '#a78bfa' },
+          { label: 'Recovered Revenue',  value: `$${totalRevenue.toLocaleString()}`, sub: 'attributed this period',                 accent: '#3ddc97' },
+          { label: 'Conversion Rate',    value: `${convRate}%`,                      sub: `${totalConverted} customers converted`,  accent: '#ffaa00' },
+        ].map(({ label, value, sub, accent }) => (
+          <Card key={label} padded={false} className="px-6 py-6">
+            <SectionLabel className="mb-4">{label}</SectionLabel>
+            <div className="metric-num text-[30px] leading-none tracking-tight mb-2.5" style={{ color: accent }}>{value}</div>
+            <div className="text-[12.5px]" style={{ color: tokens.textMuted }}>{sub}</div>
+          </Card>
+        ))}
+      </div>
+
+      {/* Two-column: table + right analytics panel */}
+      <div className="flex gap-6 items-start">
+
+        {/* ── Main table ── */}
+        <div className="flex-1 min-w-0">
+          <div
+            className="rounded-[14px]"
+            style={{ border: `1px solid ${tokens.borderSubtle}`, background: tokens.surface, overflow: 'visible' }}
+          >
+            {/* Table header / filter bar */}
             <div
-              className="flex items-center justify-between px-6 py-5"
+              className="flex items-center justify-between px-6 py-5 rounded-t-[14px]"
               style={{ borderBottom: `1px solid ${tokens.borderSubtle}` }}
             >
               <div className="flex items-center gap-2">
@@ -1497,9 +1499,15 @@ export function WorkflowsView() {
             {filtered.map((wf: Workflow, i: number) => {
               const convPct = wf.enrolled > 0 ? `${((wf.converted / wf.enrolled) * 100).toFixed(0)}%` : null
               const tc = TRIGGER_COLORS[wf.trigger as TriggerState]
+              const isLast = i === filtered.length - 1
               return (
                 <div key={wf.id} className="wf-row grid px-6 py-5 cursor-pointer relative"
-                  style={{ gridTemplateColumns: COLS, borderBottom: i < filtered.length - 1 ? `1px solid ${tokens.borderSubtle}` : undefined, background: 'transparent' }}
+                  style={{
+                    gridTemplateColumns: COLS,
+                    borderBottom: !isLast ? `1px solid ${tokens.borderSubtle}` : undefined,
+                    borderRadius: isLast ? '0 0 14px 14px' : undefined,
+                    background: 'transparent',
+                  }}
                   onMouseEnter={() => setHoveredRow(wf.id)}
                   onMouseLeave={() => setHoveredRow(null)}
                   onClick={() => { setSelectedWorkflow(wf); setView('customers') }}>
@@ -1562,18 +1570,93 @@ export function WorkflowsView() {
             })}
 
             {filtered.length === 0 && (
-              <div className="px-6 py-16 text-center text-[13px]" style={{ color: tokens.textMuted }}>
+              <div className="px-6 py-16 text-center text-[13px] rounded-b-[14px]" style={{ color: tokens.textMuted }}>
                 No workflows match this filter.
               </div>
             )}
           </div>
 
-          <div className="flex items-center gap-2 mt-5">
-            <span className="w-1 h-1 rounded-full" style={{ background: tokens.textMuted }} />
-            <p className="text-[11.5px]" style={{ color: tokens.textMuted }}>
+          <div className="flex items-center gap-2 mt-4">
+            <span className="w-1 h-1 rounded-full flex-shrink-0" style={{ background: tokens.textMuted }} />
+            <p className="text-[12px]" style={{ color: tokens.textMuted }}>
               Workflows run automatically based on customer health scores updated every 6 hours. Click any workflow to view enrolled customers.
             </p>
           </div>
+        </div>
+
+        {/* ── Right analytics panel ── */}
+        <div className="w-[272px] flex-shrink-0 flex flex-col gap-4">
+
+          {/* Status overview */}
+          <Card padded={false} className="px-5 py-5">
+            <SectionLabel className="mb-4">Workflow Status</SectionLabel>
+            <div className="space-y-3">
+              {([
+                { label: 'Active',  count: activeCount,  color: '#3ddc97' },
+                { label: 'Paused', count: pausedCount,  color: '#ffaa00' },
+                { label: 'Draft',  count: draftCount,   color: tokens.textFaint },
+              ] as { label: string; count: number; color: string }[]).map(({ label, count, color }) => (
+                <div key={label} className="flex items-center gap-3">
+                  <span className="inline-block w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: color }} />
+                  <span className="text-[13px] flex-1" style={{ color: tokens.textSecondary }}>{label}</span>
+                  <span className="metric-num text-[15px] font-semibold" style={{ color }}>{count}</span>
+                </div>
+              ))}
+            </div>
+            {/* Proportional bar */}
+            <div className="flex gap-0.5 h-1 rounded-full overflow-hidden mt-4">
+              {activeCount > 0 && <div className="h-full rounded-l-full" style={{ width: `${(activeCount / totalWf) * 100}%`, background: '#3ddc97' }} />}
+              {pausedCount > 0 && <div className="h-full" style={{ width: `${(pausedCount / totalWf) * 100}%`, background: '#ffaa00' }} />}
+              {draftCount  > 0 && <div className="h-full rounded-r-full" style={{ width: `${(draftCount  / totalWf) * 100}%`, background: 'rgba(255,255,255,0.12)' }} />}
+            </div>
+          </Card>
+
+          {/* Top performer */}
+          {topWorkflow && (
+            <Card padded={false} className="px-5 py-5">
+              <SectionLabel className="mb-4">Top Performer</SectionLabel>
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-[3px] h-8 rounded-full flex-shrink-0"
+                  style={{ background: TRIGGER_COLORS[topWorkflow.trigger as TriggerState], boxShadow: `0 0 6px ${TRIGGER_COLORS[topWorkflow.trigger as TriggerState]}66` }} />
+                <span className="text-[13.5px] font-medium leading-snug" style={{ color: tokens.textPrimary }}>{topWorkflow.name}</span>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <div className="rounded-[8px] px-3 py-2.5" style={{ background: 'rgba(61,220,151,0.06)', border: '1px solid rgba(61,220,151,0.14)' }}>
+                  <div className="text-[10.5px] font-semibold tracking-wider uppercase mb-1" style={{ color: 'rgba(61,220,151,0.6)' }}>Revenue</div>
+                  <div className="metric-num text-[16px] font-semibold" style={{ color: '#3ddc97' }}>${topWorkflow.revenue.toLocaleString()}</div>
+                </div>
+                <div className="rounded-[8px] px-3 py-2.5" style={{ background: tokens.surface, border: `1px solid ${tokens.borderSubtle}` }}>
+                  <div className="text-[10.5px] font-semibold tracking-wider uppercase mb-1" style={{ color: tokens.textMuted }}>Conv. Rate</div>
+                  <div className="metric-num text-[16px] font-semibold" style={{ color: tokens.textPrimary }}>
+                    {topWorkflow.enrolled > 0 ? `${((topWorkflow.converted / topWorkflow.enrolled) * 100).toFixed(0)}%` : '—'}
+                  </div>
+                </div>
+              </div>
+            </Card>
+          )}
+
+          {/* Channel mix */}
+          <Card padded={false} className="px-5 py-5">
+            <SectionLabel className="mb-4">Channel Mix</SectionLabel>
+            <div className="space-y-2.5">
+              {([
+                { label: 'Email + SMS', count: channelCounts.Both,  color: '#00d4ff' },
+                { label: 'Email only',  count: channelCounts.Email, color: '#a78bfa' },
+                { label: 'SMS only',    count: channelCounts.SMS,   color: '#7c8cff' },
+              ] as { label: string; count: number; color: string }[]).map(({ label, count, color }) => (
+                <div key={label}>
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-[12px]" style={{ color: tokens.textSecondary }}>{label}</span>
+                    <span className="metric-num text-[12px]" style={{ color: tokens.textPrimary }}>{count}</span>
+                  </div>
+                  <div className="h-1 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
+                    <div className="h-full rounded-full" style={{ width: `${(count / totalWf) * 100}%`, background: color }} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </Card>
+
         </div>
       </div>
 
@@ -1583,6 +1666,6 @@ export function WorkflowsView() {
           onLaunch={(wf: Workflow) => setWorkflows((prev: Workflow[]) => [wf, ...prev])}
         />
       )}
-    </>
+    </div>
   )
 }

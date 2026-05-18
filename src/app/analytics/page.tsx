@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import {
   LineChart, Line, BarChart, Bar,
@@ -144,12 +144,57 @@ function ChartTooltip({ active, payload, label }: { active?: boolean; payload?: 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function AnalyticsPage() {
-  const [active,    setActive]    = useState('This Month')
-  const [startDate, setStartDate] = useState('')
-  const [endDate,   setEndDate]   = useState('')
+  const [active,         setActive]         = useState('This Month')
+  const [startDate,      setStartDate]      = useState('')
+  const [endDate,        setEndDate]        = useState('')
+  const [panelOpen,      setPanelOpen]      = useState(false)
+  const [draftStart,     setDraftStart]     = useState('')
+  const [draftEnd,       setDraftEnd]       = useState('')
+  const panelRef = useRef<HTMLDivElement>(null)
 
-  const data   = DATA_BY_RANGE[active]
   const isCustom = active === 'Custom Range'
+
+  // Close panel on click-outside
+  useEffect(() => {
+    if (!panelOpen) return
+    function onMouseDown(e: MouseEvent) {
+      if (panelRef.current && !panelRef.current.contains(e.target as Node)) {
+        setPanelOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', onMouseDown)
+    return () => document.removeEventListener('mousedown', onMouseDown)
+  }, [panelOpen])
+
+  // Close panel on Escape
+  useEffect(() => {
+    if (!panelOpen) return
+    function onKey(e: KeyboardEvent) { if (e.key === 'Escape') setPanelOpen(false) }
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [panelOpen])
+
+  function openCustomPanel() {
+    setActive('Custom Range')
+    setDraftStart(startDate)
+    setDraftEnd(endDate)
+    setPanelOpen(true)
+  }
+
+  function applyDates() {
+    setStartDate(draftStart)
+    setEndDate(draftEnd)
+    setPanelOpen(false)
+  }
+
+  function clearDates() {
+    setDraftStart('')
+    setDraftEnd('')
+    setStartDate('')
+    setEndDate('')
+  }
+
+  const data = DATA_BY_RANGE[active]
 
   const periodLabel = isCustom && startDate && endDate
     ? `${startDate} → ${endDate}`
@@ -173,85 +218,125 @@ export default function AnalyticsPage() {
         title="Analytics"
         subtitle={`Recovery performance · ${periodLabel}`}
         actions={
-          /* Range tabs only — date picker lives below the header to avoid
-             overflow clipping and flex height constraints on the calendar popup */
-          <div className="flex items-center gap-1 p-1 rounded-[10px]"
-            style={{ background: tokens.surface, border: `1px solid ${tokens.borderSubtle}` }}>
-            {RANGES.map((r) => (
-              <button
-                key={r}
-                onClick={() => setActive(r)}
-                className="h-7 px-3 rounded-[7px] text-[11.5px] font-medium transition-all whitespace-nowrap"
-                style={
-                  active === r
-                    ? { background: 'rgba(0,212,255,0.10)', color: '#00d4ff', boxShadow: '0 0 0 1px rgba(0,212,255,0.28) inset' }
-                    : { color: tokens.textTertiary, background: 'transparent' }
-                }
+          <div ref={panelRef} className="relative">
+            {/* Range tabs */}
+            <div className="flex items-center gap-1 p-1 rounded-[10px]"
+              style={{ background: tokens.surface, border: `1px solid ${tokens.borderSubtle}` }}>
+              {RANGES.map((r) => {
+                const isThisRange = active === r
+                const isCustomTab = r === 'Custom Range'
+                return (
+                  <button
+                    key={r}
+                    onClick={() => isCustomTab ? openCustomPanel() : setActive(r)}
+                    className="h-7 px-3 rounded-[7px] text-[11.5px] font-medium transition-all whitespace-nowrap"
+                    style={
+                      isThisRange
+                        ? { background: 'rgba(0,212,255,0.10)', color: '#00d4ff', boxShadow: '0 0 0 1px rgba(0,212,255,0.28) inset' }
+                        : { color: tokens.textTertiary, background: 'transparent' }
+                    }
+                  >
+                    {isCustomTab && isThisRange && startDate && endDate
+                      ? `${startDate} → ${endDate}`
+                      : r}
+                  </button>
+                )
+              })}
+            </div>
+
+            {/* Floating date-range panel */}
+            {panelOpen && (
+              <div
+                className="absolute right-0 z-50 rounded-[16px] p-7"
+                style={{
+                  top: 'calc(100% + 10px)',
+                  width: 380,
+                  background: 'rgba(10,10,20,0.98)',
+                  backdropFilter: 'blur(16px)',
+                  WebkitBackdropFilter: 'blur(16px)',
+                  border: '1px solid rgba(255,255,255,0.12)',
+                  boxShadow: '0 24px 64px -12px rgba(0,0,0,0.85), 0 1px 0 rgba(255,255,255,0.06) inset',
+                }}
               >
-                {r}
-              </button>
-            ))}
+                {/* Panel header */}
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center gap-2.5">
+                    <svg width="13" height="13" fill="none" viewBox="0 0 16 16" style={{ color: tokens.accent }}>
+                      <rect x="1" y="2" width="14" height="13" rx="2" stroke="currentColor" strokeWidth="1.3"/>
+                      <path d="M1 6h14M5 1v2M11 1v2" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
+                    </svg>
+                    <span className="text-[13px] font-semibold" style={{ color: tokens.textPrimary }}>Custom date range</span>
+                  </div>
+                  <button onClick={() => setPanelOpen(false)}
+                    className="w-6 h-6 rounded-md flex items-center justify-center transition-colors hover:bg-white/[0.06]"
+                    style={{ color: tokens.textMuted }}>
+                    <svg width="10" height="10" fill="none" viewBox="0 0 16 16">
+                      <path d="M3 3l10 10M13 3L3 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                    </svg>
+                  </button>
+                </div>
+
+                {/* Date fields */}
+                <div className="space-y-4 mb-6">
+                  <div>
+                    <div className="eyebrow mb-2" style={{ fontSize: 9.5 }}>Start date</div>
+                    <input
+                      type="date"
+                      value={draftStart}
+                      max={draftEnd || undefined}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setDraftStart(e.target.value)}
+                      className="mfi"
+                      style={{ colorScheme: 'dark', fontSize: 13.5 }}
+                    />
+                  </div>
+                  <div>
+                    <div className="eyebrow mb-2" style={{ fontSize: 9.5 }}>End date</div>
+                    <input
+                      type="date"
+                      value={draftEnd}
+                      min={draftStart || undefined}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setDraftEnd(e.target.value)}
+                      className="mfi"
+                      style={{ colorScheme: 'dark', fontSize: 13.5 }}
+                    />
+                  </div>
+                </div>
+
+                {/* Status hint */}
+                {draftStart && draftEnd && (
+                  <div className="flex items-center gap-2 mb-5 px-3 py-2 rounded-[8px]"
+                    style={{ background: 'rgba(61,220,151,0.06)', border: '1px solid rgba(61,220,151,0.16)' }}>
+                    <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: '#3ddc97' }} />
+                    <span className="text-[12px]" style={{ color: '#3ddc97' }}>
+                      {draftStart} → {draftEnd}
+                    </span>
+                  </div>
+                )}
+
+                {/* Actions */}
+                <div className="flex items-center justify-between">
+                  <button onClick={clearDates}
+                    className="text-[12px] font-medium px-3 py-2 rounded-[8px] transition-all hover:bg-white/[0.04]"
+                    style={{ color: tokens.textMuted }}>
+                    Clear
+                  </button>
+                  <button
+                    onClick={applyDates}
+                    disabled={!draftStart || !draftEnd}
+                    className="px-5 py-2 rounded-[9px] text-[12.5px] font-semibold transition-all disabled:opacity-35"
+                    style={{
+                      background: draftStart && draftEnd ? 'rgba(0,212,255,0.14)' : 'rgba(255,255,255,0.05)',
+                      color:      draftStart && draftEnd ? '#00d4ff' : tokens.textMuted,
+                      border:     `1px solid ${draftStart && draftEnd ? 'rgba(0,212,255,0.28)' : 'rgba(255,255,255,0.08)'}`,
+                    }}>
+                    Apply range →
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         }
       />
-
-      {/* Custom date range — outside the header so the native calendar popup is never clipped */}
-      {isCustom && (
-        <div className="flex items-center gap-4 mb-5 px-5 py-4 rounded-[12px]"
-          style={{ background: tokens.surface, border: `1px solid ${tokens.borderDefault}` }}>
-          <svg width="13" height="13" fill="none" viewBox="0 0 16 16" style={{ color: tokens.textTertiary, flexShrink: 0 }}>
-            <rect x="1" y="2" width="14" height="13" rx="2" stroke="currentColor" strokeWidth="1.3"/>
-            <path d="M1 6h14M5 1v2M11 1v2" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
-          </svg>
-
-          <div className="flex flex-col gap-0.5">
-            <span className="eyebrow" style={{ fontSize: 9 }}>Start date</span>
-            <input
-              type="date"
-              value={startDate}
-              max={endDate || undefined}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setStartDate(e.target.value)}
-              className="mfi"
-              style={{ colorScheme: 'dark', width: 160, padding: '6px 10px', fontSize: 13 }}
-            />
-          </div>
-
-          <span style={{ color: tokens.textMuted, fontSize: 13, marginTop: 16 }}>→</span>
-
-          <div className="flex flex-col gap-0.5">
-            <span className="eyebrow" style={{ fontSize: 9 }}>End date</span>
-            <input
-              type="date"
-              value={endDate}
-              min={startDate || undefined}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEndDate(e.target.value)}
-              className="mfi"
-              style={{ colorScheme: 'dark', width: 160, padding: '6px 10px', fontSize: 13 }}
-            />
-          </div>
-
-          {startDate && endDate ? (
-            <div className="flex items-center gap-2 ml-2 mt-4">
-              <span className="w-1.5 h-1.5 rounded-full" style={{ background: '#3ddc97' }} />
-              <span className="text-[12px] font-medium" style={{ color: '#3ddc97' }}>Range applied</span>
-            </div>
-          ) : (
-            <span className="text-[12px] mt-4" style={{ color: tokens.textMuted }}>
-              {!startDate && !endDate ? 'Select a start and end date' : !startDate ? 'Select a start date' : 'Select an end date'}
-            </span>
-          )}
-
-          {(startDate || endDate) && (
-            <button
-              onClick={() => { setStartDate(''); setEndDate('') }}
-              className="ml-auto mt-4 text-[11.5px] transition-colors hover:opacity-80"
-              style={{ color: tokens.textMuted }}
-            >
-              Clear
-            </button>
-          )}
-        </div>
-      )}
 
       {/* Recovery intelligence summary — clickable signals */}
       <div className="flex items-center gap-5 mb-6 px-5 py-3.5 rounded-[12px]"

@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
+import Link from 'next/link'
 import {
   LineChart, Line, BarChart, Bar,
   XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
@@ -172,88 +173,118 @@ export default function AnalyticsPage() {
         title="Analytics"
         subtitle={`Recovery performance · ${periodLabel}`}
         actions={
-          <div className="flex flex-col items-end gap-2">
-            {/* Range tabs */}
-            <div className="flex items-center gap-1 p-1 rounded-[10px]"
-              style={{ background: tokens.surface, border: `1px solid ${tokens.borderSubtle}` }}>
-              {RANGES.map((r) => (
-                <button
-                  key={r}
-                  onClick={() => setActive(r)}
-                  className="h-7 px-3 rounded-[7px] text-[11.5px] font-medium transition-all whitespace-nowrap"
-                  style={
-                    active === r
-                      ? { background: 'rgba(0,212,255,0.10)', color: '#00d4ff', boxShadow: '0 0 0 1px rgba(0,212,255,0.28) inset' }
-                      : { color: tokens.textTertiary, background: 'transparent' }
-                  }
-                >
-                  {r}
-                </button>
-              ))}
-            </div>
-
-            {/* Custom date range — fixed: proper sizing, min/max constraints, clear feedback */}
-            {isCustom && (
-              <div className="flex items-center gap-0 rounded-[10px] overflow-hidden"
-                style={{ background: tokens.surface, border: `1px solid ${tokens.borderSubtle}` }}>
-                <div className="flex flex-col px-4 py-2.5 gap-0.5">
-                  <span className="eyebrow" style={{ fontSize: 9 }}>From</span>
-                  <input
-                    type="date"
-                    value={startDate}
-                    max={endDate || undefined}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setStartDate(e.target.value)}
-                    className="text-[12.5px] bg-transparent outline-none"
-                    style={{ color: startDate ? tokens.textPrimary : tokens.textMuted, colorScheme: 'dark', minWidth: 120 }}
-                  />
-                </div>
-                <div className="self-stretch w-px" style={{ background: tokens.borderSubtle }} />
-                <div className="flex flex-col px-4 py-2.5 gap-0.5">
-                  <span className="eyebrow" style={{ fontSize: 9 }}>To</span>
-                  <input
-                    type="date"
-                    value={endDate}
-                    min={startDate || undefined}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEndDate(e.target.value)}
-                    className="text-[12.5px] bg-transparent outline-none"
-                    style={{ color: endDate ? tokens.textPrimary : tokens.textMuted, colorScheme: 'dark', minWidth: 120 }}
-                  />
-                </div>
-                {startDate && endDate && (
-                  <>
-                    <div className="self-stretch w-px" style={{ background: tokens.borderSubtle }} />
-                    <div className="flex items-center px-3">
-                      <span className="text-[10.5px] font-semibold" style={{ color: '#3ddc97' }}>Applied</span>
-                    </div>
-                  </>
-                )}
-              </div>
-            )}
+          /* Range tabs only — date picker lives below the header to avoid
+             overflow clipping and flex height constraints on the calendar popup */
+          <div className="flex items-center gap-1 p-1 rounded-[10px]"
+            style={{ background: tokens.surface, border: `1px solid ${tokens.borderSubtle}` }}>
+            {RANGES.map((r) => (
+              <button
+                key={r}
+                onClick={() => setActive(r)}
+                className="h-7 px-3 rounded-[7px] text-[11.5px] font-medium transition-all whitespace-nowrap"
+                style={
+                  active === r
+                    ? { background: 'rgba(0,212,255,0.10)', color: '#00d4ff', boxShadow: '0 0 0 1px rgba(0,212,255,0.28) inset' }
+                    : { color: tokens.textTertiary, background: 'transparent' }
+                }
+              >
+                {r}
+              </button>
+            ))}
           </div>
         }
       />
 
-      {/* Recovery intelligence summary — quick status bar */}
+      {/* Custom date range — outside the header so the native calendar popup is never clipped */}
+      {isCustom && (
+        <div className="flex items-center gap-4 mb-5 px-5 py-4 rounded-[12px]"
+          style={{ background: tokens.surface, border: `1px solid ${tokens.borderDefault}` }}>
+          <svg width="13" height="13" fill="none" viewBox="0 0 16 16" style={{ color: tokens.textTertiary, flexShrink: 0 }}>
+            <rect x="1" y="2" width="14" height="13" rx="2" stroke="currentColor" strokeWidth="1.3"/>
+            <path d="M1 6h14M5 1v2M11 1v2" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
+          </svg>
+
+          <div className="flex flex-col gap-0.5">
+            <span className="eyebrow" style={{ fontSize: 9 }}>Start date</span>
+            <input
+              type="date"
+              value={startDate}
+              max={endDate || undefined}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setStartDate(e.target.value)}
+              className="mfi"
+              style={{ colorScheme: 'dark', width: 160, padding: '6px 10px', fontSize: 13 }}
+            />
+          </div>
+
+          <span style={{ color: tokens.textMuted, fontSize: 13, marginTop: 16 }}>→</span>
+
+          <div className="flex flex-col gap-0.5">
+            <span className="eyebrow" style={{ fontSize: 9 }}>End date</span>
+            <input
+              type="date"
+              value={endDate}
+              min={startDate || undefined}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEndDate(e.target.value)}
+              className="mfi"
+              style={{ colorScheme: 'dark', width: 160, padding: '6px 10px', fontSize: 13 }}
+            />
+          </div>
+
+          {startDate && endDate ? (
+            <div className="flex items-center gap-2 ml-2 mt-4">
+              <span className="w-1.5 h-1.5 rounded-full" style={{ background: '#3ddc97' }} />
+              <span className="text-[12px] font-medium" style={{ color: '#3ddc97' }}>Range applied</span>
+            </div>
+          ) : (
+            <span className="text-[12px] mt-4" style={{ color: tokens.textMuted }}>
+              {!startDate && !endDate ? 'Select a start and end date' : !startDate ? 'Select a start date' : 'Select an end date'}
+            </span>
+          )}
+
+          {(startDate || endDate) && (
+            <button
+              onClick={() => { setStartDate(''); setEndDate('') }}
+              className="ml-auto mt-4 text-[11.5px] transition-colors hover:opacity-80"
+              style={{ color: tokens.textMuted }}
+            >
+              Clear
+            </button>
+          )}
+        </div>
+      )}
+
+      {/* Recovery intelligence summary — clickable signals */}
       <div className="flex items-center gap-5 mb-6 px-5 py-3.5 rounded-[12px]"
         style={{ background: 'rgba(255,255,255,0.022)', border: '1px solid rgba(255,255,255,0.07)' }}>
-        <div className="flex items-center gap-2">
+        <Link href="/workflows"
+          className="flex items-center gap-2 transition-opacity hover:opacity-80 cursor-pointer">
           <span className="w-1.5 h-1.5 rounded-full" style={{ background: '#3ddc97', boxShadow: '0 0 6px rgba(61,220,151,0.7)' }} />
           <span className="text-[12.5px]" style={{ color: tokens.textSecondary }}>
             <span className="font-semibold" style={{ color: tokens.textPrimary }}>{performingCount} workflows</span> above target
           </span>
-        </div>
+          <svg width="10" height="10" fill="none" viewBox="0 0 16 16" style={{ color: tokens.textFaint }}>
+            <path d="M6 3l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </Link>
+
         <div className="w-px h-4 flex-shrink-0" style={{ background: tokens.borderSubtle }} />
+
         {watchCount > 0 && (
           <>
-            <div className="flex items-center gap-2">
+            <Link href="/workflows"
+              className="flex items-center gap-2 transition-opacity hover:opacity-80 cursor-pointer">
               <span className="w-1.5 h-1.5 rounded-full" style={{ background: '#ffaa00', boxShadow: '0 0 6px rgba(255,170,0,0.6)' }} />
               <span className="text-[12.5px]" style={{ color: tokens.textSecondary }}>
                 <span className="font-semibold" style={{ color: tokens.textPrimary }}>{watchCount} workflow</span> needs attention — low conversion
               </span>
-            </div>
+              <svg width="10" height="10" fill="none" viewBox="0 0 16 16" style={{ color: tokens.textFaint }}>
+                <path d="M6 3l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </Link>
             <div className="w-px h-4 flex-shrink-0" style={{ background: tokens.borderSubtle }} />
           </>
         )}
+
         <div className="flex items-center gap-2 ml-auto">
           <span className="text-[11.5px]" style={{ color: tokens.textMuted }}>
             Top recovery source: <span className="font-medium" style={{ color: topSource.color }}>{topSource.label}</span>

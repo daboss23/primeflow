@@ -505,13 +505,12 @@ function AiBadge() {
   )
 }
 
-function CardSignalIcon({ type, color, pulsing }: { type: string; color: string; pulsing: boolean }) {
+function CardSignalIcon({ type, color }: { type: string; color: string }) {
   return (
     <svg
       width="15" height="15" viewBox="0 0 16 16" fill="none"
       stroke={color} strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"
-      className={pulsing ? 'icon-signal-pulse' : ''}
-      style={{ opacity: pulsing ? 1 : 0.65, ...(pulsing ? { filter: `drop-shadow(0 0 5px ${color}99)` } : {}) }}
+      style={{ opacity: 0.72 }}
     >
       {type === 'activity' && <path d="M1 8.5h2.5l1.5-4.5 2.5 9 2-5.5 1 1H15"/>}
       {type === 'users'    && <><circle cx="8" cy="5.5" r="2.3"/><path d="M2.5 14c0-2.7 2.5-4.3 5.5-4.3s5.5 1.6 5.5 4.3"/></>}
@@ -1233,7 +1232,7 @@ function NewWorkflowModal({ onClose, onLaunch }: { onClose: () => void; onLaunch
                 </div>
                 <button
                   type="button"
-                  onClick={() => setFallbackEnabled(v => !v)}
+                  onClick={() => setFallbackEnabled((v: boolean) => !v)}
                   className="relative flex-shrink-0 w-10 h-5 rounded-full transition-all duration-200"
                   style={{
                     background: fallbackEnabled ? 'rgba(0,212,255,0.35)' : 'rgba(255,255,255,0.08)',
@@ -1390,9 +1389,6 @@ export function WorkflowsView() {
   const [view,             setView]             = useState<'list' | 'customers' | 'recovery'>('list')
   const [selectedWorkflow, setSelectedWorkflow] = useState<Workflow | null>(null)
   const [selectedCustomer, setSelectedCustomer] = useState<WorkflowCustomer | null>(null)
-  const prevCardIdsRef    = useRef<string[]>([])
-  const [pulsingCardIds,  setPulsingCardIds]  = useState<string[]>([])
-
   useEffect(() => {
     try {
       localStorage.setItem(WORKFLOWS_STORAGE_KEY, JSON.stringify(workflows))
@@ -1406,36 +1402,21 @@ export function WorkflowsView() {
   const convRate       = totalEnrolled > 0 ? ((totalConverted / totalEnrolled) * 100).toFixed(1) : '0'
   const activeCount    = workflows.filter((w: Workflow) => w.status === 'active').length
 
-  // Signal card priority system — top 4 rotate based on workflow data
   type SignalCard = { id: string; label: string; value: string; sub: string; accent: string; iconType: string; priority: number }
   const vipWf  = workflows.find((w: Workflow) => w.trigger === 'repeat_at_risk')
   const cartWf = workflows.find((w: Workflow) => w.trigger === 'abandoned_cart')
-  const pausedCnt = workflows.filter((w: Workflow) => w.status === 'paused').length
   const signalCards = useMemo<SignalCard[]>(() => {
     const all: SignalCard[] = [
-      { id: 'active',     label: 'Active Workflows',   value: String(activeCount),                 sub: `${workflows.length} total configured`,   accent: '#00d4ff', iconType: 'activity', priority: 100 },
-      { id: 'enrolled',   label: 'Customers Enrolled', value: totalEnrolled.toLocaleString(),       sub: 'across all active workflows',             accent: '#a78bfa', iconType: 'users',    priority: 90  },
-      { id: 'revenue',    label: 'Recovered Revenue',  value: `$${totalRevenue.toLocaleString()}`,  sub: 'attributed this period',                  accent: '#3ddc97', iconType: 'trending', priority: 80  },
-      { id: 'conversion', label: 'Conversion Rate',    value: `${convRate}%`,                       sub: `${totalConverted} customers converted`,   accent: '#ffaa00', iconType: 'target',   priority: 70  },
-      ...(vipWf && vipWf.enrolled > 0  ? [{ id: 'vip',   label: 'VIPs at Risk',      value: String(vipWf.enrolled),  sub: 'high-value customers at risk',     accent: '#ff4d6a', iconType: 'star', priority: vipWf.enrolled * 6  }] as SignalCard[] : []),
-      ...(cartWf && cartWf.enrolled > 30 ? [{ id: 'carts', label: 'Abandoned Carts', value: String(cartWf.enrolled), sub: 'awaiting active recovery',          accent: '#ff7a3d', iconType: 'cart', priority: cartWf.enrolled * 2 }] as SignalCard[] : []),
+      { id: 'active',     label: 'Active Workflows',   value: String(activeCount),                 sub: `${workflows.length} total configured`,  accent: '#00d4ff', iconType: 'activity', priority: 100 },
+      { id: 'enrolled',   label: 'Customers Enrolled', value: totalEnrolled.toLocaleString(),       sub: 'across all active workflows',            accent: '#a78bfa', iconType: 'users',    priority: 90  },
+      { id: 'revenue',    label: 'Recovered Revenue',  value: `$${totalRevenue.toLocaleString()}`,  sub: 'attributed this period',                 accent: '#3ddc97', iconType: 'trending', priority: 80  },
+      { id: 'conversion', label: 'Conversion Rate',    value: `${convRate}%`,                       sub: `${totalConverted} customers converted`,  accent: '#ffaa00', iconType: 'target',   priority: 70  },
+      ...(vipWf && vipWf.enrolled > 0   ? [{ id: 'vip',   label: 'VIPs at Risk',     value: String(vipWf.enrolled),  sub: 'high-value customers at risk', accent: '#ff4d6a', iconType: 'star', priority: vipWf.enrolled * 6  }] as SignalCard[] : []),
+      ...(cartWf && cartWf.enrolled > 30 ? [{ id: 'carts', label: 'Abandoned Carts', value: String(cartWf.enrolled), sub: 'awaiting active recovery',     accent: '#ff7a3d', iconType: 'cart', priority: cartWf.enrolled * 2 }] as SignalCard[] : []),
     ]
     return all.sort((a, b) => b.priority - a.priority).slice(0, 4)
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [workflows, activeCount, totalEnrolled, totalRevenue, convRate, totalConverted, vipWf, cartWf])
-
-  // Pulse cards that are newly surfaced when data changes
-  useEffect(() => {
-    const currentIds = signalCards.map(c => c.id)
-    const newIds = currentIds.filter(id => !prevCardIdsRef.current.includes(id))
-    if (newIds.length > 0 && prevCardIdsRef.current.length > 0) {
-      setPulsingCardIds(newIds)
-      const t = setTimeout(() => setPulsingCardIds([]), 2000)
-      prevCardIdsRef.current = currentIds
-      return () => clearTimeout(t)
-    }
-    prevCardIdsRef.current = currentIds
-  }, [signalCards])
 
   function handleTogglePause(id: string) {
     setWorkflows((prev: Workflow[]) => prev.map((w: Workflow) => w.id === id ? { ...w, status: w.status === 'active' ? 'paused' : 'active' } : w))
@@ -1507,29 +1488,26 @@ export function WorkflowsView() {
         }
       />
 
-      {/* KPI Signal Cards */}
+      {/* KPI Cards */}
       <div className="grid grid-cols-4 gap-5 mb-8">
-        {signalCards.map((card) => {
-          const pulsing = pulsingCardIds.includes(card.id)
-          return (
-            <div
-              key={card.id}
-              className={`rounded-[14px] border px-6 py-6 ${pulsing ? 'card-signal-pulse' : ''}`}
-              style={{
-                background: tokens.surface,
-                borderColor: tokens.borderSubtle,
-                boxShadow: '0 1px 0 rgba(255,255,255,0.055) inset, 0 12px 32px -16px rgba(0,0,0,0.5)',
-              }}
-            >
-              <div className="flex items-start justify-between mb-4">
-                <SectionLabel>{card.label}</SectionLabel>
-                <CardSignalIcon type={card.iconType} color={card.accent} pulsing={pulsing} />
-              </div>
-              <div className="metric-num text-[30px] leading-none tracking-tight mb-2.5" style={{ color: card.accent }}>{card.value}</div>
-              <div className="text-[12.5px]" style={{ color: tokens.textMuted }}>{card.sub}</div>
+        {signalCards.map((card: SignalCard) => (
+          <div
+            key={card.id}
+            className="rounded-[14px] border px-6 py-6"
+            style={{
+              background:  tokens.surface,
+              borderColor: tokens.borderSubtle,
+              boxShadow:   '0 1px 0 rgba(255,255,255,0.055) inset, 0 12px 32px -16px rgba(0,0,0,0.5)',
+            }}
+          >
+            <div className="flex items-start justify-between mb-4">
+              <SectionLabel>{card.label}</SectionLabel>
+              <CardSignalIcon type={card.iconType} color={card.accent} />
             </div>
-          )
-        })}
+            <div className="metric-num text-[30px] leading-none tracking-tight mb-2.5" style={{ color: card.accent }}>{card.value}</div>
+            <div className="text-[12.5px]" style={{ color: tokens.textMuted }}>{card.sub}</div>
+          </div>
+        ))}
       </div>
 
       {/* Two-column: table + right analytics panel */}

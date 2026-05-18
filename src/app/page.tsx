@@ -2,6 +2,7 @@ import { hasSupabase, supabaseAdmin } from '@/lib/supabase'
 import { DEMO, DEMO_COOKIE } from '@/lib/demo-data'
 import { HealthSummaryChart } from '@/components/dashboard/HealthSummaryChart'
 import { SeedButton } from '@/components/dashboard/SeedButton'
+import { DashboardSignalCards, type SignalCardDef } from '@/components/dashboard/DashboardSignalCards'
 import { PageHeader } from '@/components/ui/PageHeader'
 import {
   Card, CardHeader, SectionLabel, StatCard, Pill, StatusDot, ProgressBar, Empty, tokens,
@@ -201,14 +202,19 @@ export default async function DashboardPage() {
             />
           )}
 
-          {/* Metric row */}
-          <div className="grid grid-cols-4 gap-5 mb-5">
-            <StatCard label="Total Customers"     value={totalCustomers.toString()}        icon={I.users}    accent={tokens.violet} />
-            <StatCard label="Critical & At-Risk"  value={red.toString()}                   icon={I.alert}    accent="#ff4d6a"
-              sub={`${watchlistCount} on watchlist`} />
-            <StatCard label="At-Risk Revenue"     value={formatCurrency(at_risk_revenue)}  icon={I.dollar}   accent="#ff4d6a" sub="Revenue in jeopardy" />
-            <StatCard label="Recovered Revenue"   value={formatCurrency(recovered_revenue)} icon={I.trendUp} accent="#3ddc97" />
-          </div>
+          {/* Signal card pool — top 4 surface by priority */}
+          {(() => {
+            const pool: SignalCardDef[] = []
+            pool.push({ id: 'total',     label: 'Total Customers',   value: totalCustomers.toString(),         sub: `${dist.green} healthy · ${dist.yellow} watchlist`, accent: tokens.violet, iconType: 'users',    priority: 50 })
+            pool.push({ id: 'recovered', label: 'Recovered Revenue', value: formatCurrency(recovered_revenue), sub: 'Attributed this period',                           accent: '#3ddc97',     iconType: 'trending', priority: Math.max(60, Math.round(recovered_revenue / 50)) })
+            if (red > 0)             pool.push({ id: 'critical',  label: 'Critical Customers', value: red.toString(),                  sub: `${watchlistCount} on watchlist`,  accent: '#ff4d6a', iconType: 'alert',   priority: red * 12 })
+            if (at_risk_revenue > 0) pool.push({ id: 'atrisk',    label: 'Revenue at Risk',    value: formatCurrency(at_risk_revenue), sub: 'Estimated recovery window',       accent: '#ff7a3d', iconType: 'dollar',  priority: Math.round(at_risk_revenue / 15) })
+            if (watchlistCount > 2)  pool.push({ id: 'watchlist', label: 'Watchlist',           value: watchlistCount.toString(),       sub: 'Trending toward critical',        accent: '#ffaa00', iconType: 'eye',     priority: watchlistCount * 8 })
+            if (drafts_generated > 3) pool.push({ id: 'drafts',   label: 'Drafts Pipeline',    value: drafts_generated.toString(),    sub: `${drafts_approved} approved`,      accent: tokens.accent, iconType: 'doc', priority: drafts_generated * 3 })
+            const topLeak = [...leakBreakdown].sort((a, b) => b.amount - a.amount).find(s => s.count > 5)
+            if (topLeak) pool.push({ id: `leak_${topLeak.key}`, label: topLeak.label, value: topLeak.count.toString(), sub: `~${formatCurrency(topLeak.amount)} estimated leak`, accent: topLeak.color, iconType: 'alert', priority: topLeak.count * 15 })
+            return <DashboardSignalCards pool={pool} />
+          })()}
 
           <div className="grid grid-cols-3 gap-5 mb-9">
             <StatCard label="Drafts Generated" value={drafts_generated.toString()} icon={I.doc}   accent={tokens.violet} />

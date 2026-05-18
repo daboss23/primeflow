@@ -492,7 +492,7 @@ function ChannelBadge({ channel }: { channel: Channel }) {
 }
 
 function FieldLabel({ children }: { children: React.ReactNode }) {
-  return <label className="block text-[10.5px] font-semibold tracking-[0.12em] uppercase text-white/40 mb-2">{children}</label>
+  return <label className="block text-[11px] font-semibold tracking-[0.12em] uppercase text-white/45 mb-2.5">{children}</label>
 }
 
 function AiBadge() {
@@ -743,18 +743,18 @@ function NewWorkflowModal({ onClose, onLaunch }: { onClose: () => void; onLaunch
     <div className="fixed inset-0 z-50 flex items-center justify-center"
       style={{ background: 'rgba(0,0,0,0.72)', backdropFilter: 'blur(8px)' }}
       onClick={(e: React.MouseEvent<HTMLDivElement>) => e.target === e.currentTarget && onClose()}>
-      <div className="w-[700px] max-h-[90vh] flex flex-col rounded-2xl overflow-hidden"
+      <div className="w-[780px] max-h-[92vh] flex flex-col rounded-2xl overflow-hidden"
         style={{ background: '#09091b', border: '1px solid rgba(255,255,255,0.08)', boxShadow: '0 40px 100px rgba(0,0,0,0.85)' }}>
 
         {/* Header */}
-        <div className="flex-shrink-0 px-8 pt-7 pb-6" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+        <div className="flex-shrink-0 px-9 pt-8 pb-7" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
           <div className="flex items-start justify-between mb-5">
             <div>
-              <div className="flex items-center gap-2 mb-1.5">
+              <div className="flex items-center gap-2 mb-2">
                 <div className="w-1 h-4 rounded-full" style={{ background: 'linear-gradient(to bottom, #00d4ff, #7c3aed)' }} />
                 <span className="text-[11px] font-semibold tracking-[0.14em] uppercase text-white/35">New Workflow</span>
               </div>
-              <h2 className="text-[19px] font-semibold text-white">Configure Recovery Workflow</h2>
+              <h2 className="text-[21px] font-semibold text-white">Configure Recovery Workflow</h2>
             </div>
             <button onClick={onClose} className="w-8 h-8 rounded-lg flex items-center justify-center text-white/25 hover:text-white/60 hover:bg-white/[0.06] transition-all mt-1">
               <svg width="11" height="11" fill="none" viewBox="0 0 16 16"><path d="M2 2l12 12M14 2L2 14" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/></svg>
@@ -782,7 +782,7 @@ function NewWorkflowModal({ onClose, onLaunch }: { onClose: () => void; onLaunch
         </div>
 
         {/* Body */}
-        <div className="flex-1 overflow-y-auto px-8 py-7">
+        <div className="flex-1 overflow-y-auto px-9 py-8">
 
           {/* ── SUCCESS STATE ── */}
           {launched && (
@@ -807,7 +807,7 @@ function NewWorkflowModal({ onClose, onLaunch }: { onClose: () => void; onLaunch
 
           {/* ── STEP 1: Setup + Live AI Recommendations ── */}
           {!launched && step === 1 && (
-            <div className="space-y-4">
+            <div className="space-y-5">
               <div>
                 <FieldLabel>Workflow Name</FieldLabel>
                 <input type="text" value={workflowName} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setWorkflowName(e.target.value)} placeholder="e.g. Abandoned Cart Recovery — High Value" className="w-full mfi" />
@@ -823,7 +823,7 @@ function NewWorkflowModal({ onClose, onLaunch }: { onClose: () => void; onLaunch
                   <option value="engaged_unconverted">Engaged, Not Converted</option>
                 </select>
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-4">
                 <div>
                   <FieldLabel>Trigger Condition</FieldLabel>
                   <select className="w-full mfi">
@@ -1306,15 +1306,15 @@ function NewWorkflowModal({ onClose, onLaunch }: { onClose: () => void; onLaunch
 
         {/* Footer */}
         {!launched && (
-          <div className="flex-shrink-0 flex items-center justify-between px-8 py-5" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+          <div className="flex-shrink-0 flex items-center justify-between px-9 py-6" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
             <button onClick={() => step > 1 ? setStep(step - 1) : onClose()}
-              className="px-4 py-2 rounded-lg text-[13px] font-medium text-white/30 hover:text-white/55 hover:bg-white/[0.04] transition-all">
+              className="px-5 py-2.5 rounded-lg text-[13px] font-medium text-white/30 hover:text-white/55 hover:bg-white/[0.04] transition-all">
               {step === 1 ? 'Cancel' : '← Back'}
             </button>
             <div className="flex items-center gap-3">
-              <span className="text-[11px] text-white/20">Step {step} of 4</span>
+              <span className="text-[12px] text-white/25">Step {step} of 4</span>
               <button onClick={() => step < 4 ? setStep(step + 1) : handleLaunch()}
-                className="px-6 py-2 rounded-xl text-[13px] font-semibold transition-all hover:opacity-90 active:scale-[0.98]"
+                className="px-7 py-2.5 rounded-xl text-[13px] font-semibold transition-all hover:opacity-90 active:scale-[0.98]"
                 style={step === 4
                   ? { background: 'rgba(0,230,118,0.13)', color: '#00e676', border: '1px solid rgba(0,230,118,0.22)' }
                   : { background: 'rgba(0,212,255,0.12)', color: '#00d4ff', border: '1px solid rgba(0,212,255,0.22)' }}>
@@ -1330,8 +1330,19 @@ function NewWorkflowModal({ onClose, onLaunch }: { onClose: () => void; onLaunch
 
 // ─── Main View ────────────────────────────────────────────────────────────────
 
+const WORKFLOWS_STORAGE_KEY = 'primeflow_workflows'
+
 export function WorkflowsView() {
-  const [workflows,        setWorkflows]        = useState<Workflow[]>(BASE_WORKFLOWS)
+  const [workflows, setWorkflows] = useState<Workflow[]>(() => {
+    try {
+      const saved = typeof window !== 'undefined' ? localStorage.getItem(WORKFLOWS_STORAGE_KEY) : null
+      if (saved) {
+        const parsed = JSON.parse(saved)
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed
+      }
+    } catch {}
+    return BASE_WORKFLOWS
+  })
   const [showModal,        setShowModal]        = useState(false)
   const [filter,           setFilter]           = useState<WorkflowStatus | 'all'>('all')
   const [hoveredRow,       setHoveredRow]       = useState<string | null>(null)
@@ -1339,6 +1350,12 @@ export function WorkflowsView() {
   const [view,             setView]             = useState<'list' | 'customers' | 'recovery'>('list')
   const [selectedWorkflow, setSelectedWorkflow] = useState<Workflow | null>(null)
   const [selectedCustomer, setSelectedCustomer] = useState<WorkflowCustomer | null>(null)
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(WORKFLOWS_STORAGE_KEY, JSON.stringify(workflows))
+    } catch {}
+  }, [workflows])
 
   const filtered       = filter === 'all' ? workflows : workflows.filter((w: Workflow) => w.status === filter)
   const totalEnrolled  = workflows.reduce((s: number, w: Workflow) => s + w.enrolled, 0)
@@ -1386,7 +1403,7 @@ export function WorkflowsView() {
   return (
     <>
       <style>{`
-        .mfi { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 9px 12px; font-size: 13px; color: rgba(255,255,255,0.7); outline: none; transition: border-color 0.15s; appearance: none; -webkit-appearance: none; width: 100%; }
+        .mfi { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 10px 13px; font-size: 13.5px; color: rgba(255,255,255,0.75); outline: none; transition: border-color 0.15s; appearance: none; -webkit-appearance: none; width: 100%; }
         .mfi:focus { border-color: rgba(0,212,255,0.35); }
         .mfi::placeholder { color: rgba(255,255,255,0.18); }
         .wf-row { transition: background 0.1s; }
@@ -1397,8 +1414,8 @@ export function WorkflowsView() {
         .rec-updated { animation: updatedFade 1.8s ease-out forwards; }
       `}</style>
 
-      <div>
-        <div className="pl-7 pr-8 py-9 w-full">
+      <div className="min-h-full">
+        <div className="pl-7 pr-8 pt-9 pb-16 w-full">
 
           {/* Header */}
           <PageHeader
@@ -1442,7 +1459,7 @@ export function WorkflowsView() {
             style={{ border: `1px solid ${tokens.borderSubtle}`, background: tokens.surface }}
           >
             <div
-              className="flex items-center justify-between px-6 py-4"
+              className="flex items-center justify-between px-6 py-5"
               style={{ borderBottom: `1px solid ${tokens.borderSubtle}` }}
             >
               <div className="flex items-center gap-2">
@@ -1471,9 +1488,9 @@ export function WorkflowsView() {
             </div>
 
             {/* Column headers */}
-            <div className="grid px-6 py-3.5" style={{ gridTemplateColumns: COLS, borderBottom: `1px solid ${tokens.borderSubtle}`, background: 'rgba(255,255,255,0.015)' }}>
+            <div className="grid px-6 py-4" style={{ gridTemplateColumns: COLS, borderBottom: `1px solid ${tokens.borderSubtle}`, background: 'rgba(255,255,255,0.015)' }}>
               {['Workflow', 'Trigger', 'Action', 'Channels', 'Status', 'Enrolled', 'Conv.', 'Revenue', ''].map((h, i) => (
-                <span key={i} className="eyebrow" style={{ fontSize: 10.5 }}>{h}</span>
+                <span key={i} className="eyebrow" style={{ fontSize: 11 }}>{h}</span>
               ))}
             </div>
 
@@ -1481,18 +1498,18 @@ export function WorkflowsView() {
               const convPct = wf.enrolled > 0 ? `${((wf.converted / wf.enrolled) * 100).toFixed(0)}%` : null
               const tc = TRIGGER_COLORS[wf.trigger as TriggerState]
               return (
-                <div key={wf.id} className="wf-row grid px-6 py-4 cursor-pointer relative"
+                <div key={wf.id} className="wf-row grid px-6 py-5 cursor-pointer relative"
                   style={{ gridTemplateColumns: COLS, borderBottom: i < filtered.length - 1 ? `1px solid ${tokens.borderSubtle}` : undefined, background: 'transparent' }}
                   onMouseEnter={() => setHoveredRow(wf.id)}
                   onMouseLeave={() => setHoveredRow(null)}
                   onClick={() => { setSelectedWorkflow(wf); setView('customers') }}>
                   <div className="flex items-center gap-3 pr-3">
-                    <div className="w-[2px] h-9 rounded-full flex-shrink-0"
+                    <div className="w-[2px] h-10 rounded-full flex-shrink-0"
                       style={{ background: tc, opacity: wf.status === 'draft' ? 0.30 : 0.85, boxShadow: wf.status === 'active' ? `0 0 6px ${tc}66` : undefined }} />
                     <div className="min-w-0">
-                      <div className="text-[13.5px] font-medium leading-tight truncate" style={{ color: tokens.textPrimary }}>{wf.name}</div>
+                      <div className="text-[14px] font-medium leading-tight truncate" style={{ color: tokens.textPrimary }}>{wf.name}</div>
                       {wf.status === 'active' && (
-                        <div className="text-[11.5px] mt-1" style={{ color: tokens.textMuted }}>Running · {WORKFLOW_CUSTOMERS[wf.id]?.length ?? 0} customers</div>
+                        <div className="text-[12px] mt-1" style={{ color: tokens.textMuted }}>Running · {WORKFLOW_CUSTOMERS[wf.id]?.length ?? 0} customers</div>
                       )}
                     </div>
                   </div>
@@ -1502,7 +1519,7 @@ export function WorkflowsView() {
                       {TRIGGER_LABELS[wf.trigger as TriggerState]}
                     </span>
                   </div>
-                  <div className="flex items-center"><span className="text-[13px]" style={{ color: tokens.textSecondary }}>{wf.actionType}</span></div>
+                  <div className="flex items-center"><span className="text-[13.5px]" style={{ color: tokens.textSecondary }}>{wf.actionType}</span></div>
                   <div className="flex items-center"><ChannelBadge channel={wf.channels} /></div>
                   <div className="flex items-center"><StatusPill status={wf.status} /></div>
                   <div className="flex items-center"><span className="metric-num text-[13.5px]" style={{ color: tokens.textPrimary }}>{wf.enrolled > 0 ? wf.enrolled.toLocaleString() : '—'}</span></div>

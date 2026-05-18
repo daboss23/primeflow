@@ -192,6 +192,13 @@ body::before {
 }
 .icon-signal-pulse { animation: icon-signal-glow 1.8s ease-out forwards; }
 
+@keyframes band-dot-glow {
+  0%   { box-shadow: 0 0 4px 1px var(--dot-color-a), 0 0 2px var(--dot-color); opacity: 0.75; }
+  50%  { box-shadow: 0 0 10px 3px var(--dot-color-a), 0 0 4px var(--dot-color); opacity: 1; }
+  100% { box-shadow: 0 0 4px 1px var(--dot-color-a), 0 0 2px var(--dot-color); opacity: 0.75; }
+}
+.band-dot { animation: band-dot-glow 2.8s ease-in-out infinite; }
+
 .electric-title-wrap { position: relative; display: inline-block; }
 .electric-title {
   font-family: var(--font-display);

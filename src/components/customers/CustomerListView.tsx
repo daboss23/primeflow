@@ -181,8 +181,13 @@ export function CustomerListView({
                     const c = BAND_DOT_COLORS[tone]
                     return (
                       <span
-                        className="inline-block rounded-full flex-shrink-0"
-                        style={{ width: 7, height: 7, background: c, boxShadow: `0 0 6px ${c}bb, 0 0 2px ${c}` }}
+                        className="band-dot inline-block rounded-full flex-shrink-0"
+                        style={{
+                          width: 9, height: 9,
+                          background: c,
+                          ['--dot-color' as string]: c,
+                          ['--dot-color-a' as string]: `${c}88`,
+                        }}
                       />
                     )
                   })()}

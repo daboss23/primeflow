@@ -140,6 +140,16 @@ const I = {
   arrow:    <svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M6 3l5 5-5 5"/></svg>,
 }
 
+// ─── Leak source icons (semantic, outline-style) ───────────────────────────────
+const LEAK_ICONS: Record<string, React.ReactNode> = {
+  abandoned_cart:      <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.35" strokeLinecap="round" strokeLinejoin="round"><path d="M1 1.5h2l2 7h7l1.5-4.5H4.5"/><circle cx="6" cy="13" r="1"/><circle cx="11" cy="13" r="1"/></svg>,
+  failed_payment:      <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.35" strokeLinecap="round" strokeLinejoin="round"><rect x="1.5" y="4" width="13" height="9" rx="1.5"/><path d="M1.5 7h13"/><path d="M10 10.5l1.5 1.5M11.5 10.5L10 12"/></svg>,
+  repeat_at_risk:      <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.35" strokeLinecap="round" strokeLinejoin="round"><path d="M8 2l1.4 4.2H14l-3.5 2.5 1.3 4.1L8 10.3l-3.8 2.5 1.3-4.1L2 6.2h4.6z"/></svg>,
+  dormant_buyer:       <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.35" strokeLinecap="round" strokeLinejoin="round"><circle cx="7" cy="5.5" r="2.5"/><path d="M2.5 14c0-2.6 2-4.2 4.5-4.2"/><path d="M11 9h3M12 11h2"/></svg>,
+  replenishment:       <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.35" strokeLinecap="round" strokeLinejoin="round"><path d="M13.5 4A6 6 0 1 1 8 2"/><path d="M13.5 1.5v2.5H11"/></svg>,
+  engaged_unconverted: <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.35" strokeLinecap="round" strokeLinejoin="round"><path d="M2 8s2.2-4 6-4 6 4 6 4-2.2 4-6 4-6-4-6-4z"/><circle cx="8" cy="8" r="1.5"/><path d="M11.5 4.5l3-3M13.5 4.5h1.5v-1.5" strokeWidth="1.1"/></svg>,
+}
+
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default async function DashboardPage() {
@@ -424,8 +434,8 @@ function LiveLeakScore({ total, totalCustomers, breakdown }: {
               }}
             >
               <div className="flex items-center justify-between mb-2.5">
-                <div className="flex items-center gap-2">
-                  <StatusDot tone="neutral" glow={false} size={5} />
+                <div className="flex items-center gap-2" style={{ color: source.color }}>
+                  <span style={{ opacity: 0.75 }}>{LEAK_ICONS[source.key]}</span>
                   <span className="text-[12px] font-medium" style={{ color: tokens.textSecondary }}>
                     {source.label}
                   </span>

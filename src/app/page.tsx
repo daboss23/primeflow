@@ -41,7 +41,7 @@ async function getHealthData(): Promise<Array<{ health_band: string; state: stri
   } catch { return [] }
 }
 
-async function getRecentActivity() {
+async function getRecentActivity(): Promise<Array<{ id: string; channel: string; status: string; generated_at: string; customer_id: string }>> {
   if (await isDemo()) return DEMO.drafts
   try {
     const { data } = await supabaseAdmin

@@ -2,7 +2,7 @@
 
 // FILE: src/components/workflows/WorkflowsView.tsx
 
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, useMemo } from 'react'
 import { PageHeader } from '@/components/ui/PageHeader'
 import { Card, CardHeader, SectionLabel, Pill, StatusDot, tokens } from '@/components/ui'
 import { WorkflowCustomerView, type WorkflowCustomer } from './WorkflowCustomerView'
@@ -505,6 +505,24 @@ function AiBadge() {
   )
 }
 
+function CardSignalIcon({ type, color, pulsing }: { type: string; color: string; pulsing: boolean }) {
+  return (
+    <svg
+      width="15" height="15" viewBox="0 0 16 16" fill="none"
+      stroke={color} strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"
+      className={pulsing ? 'icon-signal-pulse' : ''}
+      style={{ opacity: pulsing ? 1 : 0.65, ...(pulsing ? { filter: `drop-shadow(0 0 5px ${color}99)` } : {}) }}
+    >
+      {type === 'activity' && <path d="M1 8.5h2.5l1.5-4.5 2.5 9 2-5.5 1 1H15"/>}
+      {type === 'users'    && <><circle cx="8" cy="5.5" r="2.3"/><path d="M2.5 14c0-2.7 2.5-4.3 5.5-4.3s5.5 1.6 5.5 4.3"/></>}
+      {type === 'trending' && <><path d="M1.5 12.5l4-5 3 2.5 5.5-7.5"/><path d="M10.5 2.5h3.5v3"/></>}
+      {type === 'target'   && <><circle cx="8" cy="8" r="5.5"/><path d="M5.5 8l2 2 3-3"/></>}
+      {type === 'star'     && <path d="M8 2l1.5 4.5H14l-3.7 2.7 1.4 4.3L8 10.5l-3.7 2.5 1.4-4.3L2 6.5h4.5z"/>}
+      {type === 'cart'     && <><path d="M1 1.5h2.5l2.5 8h6.5l1.5-5H5"/><circle cx="6.5" cy="13.5" r="0.8"/><circle cx="11" cy="13.5" r="0.8"/></>}
+    </svg>
+  )
+}
+
 // ─── Row Actions Dropdown ─────────────────────────────────────────────────────
 
 function WorkflowActionsMenu({
@@ -679,7 +697,9 @@ function NewWorkflowModal({ onClose, onLaunch }: { onClose: () => void; onLaunch
   const [objective,  setObjective]  = useState(AI_AUTO)
   const [offerAngle, setOfferAngle] = useState(AI_AUTO)
   const [tone,       setTone]       = useState(AI_AUTO)
-  const [personalization, setPersonalization] = useState<string[]>(['First name', 'Last order date'])
+  const [personalization,      setPersonalization]      = useState<string[]>(['First name', 'Last order date'])
+  const [fallbackEnabled,      setFallbackEnabled]      = useState(true)
+  const [showAdvancedStrategy, setShowAdvancedStrategy] = useState(false)
 
   // Animation key — bumps when any strategy input changes
   const [recKey,       setRecKey]       = useState(0)
@@ -939,29 +959,19 @@ function NewWorkflowModal({ onClose, onLaunch }: { onClose: () => void; onLaunch
             </div>
           )}
 
-          {/* ── STEP 2: Message Strategy Refinement ── */}
+          {/* ── STEP 2: Strategy ── */}
           {!launched && step === 2 && (
-            <div className="space-y-5">
+            <div className="space-y-6">
 
-              {/* Refinement header */}
-              <div className="flex items-center gap-3.5 px-5 py-4 rounded-xl" style={{ background: 'rgba(0,212,255,0.04)', border: '1px solid rgba(0,212,255,0.1)' }}>
-                <svg width="14" height="14" fill="none" viewBox="0 0 16 16"><path d="M8 1l1.5 4.5H14l-3.7 2.7 1.4 4.3L8 10l-3.7 2.5 1.4-4.3L2 5.5h4.5z" fill="#00d4ff"/></svg>
-                <div>
-                  <div className="text-[13px] font-semibold text-white/80">Refine AI Strategy</div>
-                  <div className="text-[12px] text-white/35 mt-1 leading-relaxed">AI recommendations from Step 1 are pre-filled. Override any field or leave as <span style={{ color: '#00d4ff' }}>AI Decide</span> to let the system adapt per-customer.</div>
-                </div>
-              </div>
+              {/* Subtle context line */}
+              <p className="text-[12.5px] leading-relaxed" style={{ color: tokens.textTertiary }}>
+                AI recommendations are pre-applied from your setup. Override what matters — everything else adapts per-customer at send time.
+              </p>
 
-              {/* Strategy fields */}
-              <div className="grid grid-cols-2 gap-3">
+              {/* Primary fields */}
+              <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <div className="flex items-center gap-1.5 mb-1.5">
-                    <FieldLabel>Message Style</FieldLabel>
-                    <AiBadge />
-                    {isOverride(msgStyle, AI_AUTO) && isOverride(msgStyle, baseDefault.style) && (
-                      <span className="text-[8px] px-1 rounded font-semibold" style={{ background: 'rgba(245,158,11,0.1)', color: 'rgba(245,158,11,0.7)' }}>custom</span>
-                    )}
-                  </div>
+                  <FieldLabel>Message Style</FieldLabel>
                   <select className="w-full mfi" value={msgStyle} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setMsgStyle(e.target.value)}>
                     <option value={AI_AUTO}>✦ AI Decide</option>
                     <option>Reminder</option>
@@ -973,13 +983,7 @@ function NewWorkflowModal({ onClose, onLaunch }: { onClose: () => void; onLaunch
                   </select>
                 </div>
                 <div>
-                  <div className="flex items-center gap-1.5 mb-1.5">
-                    <FieldLabel>Urgency Level</FieldLabel>
-                    <AiBadge />
-                    {isOverride(urgency, AI_AUTO) && isOverride(urgency, baseDefault.urgency) && (
-                      <span className="text-[8px] px-1 rounded font-semibold" style={{ background: 'rgba(245,158,11,0.1)', color: 'rgba(245,158,11,0.7)' }}>custom</span>
-                    )}
-                  </div>
+                  <FieldLabel>Urgency Level</FieldLabel>
                   <select className="w-full mfi" value={urgency} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setUrgency(e.target.value)}>
                     <option value={AI_AUTO}>✦ AI Decide</option>
                     <option>Low</option>
@@ -990,73 +994,15 @@ function NewWorkflowModal({ onClose, onLaunch }: { onClose: () => void; onLaunch
                 </div>
               </div>
 
-              <div>
-                <div className="flex items-center gap-1.5 mb-1.5">
-                  <FieldLabel>Message Objective</FieldLabel>
-                  <AiBadge />
-                  {isOverride(objective, AI_AUTO) && isOverride(objective, baseDefault.objective) && (
-                    <span className="text-[8px] px-1 rounded font-semibold" style={{ background: 'rgba(245,158,11,0.1)', color: 'rgba(245,158,11,0.7)' }}>custom</span>
-                  )}
-                </div>
-                <select className="w-full mfi" value={objective} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setObjective(e.target.value)}>
-                  <option value={AI_AUTO}>✦ AI Decide</option>
-                  <option>Drive purchase</option>
-                  <option>Recover failed payment</option>
-                  <option>Re-engage dormant customer</option>
-                  <option>Prevent churn</option>
-                  <option>Trigger replenishment order</option>
-                  <option>Convert browser to buyer</option>
-                </select>
-              </div>
-
-              <div>
-                <div className="flex items-center gap-1.5 mb-1.5">
-                  <FieldLabel>Offer Angle</FieldLabel>
-                  <AiBadge />
-                  {isOverride(offerAngle, AI_AUTO) && isOverride(offerAngle, baseDefault.offer) && (
-                    <span className="text-[8px] px-1 rounded font-semibold" style={{ background: 'rgba(245,158,11,0.1)', color: 'rgba(245,158,11,0.7)' }}>custom</span>
-                  )}
-                </div>
-                <select className="w-full mfi" value={offerAngle} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setOfferAngle(e.target.value)}>
-                  <option value={AI_AUTO}>✦ AI Decide</option>
-                  <option>Free shipping or discount</option>
-                  <option>VIP-only benefit or access</option>
-                  <option>Social proof + nudge</option>
-                  <option>Payment link + reassurance</option>
-                  <option>Exclusive comeback offer</option>
-                  <option>Easy reorder link</option>
-                  <option>Urgency + time gate</option>
-                </select>
-              </div>
-
-              <div>
-                <div className="flex items-center gap-1.5 mb-1.5">
-                  <FieldLabel>Tone</FieldLabel>
-                  <AiBadge />
-                  {isOverride(tone, AI_AUTO) && isOverride(tone, baseDefault.tone) && (
-                    <span className="text-[8px] px-1 rounded font-semibold" style={{ background: 'rgba(245,158,11,0.1)', color: 'rgba(245,158,11,0.7)' }}>custom</span>
-                  )}
-                </div>
-                <select className="w-full mfi" value={tone} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setTone(e.target.value)}>
-                  <option value={AI_AUTO}>✦ AI Decide</option>
-                  <option>Friendly, direct</option>
-                  <option>Helpful, clear</option>
-                  <option>Warm, nostalgic</option>
-                  <option>Premium, personal</option>
-                  <option>Concise, helpful</option>
-                  <option>Curious, gentle</option>
-                </select>
-              </div>
-
-              {/* Personalization */}
+              {/* Personalisation tokens */}
               <div>
                 <FieldLabel>Personalisation</FieldLabel>
-                <div className="flex flex-wrap gap-2 px-3 py-2.5 rounded-xl" style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                <div className="flex flex-wrap gap-2 px-3 py-3 rounded-xl" style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.06)' }}>
                   {['First name', 'Last order date', 'Cart value', 'Product name', 'LTV tier', 'Days since last purchase'].map((p) => {
                     const active = personalization.includes(p)
                     return (
                       <button key={p} onClick={() => setPersonalization((prev: string[]) => active ? prev.filter((x: string) => x !== p) : [...prev, p])}
-                        className="px-2.5 py-1 rounded-md text-[10px] font-medium transition-all"
+                        className="px-2.5 py-1 rounded-md text-[10.5px] font-medium transition-all"
                         style={active
                           ? { background: 'rgba(0,212,255,0.1)', color: '#00d4ff', border: '1px solid rgba(0,212,255,0.2)' }
                           : { color: 'rgba(255,255,255,0.3)', border: '1px solid rgba(255,255,255,0.07)' }}>
@@ -1067,32 +1013,91 @@ function NewWorkflowModal({ onClose, onLaunch }: { onClose: () => void; onLaunch
                 </div>
               </div>
 
+              {/* Advanced Strategy — collapsed by default */}
+              <div>
+                <button
+                  className="flex items-center gap-2 w-full text-left"
+                  onClick={() => setShowAdvancedStrategy(!showAdvancedStrategy)}
+                >
+                  <span className="text-[10.5px] font-semibold tracking-[0.1em] uppercase transition-colors"
+                    style={{ color: showAdvancedStrategy ? tokens.textSecondary : tokens.textMuted }}>Advanced Strategy</span>
+                  <div className="flex-1 h-px mx-1" style={{ background: tokens.borderSubtle }} />
+                  <svg width="10" height="10" fill="none" viewBox="0 0 16 16"
+                    style={{ color: tokens.textMuted, transition: 'transform 0.2s', transform: showAdvancedStrategy ? 'rotate(180deg)' : 'none' }}>
+                    <path d="M3 5l5 5 5-5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </button>
+                {showAdvancedStrategy && (
+                  <div className="mt-4 space-y-4">
+                    <div>
+                      <FieldLabel>Message Objective</FieldLabel>
+                      <select className="w-full mfi" value={objective} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setObjective(e.target.value)}>
+                        <option value={AI_AUTO}>✦ AI Decide</option>
+                        <option>Drive purchase</option>
+                        <option>Recover failed payment</option>
+                        <option>Re-engage dormant customer</option>
+                        <option>Prevent churn</option>
+                        <option>Trigger replenishment order</option>
+                        <option>Convert browser to buyer</option>
+                      </select>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <FieldLabel>Offer Angle</FieldLabel>
+                        <select className="w-full mfi" value={offerAngle} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setOfferAngle(e.target.value)}>
+                          <option value={AI_AUTO}>✦ AI Decide</option>
+                          <option>Free shipping or discount</option>
+                          <option>VIP-only benefit or access</option>
+                          <option>Social proof + nudge</option>
+                          <option>Payment link + reassurance</option>
+                          <option>Exclusive comeback offer</option>
+                          <option>Easy reorder link</option>
+                          <option>Urgency + time gate</option>
+                        </select>
+                      </div>
+                      <div>
+                        <FieldLabel>Tone</FieldLabel>
+                        <select className="w-full mfi" value={tone} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setTone(e.target.value)}>
+                          <option value={AI_AUTO}>✦ AI Decide</option>
+                          <option>Friendly, direct</option>
+                          <option>Helpful, clear</option>
+                          <option>Warm, nostalgic</option>
+                          <option>Premium, personal</option>
+                          <option>Concise, helpful</option>
+                          <option>Curious, gentle</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
               {/* Brand Knowledge Vault */}
-              <div className="p-4 rounded-xl" style={{ background: 'rgba(139,92,246,0.05)', border: '1px solid rgba(139,92,246,0.15)' }}>
+              <div className="px-4 py-4 rounded-xl" style={{ background: 'rgba(139,92,246,0.05)', border: '1px solid rgba(139,92,246,0.14)' }}>
                 <div className="flex items-center gap-2 mb-3">
-                  <svg width="12" height="12" fill="none" viewBox="0 0 16 16">
+                  <svg width="11" height="11" fill="none" viewBox="0 0 16 16">
                     <circle cx="8" cy="8" r="2.5" stroke="#a78bfa" strokeWidth="1.3"/>
                     <path d="M8 1v2M8 13v2M1 8h2M13 8h2" stroke="#a78bfa" strokeWidth="1.3" strokeLinecap="round"/>
                   </svg>
                   <span className="text-[11px] font-semibold text-[#a78bfa]">Brand Knowledge Vault Active</span>
                 </div>
                 <div className="space-y-2">
-                  {[['Tone', 'Warm and conversational, never salesy'], ['Sign-off', '"The Team" or founder first name'], ['Avoid', 'Aggressive urgency, spam language, ALL CAPS'], ['Voice', 'Speak like a helpful friend, not a marketer']].map(([k, v]) => (
+                  {[['Tone', 'Warm and conversational, never salesy'], ['Sign-off', '"The Team" or founder first name'], ['Avoid', 'Aggressive urgency, ALL CAPS, spam language']].map(([k, v]) => (
                     <div key={k} className="flex gap-3">
-                      <span className="text-[10px] font-semibold text-[#a78bfa]/60 w-24 flex-shrink-0 pt-0.5">{k}</span>
-                      <span className="text-[11px] text-white/50">{v}</span>
+                      <span className="text-[10px] font-semibold text-[#a78bfa]/60 w-16 flex-shrink-0 pt-0.5">{k}</span>
+                      <span className="text-[11px] text-white/45">{v}</span>
                     </div>
                   ))}
                 </div>
-                <button className="mt-3 text-[10px] text-[#a78bfa]/60 hover:text-[#a78bfa] transition-colors">Edit in Brand Settings →</button>
+                <button className="mt-3 text-[10px] text-[#a78bfa]/55 hover:text-[#a78bfa] transition-colors">Edit in Brand Settings →</button>
               </div>
 
-              {/* Strategy summary */}
-              <div key={recKey} className="rec-panel p-4 rounded-xl" style={{ background: 'rgba(0,212,255,0.03)', border: '1px solid rgba(0,212,255,0.1)' }}>
-                <div className="flex items-center gap-2 mb-3">
-                  <span className="text-[10px] font-semibold tracking-wider uppercase text-[#00d4ff]/60">Effective Strategy</span>
+              {/* Live strategy summary */}
+              <div key={recKey} className="rec-panel px-4 py-3.5 rounded-xl" style={{ background: 'rgba(0,212,255,0.03)', border: '1px solid rgba(0,212,255,0.1)' }}>
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-[10px] font-semibold tracking-wider uppercase text-[#00d4ff]/55">Effective Strategy</span>
                   {showUpdated && (
-                    <span className="ml-auto flex items-center gap-1 text-[9px] font-semibold text-[#00d4ff]/55 rec-updated">
+                    <span className="flex items-center gap-1 text-[9px] font-semibold text-[#00d4ff]/55 rec-updated">
                       <svg width="8" height="8" viewBox="0 0 16 16" fill="none"><path d="M2 8a6 6 0 1110.83-3.5M14 2v4h-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
                       Updated
                     </span>
@@ -1108,8 +1113,8 @@ function NewWorkflowModal({ onClose, onLaunch }: { onClose: () => void; onLaunch
                     { label: 'Offer',   val: offerAngle === AI_AUTO ? aiRecs.offer   : offerAngle },
                   ].map(({ label, val }) => (
                     <div key={label} className="px-2.5 py-2 rounded-lg" style={{ background: 'rgba(255,255,255,0.03)' }}>
-                      <div className="text-[9px] font-semibold tracking-wider uppercase text-white/22 mb-0.5">{label}</div>
-                      <div className="text-[10px] font-medium text-white/60">{val}</div>
+                      <div className="text-[9px] font-semibold tracking-wider uppercase mb-0.5" style={{ color: 'rgba(255,255,255,0.22)' }}>{label}</div>
+                      <div className="text-[10.5px] font-medium" style={{ color: 'rgba(255,255,255,0.62)' }}>{val}</div>
                     </div>
                   ))}
                 </div>
@@ -1215,87 +1220,122 @@ function NewWorkflowModal({ onClose, onLaunch }: { onClose: () => void; onLaunch
             </div>
           )}
 
-          {/* ── STEP 4: Fallback Logic (Dynamic) ── */}
+          {/* ── STEP 4: Fallback Logic ── */}
           {!launched && step === 4 && (
             <div className="space-y-4">
-              <div className="flex items-start justify-between">
+
+              {/* Toggle row */}
+              <div className="flex items-center justify-between p-4 rounded-xl"
+                style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)' }}>
                 <div>
-                  <div className="text-[14px] font-semibold text-white/85">Fallback Sequence</div>
-                  <div className="text-[12px] text-white/35 mt-1">What happens if the first message doesn't convert</div>
+                  <div className="text-[13.5px] font-semibold text-white/85">Enable fallback sequence</div>
+                  <div className="text-[12px] text-white/35 mt-0.5">What happens if the first message doesn't convert</div>
                 </div>
-                <div className="flex flex-col items-end gap-1">
-                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg" style={{ background: 'rgba(0,212,255,0.05)', border: '1px solid rgba(0,212,255,0.1)' }}>
-                    <svg width="9" height="9" fill="none" viewBox="0 0 16 16"><path d="M8 1l1.5 4.5H14l-3.7 2.7 1.4 4.3L8 10l-3.7 2.5 1.4-4.3L2 5.5h4.5z" fill="#00d4ff"/></svg>
-                    <span className="text-[9px] font-semibold text-[#00d4ff]/70">AI-generated from strategy</span>
+                <button
+                  type="button"
+                  onClick={() => setFallbackEnabled(v => !v)}
+                  className="relative flex-shrink-0 w-10 h-5 rounded-full transition-all duration-200"
+                  style={{
+                    background: fallbackEnabled ? 'rgba(0,212,255,0.35)' : 'rgba(255,255,255,0.08)',
+                    boxShadow: fallbackEnabled ? '0 0 10px rgba(0,212,255,0.25)' : 'none',
+                  }}
+                >
+                  <span className="absolute top-0.5 h-4 w-4 rounded-full transition-all duration-200"
+                    style={{
+                      left: fallbackEnabled ? 'calc(100% - 18px)' : '2px',
+                      background: fallbackEnabled ? '#00d4ff' : 'rgba(255,255,255,0.30)',
+                    }} />
+                </button>
+              </div>
+
+              {/* OFF state — brief explanation */}
+              {!fallbackEnabled && (
+                <div className="p-4 rounded-xl space-y-2"
+                  style={{ background: 'rgba(255,255,255,0.015)', border: '1px solid rgba(255,255,255,0.05)' }}>
+                  <div className="flex items-center gap-2 text-white/40">
+                    <svg width="13" height="13" fill="none" viewBox="0 0 16 16" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="8" cy="8" r="6"/><path d="M8 7v4M8 5.5v.5"/>
+                    </svg>
+                    <span className="text-[12px] font-medium">No fallback configured</span>
                   </div>
-                  <span className="text-[9px] text-white/20">{urgency} urgency · {channels}</span>
+                  <p className="text-[12px] text-white/28 leading-relaxed">
+                    The workflow will send the primary message only. If there's no conversion, the customer exits gracefully — health score updated, outcome logged.
+                    You can enable fallback anytime to add a follow-up sequence.
+                  </p>
                 </div>
-              </div>
+              )}
 
-              <div className="space-y-2">
-                {fallback.map((rule, i) => (
-                  <div key={i} className="flex items-start gap-3 p-3.5 rounded-xl"
-                    style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.06)' }}>
-                    <div className="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5"
-                      style={{ background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.35)' }}>{i + 1}</div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap mb-1">
-                        <span className="text-[11px] font-semibold" style={{ color: '#f59e0b' }}>If:</span>
-                        <span className="text-[11px] text-white/60">{rule.condition}</span>
+              {/* ON state — full sequence */}
+              {fallbackEnabled && (
+                <>
+                  <div className="space-y-2">
+                    {fallback.map((rule, i) => (
+                      <div key={i} className="flex items-start gap-3 p-3.5 rounded-xl"
+                        style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                        <div className="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5"
+                          style={{ background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.35)' }}>{i + 1}</div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap mb-1">
+                            <span className="text-[11px] font-semibold" style={{ color: '#f59e0b' }}>If:</span>
+                            <span className="text-[11px] text-white/60">{rule.condition}</span>
+                          </div>
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="text-[11px] font-semibold text-[#00d4ff]">Then:</span>
+                            <span className="text-[11px] text-white/60">{rule.action}</span>
+                          </div>
+                        </div>
+                        <div className="flex-shrink-0">
+                          <span className="text-[10px] text-white/25 whitespace-nowrap">{rule.timing}</span>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-[11px] font-semibold text-[#00d4ff]">Then:</span>
-                        <span className="text-[11px] text-white/60">{rule.action}</span>
-                      </div>
+                    ))}
+                  </div>
+
+                  <div className="flex items-start gap-3 p-3.5 rounded-xl"
+                    style={{ background: 'rgba(255,255,255,0.015)', border: '1px dashed rgba(255,255,255,0.08)' }}>
+                    <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5"
+                      style={{ background: 'rgba(255,255,255,0.04)' }}>
+                      <svg width="10" height="10" fill="none" viewBox="0 0 16 16">
+                        <rect x="2" y="2" width="12" height="12" rx="2" stroke="rgba(255,255,255,0.2)" strokeWidth="1.3"/>
+                        <path d="M8 5v6M5 8h6" stroke="rgba(255,255,255,0.2)" strokeWidth="1.3" strokeLinecap="round"/>
+                      </svg>
                     </div>
-                    <div className="flex-shrink-0">
-                      <span className="text-[10px] text-white/25 whitespace-nowrap">{rule.timing}</span>
+                    <div>
+                      <div className="text-[11px] font-semibold text-white/30">End of sequence</div>
+                      <div className="text-[11px] text-white/20 mt-0.5">Customer exits workflow. Health score updated. Outcome logged.</div>
                     </div>
                   </div>
-                ))}
-              </div>
 
-              <div className="flex items-start gap-3 p-3.5 rounded-xl"
-                style={{ background: 'rgba(255,255,255,0.015)', border: '1px dashed rgba(255,255,255,0.08)' }}>
-                <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5"
-                  style={{ background: 'rgba(255,255,255,0.04)' }}>
-                  <svg width="10" height="10" fill="none" viewBox="0 0 16 16">
-                    <rect x="2" y="2" width="12" height="12" rx="2" stroke="rgba(255,255,255,0.2)" strokeWidth="1.3"/>
-                    <path d="M8 5v6M5 8h6" stroke="rgba(255,255,255,0.2)" strokeWidth="1.3" strokeLinecap="round"/>
-                  </svg>
-                </div>
-                <div>
-                  <div className="text-[11px] font-semibold text-white/30">End of sequence</div>
-                  <div className="text-[11px] text-white/20 mt-0.5">Customer exits workflow. Health score updated. Outcome logged.</div>
-                </div>
-              </div>
+                  <div>
+                    <FieldLabel>Exit Condition</FieldLabel>
+                    <select className="w-full mfi">
+                      <option>Customer completes purchase</option>
+                      <option>Customer unsubscribes</option>
+                      <option>End of sequence reached</option>
+                      <option>Manual override</option>
+                    </select>
+                  </div>
+                </>
+              )}
 
-              <div>
-                <FieldLabel>Exit Condition</FieldLabel>
-                <select className="w-full mfi">
-                  <option>Customer completes purchase</option>
-                  <option>Customer unsubscribes</option>
-                  <option>End of sequence reached</option>
-                  <option>Manual override</option>
-                </select>
-              </div>
-
+              {/* Workflow summary */}
               <div className="p-4 rounded-xl" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)' }}>
                 <div className="text-[11px] font-semibold tracking-[0.14em] uppercase text-white/25 mb-3">Workflow Summary</div>
                 <div className="space-y-2">
                   {[
-                    ['Trigger',         TRIGGER_LABELS[trigger as TriggerState]],
-                    ['Channels',        channels],
-                    ['Style',           msgStyle],
-                    ['Urgency',         urgency],
-                    ['Objective',       objective],
-                    ['Offer Angle',     offerAngle],
-                    ['Fallback Steps',  `${fallback.length} rules configured`],
-                    ['A/B Testing',     abTest ? 'Enabled' : 'Disabled'],
+                    ['Trigger',        TRIGGER_LABELS[trigger as TriggerState]],
+                    ['Channels',       channels],
+                    ['Style',          msgStyle],
+                    ['Urgency',        urgency],
+                    ['Objective',      objective],
+                    ['Offer Angle',    offerAngle],
+                    ['Fallback',       fallbackEnabled ? `${fallback.length} rules` : 'Disabled'],
+                    ['A/B Testing',    abTest ? 'Enabled' : 'Disabled'],
                   ].map(([k, v]) => (
                     <div key={k} className="flex items-center justify-between">
                       <span className="text-[12px] text-white/30">{k}</span>
-                      <span className="text-[12px] text-white/65 font-medium">{v}</span>
+                      <span className="text-[12px] font-medium"
+                        style={{ color: k === 'Fallback' && v === 'Disabled' ? 'rgba(255,255,255,0.30)' : 'rgba(255,255,255,0.65)' }}>{v}</span>
                     </div>
                   ))}
                 </div>
@@ -1350,6 +1390,8 @@ export function WorkflowsView() {
   const [view,             setView]             = useState<'list' | 'customers' | 'recovery'>('list')
   const [selectedWorkflow, setSelectedWorkflow] = useState<Workflow | null>(null)
   const [selectedCustomer, setSelectedCustomer] = useState<WorkflowCustomer | null>(null)
+  const prevCardIdsRef    = useRef<string[]>([])
+  const [pulsingCardIds,  setPulsingCardIds]  = useState<string[]>([])
 
   useEffect(() => {
     try {
@@ -1363,6 +1405,37 @@ export function WorkflowsView() {
   const totalConverted = workflows.reduce((s: number, w: Workflow) => s + w.converted, 0)
   const convRate       = totalEnrolled > 0 ? ((totalConverted / totalEnrolled) * 100).toFixed(1) : '0'
   const activeCount    = workflows.filter((w: Workflow) => w.status === 'active').length
+
+  // Signal card priority system — top 4 rotate based on workflow data
+  type SignalCard = { id: string; label: string; value: string; sub: string; accent: string; iconType: string; priority: number }
+  const vipWf  = workflows.find((w: Workflow) => w.trigger === 'repeat_at_risk')
+  const cartWf = workflows.find((w: Workflow) => w.trigger === 'abandoned_cart')
+  const pausedCnt = workflows.filter((w: Workflow) => w.status === 'paused').length
+  const signalCards = useMemo<SignalCard[]>(() => {
+    const all: SignalCard[] = [
+      { id: 'active',     label: 'Active Workflows',   value: String(activeCount),                 sub: `${workflows.length} total configured`,   accent: '#00d4ff', iconType: 'activity', priority: 100 },
+      { id: 'enrolled',   label: 'Customers Enrolled', value: totalEnrolled.toLocaleString(),       sub: 'across all active workflows',             accent: '#a78bfa', iconType: 'users',    priority: 90  },
+      { id: 'revenue',    label: 'Recovered Revenue',  value: `$${totalRevenue.toLocaleString()}`,  sub: 'attributed this period',                  accent: '#3ddc97', iconType: 'trending', priority: 80  },
+      { id: 'conversion', label: 'Conversion Rate',    value: `${convRate}%`,                       sub: `${totalConverted} customers converted`,   accent: '#ffaa00', iconType: 'target',   priority: 70  },
+      ...(vipWf && vipWf.enrolled > 0  ? [{ id: 'vip',   label: 'VIPs at Risk',      value: String(vipWf.enrolled),  sub: 'high-value customers at risk',     accent: '#ff4d6a', iconType: 'star', priority: vipWf.enrolled * 6  }] as SignalCard[] : []),
+      ...(cartWf && cartWf.enrolled > 30 ? [{ id: 'carts', label: 'Abandoned Carts', value: String(cartWf.enrolled), sub: 'awaiting active recovery',          accent: '#ff7a3d', iconType: 'cart', priority: cartWf.enrolled * 2 }] as SignalCard[] : []),
+    ]
+    return all.sort((a, b) => b.priority - a.priority).slice(0, 4)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [workflows, activeCount, totalEnrolled, totalRevenue, convRate, totalConverted, vipWf, cartWf])
+
+  // Pulse cards that are newly surfaced when data changes
+  useEffect(() => {
+    const currentIds = signalCards.map(c => c.id)
+    const newIds = currentIds.filter(id => !prevCardIdsRef.current.includes(id))
+    if (newIds.length > 0 && prevCardIdsRef.current.length > 0) {
+      setPulsingCardIds(newIds)
+      const t = setTimeout(() => setPulsingCardIds([]), 2000)
+      prevCardIdsRef.current = currentIds
+      return () => clearTimeout(t)
+    }
+    prevCardIdsRef.current = currentIds
+  }, [signalCards])
 
   function handleTogglePause(id: string) {
     setWorkflows((prev: Workflow[]) => prev.map((w: Workflow) => w.id === id ? { ...w, status: w.status === 'active' ? 'paused' : 'active' } : w))
@@ -1434,20 +1507,29 @@ export function WorkflowsView() {
         }
       />
 
-      {/* KPI Cards */}
+      {/* KPI Signal Cards */}
       <div className="grid grid-cols-4 gap-5 mb-8">
-        {[
-          { label: 'Active Workflows',   value: String(activeCount),                 sub: `${workflows.length} total configured`,  accent: '#00d4ff' },
-          { label: 'Customers Enrolled', value: totalEnrolled.toLocaleString(),      sub: 'across all active workflows',            accent: '#a78bfa' },
-          { label: 'Recovered Revenue',  value: `$${totalRevenue.toLocaleString()}`, sub: 'attributed this period',                 accent: '#3ddc97' },
-          { label: 'Conversion Rate',    value: `${convRate}%`,                      sub: `${totalConverted} customers converted`,  accent: '#ffaa00' },
-        ].map(({ label, value, sub, accent }) => (
-          <Card key={label} padded={false} className="px-6 py-6">
-            <SectionLabel className="mb-4">{label}</SectionLabel>
-            <div className="metric-num text-[30px] leading-none tracking-tight mb-2.5" style={{ color: accent }}>{value}</div>
-            <div className="text-[12.5px]" style={{ color: tokens.textMuted }}>{sub}</div>
-          </Card>
-        ))}
+        {signalCards.map((card) => {
+          const pulsing = pulsingCardIds.includes(card.id)
+          return (
+            <div
+              key={card.id}
+              className={`rounded-[14px] border px-6 py-6 ${pulsing ? 'card-signal-pulse' : ''}`}
+              style={{
+                background: tokens.surface,
+                borderColor: tokens.borderSubtle,
+                boxShadow: '0 1px 0 rgba(255,255,255,0.055) inset, 0 12px 32px -16px rgba(0,0,0,0.5)',
+              }}
+            >
+              <div className="flex items-start justify-between mb-4">
+                <SectionLabel>{card.label}</SectionLabel>
+                <CardSignalIcon type={card.iconType} color={card.accent} pulsing={pulsing} />
+              </div>
+              <div className="metric-num text-[30px] leading-none tracking-tight mb-2.5" style={{ color: card.accent }}>{card.value}</div>
+              <div className="text-[12.5px]" style={{ color: tokens.textMuted }}>{card.sub}</div>
+            </div>
+          )
+        })}
       </div>
 
       {/* Two-column: table + right analytics panel */}

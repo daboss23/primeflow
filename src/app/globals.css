@@ -177,6 +177,21 @@ body::before {
 @keyframes updatedFade { 0% { opacity: 0; transform: translateX(4px); } 20% { opacity: 1; transform: translateX(0); } 80% { opacity: 1; } 100% { opacity: 0; } }
 .rec-updated { animation: updatedFade 1.8s ease-out forwards; }
 
+/* ─── KPI card signal pulse (event-driven, not decorative) ──────────────── */
+@keyframes card-signal-pulse {
+  0%   { box-shadow: 0 0 0 1px rgba(255,255,255,0.18), 0 1px 0 rgba(255,255,255,0.055) inset, 0 12px 32px -16px rgba(0,0,0,0.5); }
+  55%  { box-shadow: 0 0 0 0px rgba(255,255,255,0.0),  0 1px 0 rgba(255,255,255,0.055) inset, 0 12px 32px -16px rgba(0,0,0,0.5); }
+  100% { box-shadow: 0 1px 0 rgba(255,255,255,0.055) inset, 0 12px 32px -16px rgba(0,0,0,0.5); }
+}
+.card-signal-pulse { animation: card-signal-pulse 2s ease-out forwards; }
+
+@keyframes icon-signal-glow {
+  0%   { opacity: 0.55; }
+  20%  { opacity: 1; }
+  100% { opacity: 0.65; }
+}
+.icon-signal-pulse { animation: icon-signal-glow 1.8s ease-out forwards; }
+
 .electric-title-wrap { position: relative; display: inline-block; }
 .electric-title {
   font-family: var(--font-display);

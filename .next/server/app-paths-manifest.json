@@ -1,8 +1,0 @@
-{
-  "/api/settings/route": "app/api/settings/route.js",
-  "/workflows/page": "app/workflows/page.js",
-  "/integrations/page": "app/integrations/page.js",
-  "/settings/page": "app/settings/page.js",
-  "/customers/page": "app/customers/page.js",
-  "/page": "app/page.js"
-}

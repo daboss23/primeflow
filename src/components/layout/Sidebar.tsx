@@ -94,11 +94,21 @@ export function Sidebar() {
       </div>
       <nav className="flex-1 px-3 py-4 space-y-0.5">
         {NAV.map(({ href, label, icon }) => {
-          const active = pathname === href || (href !== '/' && pathname.startsWith(href))
+          const active    = pathname === href || (href !== '/' && pathname.startsWith(href))
+          const isOracle  = href === '/oracle'
           return (
-            <button key={href} onClick={() => handleNav(href)} className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-medium transition-all text-left ${active ? 'bg-white/[0.07] text-white' : 'text-white/40 hover:text-white/75 hover:bg-white/[0.04]'}`}>
+            <button key={href} onClick={() => handleNav(href)}
+              className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-medium transition-all text-left ${active ? 'bg-white/[0.07] text-white' : 'text-white/40 hover:text-white/75 hover:bg-white/[0.04]'}`}
+              style={isOracle && !active ? { borderColor: 'rgba(0,212,255,0.08)', border: '1px solid transparent' } : undefined}
+            >
               <span className={active ? 'text-[#00d4ff]' : 'text-current'}>{icon}</span>
-              {label}
+              <span className="flex-1">{label}</span>
+              {isOracle && (
+                <span className="relative flex h-1.5 w-1.5 flex-shrink-0">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-70" style={{ background: '#00d4ff' }} />
+                  <span className="relative inline-flex rounded-full h-1.5 w-1.5" style={{ background: '#00d4ff' }} />
+                </span>
+              )}
             </button>
           )
         })}

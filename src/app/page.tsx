@@ -2,6 +2,7 @@ import { supabaseAdmin } from '@/lib/supabase'
 import { HealthSummaryChart } from '@/components/dashboard/HealthSummaryChart'
 import { SeedButton } from '@/components/dashboard/SeedButton'
 import { PageHeader } from '@/components/ui/PageHeader'
+import { OracleBrief } from '@/components/oracle/OracleBrief'
 import { formatCurrency, stateLabel, stateColor } from '@/lib/utils'
 import type { CustomerState } from '@/types'
 import Link from 'next/link'
@@ -130,6 +131,7 @@ export default async function DashboardPage() {
   // Draft stats
   const drafts_generated = drafts.length
   const drafts_approved  = drafts.filter(d => ['approved', 'queued', 'sent'].includes(d.status)).length
+  const pending_drafts   = drafts.filter(d => d.status === 'generated').length
   const watchlistCount   = yellow
 
   // Recovered revenue
@@ -168,6 +170,20 @@ export default async function DashboardPage() {
         <EmptyState />
       ) : (
         <>
+          {/* ── ORACLE BRIEF ── */}
+          <OracleBrief
+            redCount={red}
+            atRiskRevenue={at_risk_revenue}
+            leakTotal={leakTotal}
+            topLeakLabel={leakBreakdown.sort((a, b) => b.amount - a.amount)[0]?.label ?? ''}
+            topLeakAmount={leakBreakdown.sort((a, b) => b.amount - a.amount)[0]?.amount ?? 0}
+            topLeakCount={leakBreakdown.sort((a, b) => b.amount - a.amount)[0]?.count ?? 0}
+            recoverableRevenue={Math.round(leakTotal * 0.32)}
+            topAtRiskName={topAtRisk[0] ? `${topAtRisk[0].first_name ?? ''} ${topAtRisk[0].last_name ?? ''}`.trim() : ''}
+            topAtRiskState={topAtRisk[0]?.state ?? ''}
+            pendingDrafts={pending_drafts}
+          />
+
           {/* ── LIVE REVENUE LEAK SCORE ── */}
           {leakTotal > 0 && (
             <LiveLeakScore

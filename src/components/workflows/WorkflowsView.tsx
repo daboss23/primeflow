@@ -2,9 +2,10 @@
 
 // FILE: src/components/workflows/WorkflowsView.tsx
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { PageHeader } from '@/components/ui/PageHeader'
 import { WorkflowCustomerView, type WorkflowCustomer } from './WorkflowCustomerView'
+import { OracleWorkflowPanel } from '@/components/oracle/OracleWorkflowPanel'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -1307,14 +1308,23 @@ function NewWorkflowModal({ onClose }: { onClose: () => void }) {
 // ─── Main View ────────────────────────────────────────────────────────────────
 
 export function WorkflowsView() {
-  const [workflows,        setWorkflows]        = useState<Workflow[]>(BASE_WORKFLOWS)
-  const [showModal,        setShowModal]        = useState(false)
-  const [filter,           setFilter]           = useState<WorkflowStatus | 'all'>('all')
-  const [hoveredRow,       setHoveredRow]       = useState<string | null>(null)
-  const [activeDropdown,   setActiveDropdown]   = useState<string | null>(null)
-  const [view,             setView]             = useState<'list' | 'customers' | 'recovery'>('list')
-  const [selectedWorkflow, setSelectedWorkflow] = useState<Workflow | null>(null)
-  const [selectedCustomer, setSelectedCustomer] = useState<WorkflowCustomer | null>(null)
+  const [workflows,         setWorkflows]         = useState<Workflow[]>(BASE_WORKFLOWS)
+  const [showModal,         setShowModal]         = useState(false)
+  const [filter,            setFilter]            = useState<WorkflowStatus | 'all'>('all')
+  const [hoveredRow,        setHoveredRow]        = useState<string | null>(null)
+  const [activeDropdown,    setActiveDropdown]    = useState<string | null>(null)
+  const [view,              setView]              = useState<'list' | 'customers' | 'recovery'>('list')
+  const [selectedWorkflow,  setSelectedWorkflow]  = useState<Workflow | null>(null)
+  const [selectedCustomer,  setSelectedCustomer]  = useState<WorkflowCustomer | null>(null)
+  const [oracleHighlight,   setOracleHighlight]   = useState<string[]>([])
+  const [oracleGlowing,     setOracleGlowing]     = useState<string[]>([])
+
+  const handleOracleHighlight = useCallback((ids: string[]) => {
+    setOracleHighlight(ids)
+    setOracleGlowing(ids)
+    const t = setTimeout(() => setOracleGlowing([]), 2200)
+    return () => clearTimeout(t)
+  }, [])
 
   const filtered       = filter === 'all' ? workflows : workflows.filter(w => w.status === filter)
   const totalEnrolled  = workflows.reduce((s, w) => s + w.enrolled, 0)
@@ -1392,6 +1402,9 @@ export function WorkflowsView() {
             </button>
           </div>
 
+          {/* Oracle Workflow Intelligence */}
+          <OracleWorkflowPanel onHighlight={handleOracleHighlight} />
+
           {/* KPI Cards */}
           <div className="grid grid-cols-4 gap-4 mb-8">
             {[
@@ -1433,11 +1446,19 @@ export function WorkflowsView() {
             </div>
 
             {filtered.map((wf, i) => {
-              const convPct = wf.enrolled > 0 ? `${((wf.converted / wf.enrolled) * 100).toFixed(0)}%` : null
-              const tc = TRIGGER_COLORS[wf.trigger]
+              const convPct       = wf.enrolled > 0 ? `${((wf.converted / wf.enrolled) * 100).toFixed(0)}%` : null
+              const tc            = TRIGGER_COLORS[wf.trigger]
+              const isOracleFlagged = oracleHighlight.includes(wf.id)
+              const isOracleGlowing = oracleGlowing.includes(wf.id)
               return (
-                <div key={wf.id} className="wf-row grid px-6 py-4 cursor-pointer relative"
-                  style={{ gridTemplateColumns: COLS, borderBottom: i < filtered.length - 1 ? '1px solid rgba(255,255,255,0.04)' : undefined, background: 'transparent' }}
+                <div key={wf.id}
+                  className={`wf-row grid px-6 py-4 cursor-pointer relative ${isOracleGlowing ? 'oracle-row-flash' : ''}`}
+                  style={{
+                    gridTemplateColumns: COLS,
+                    borderBottom: i < filtered.length - 1 ? '1px solid rgba(255,255,255,0.04)' : undefined,
+                    background: 'transparent',
+                    borderLeft: isOracleFlagged ? `2px solid ${TRIGGER_COLORS[wf.trigger]}44` : undefined,
+                  }}
                   onMouseEnter={() => setHoveredRow(wf.id)}
                   onMouseLeave={() => setHoveredRow(null)}
                   onClick={() => { setSelectedWorkflow(wf); setView('customers') }}>

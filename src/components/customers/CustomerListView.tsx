@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import type { CustomerWithHealth, HealthBand, CustomerState } from '@/types'
 import { Empty, Spinner, PageHeader } from '@/components/ui'
 import { CustomerDetail } from '@/components/customers/CustomerDetail'
+import { OracleCustomerPanel } from '@/components/oracle/OracleCustomerPanel'
 import { fullName, formatCurrency, daysSinceLabel } from '@/lib/utils'
 
 // ─── Filter Config ─────────────────────────────────────────────────────────────
@@ -150,6 +151,28 @@ export function CustomerListView({
           title="Customer Intelligence"
           subtitle={`${customers.length} customers tracked${criticalCount > 0 ? ` · ${criticalCount} critical` : ''}${watchCount > 0 ? ` · ${watchCount} on watchlist` : ''}`}
         />
+
+        {/* Oracle Customer Intelligence */}
+        {!loading && customers.length > 0 && (
+          <OracleCustomerPanel
+            criticalCount={criticalCount}
+            watchCount={watchCount}
+            topOpportunityName={
+              customers
+                .filter(c => c.health_band === 'red')
+                .sort((a, b) => (b.opportunity_score ?? 0) - (a.opportunity_score ?? 0))[0]
+                ? `${customers.filter(c => c.health_band === 'red').sort((a, b) => (b.opportunity_score ?? 0) - (a.opportunity_score ?? 0))[0].first_name ?? ''} ${customers.filter(c => c.health_band === 'red').sort((a, b) => (b.opportunity_score ?? 0) - (a.opportunity_score ?? 0))[0].last_name ?? ''}`.trim() || null
+                : null
+            }
+            topOpportunityState={
+              customers.filter(c => c.health_band === 'red').sort((a, b) => (b.opportunity_score ?? 0) - (a.opportunity_score ?? 0))[0]?.state ?? null
+            }
+            topOpportunityScore={
+              customers.filter(c => c.health_band === 'red').sort((a, b) => (b.opportunity_score ?? 0) - (a.opportunity_score ?? 0))[0]?.opportunity_score ?? null
+            }
+            totalCustomers={customers.length}
+          />
+        )}
 
         {/* Filters row */}
         <div className="flex items-center gap-3 mb-6 flex-wrap">

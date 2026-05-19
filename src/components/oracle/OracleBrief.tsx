@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import Link from 'next/link'
 import {
   getOracleBrief, getRecommendedPlay,
   SIGNAL_STYLE, SYSTEM_STATE_STYLE,
@@ -156,15 +155,6 @@ export function OracleBrief() {
             {brief.systemSummary}
           </span>
         </div>
-
-        <Link href="/oracle"
-          className="flex items-center gap-1.5 text-[10px] font-medium px-2.5 py-1 rounded-lg transition-all hover:opacity-80"
-          style={{ color: '#a78bfa', background: 'rgba(167,139,250,0.08)', border: '1px solid rgba(167,139,250,0.15)' }}>
-          Full Intelligence
-          <svg width="8" height="8" viewBox="0 0 16 16" fill="none">
-            <path d="M6 3l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-        </Link>
       </div>
 
       {/* Signal cards */}

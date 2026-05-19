@@ -341,3 +341,23 @@ html, body {
 .oracle-panel-in {
   animation: oraclePanelIn 0.3s ease-out forwards;
 }
+
+/* Oracle-flagged metric card */
+@keyframes oracleCardGlow {
+  0%, 100% { box-shadow: 0 0 0 1px rgba(167,139,250,0.12), 0 0 16px rgba(167,139,250,0.04); }
+  50%       { box-shadow: 0 0 0 1px rgba(167,139,250,0.22), 0 0 24px rgba(167,139,250,0.10); }
+}
+
+.oracle-card-active {
+  animation: oracleCardGlow 3s ease-in-out infinite;
+}
+
+@keyframes oracleTopline {
+  0%, 100% { opacity: 0.35; }
+  50%       { opacity: 0.75; }
+}
+
+.oracle-card-topline {
+  background: linear-gradient(90deg, transparent, #a78bfa, #00d4ff, transparent);
+  animation: oracleTopline 3s ease-in-out infinite;
+}

@@ -3,6 +3,7 @@ import { HealthSummaryChart } from '@/components/dashboard/HealthSummaryChart'
 import { SeedButton } from '@/components/dashboard/SeedButton'
 import { PageHeader } from '@/components/ui/PageHeader'
 import { OracleBrief } from '@/components/oracle/OracleBrief'
+import { getTopRisk } from '@/lib/oracle'
 import { formatCurrency, stateLabel, stateColor } from '@/lib/utils'
 import type { CustomerState } from '@/types'
 import Link from 'next/link'
@@ -114,7 +115,8 @@ export default async function DashboardPage() {
       getTopAtRiskCustomers(),
     ])
 
-  const hasData = totalCustomers > 0
+  const hasData    = totalCustomers > 0
+  const oracleRisk = getTopRisk()
 
   // Health distribution
   const red    = health.filter(r => r.health_band === 'red').length
@@ -184,8 +186,8 @@ export default async function DashboardPage() {
           {/* Row 1 */}
           <div className="grid grid-cols-4 gap-4 mb-4">
             <MetricCard label="Total Customers"    value={totalCustomers.toString()}        icon="👥" color="#a78bfa" />
-            <MetricCard label="Critical & At-Risk" value={red.toString()}                   icon="⚠" color="#ff6b35" sub={`${watchlistCount} on watchlist`} alert={red > 0} />
-            <MetricCard label="At-Risk Revenue"    value={formatCurrency(at_risk_revenue)}  icon="$" color="#ff4060" sub="Revenue in jeopardy" />
+            <MetricCard label="Critical & At-Risk" value={red.toString()}                   icon="⚠" color="#ff6b35" sub={`${watchlistCount} on watchlist`} alert={red > 0} oracle={!!oracleRisk && red > 0} />
+            <MetricCard label="At-Risk Revenue"    value={formatCurrency(at_risk_revenue)}  icon="$" color="#ff4060" sub="Revenue in jeopardy" oracle={!!oracleRisk && at_risk_revenue > 0} />
             <MetricCard label="Recovered Revenue"  value={formatCurrency(recovered_revenue)} icon="↗" color="#00e676" />
           </div>
 
@@ -401,14 +403,30 @@ function LiveLeakScore({ total, totalCustomers, breakdown }: {
 }
 
 // ─── Metric Card ──────────────────────────────────────────────────────────────
-function MetricCard({ label, value, sub, icon, color, alert = false, small = false }: {
+function MetricCard({ label, value, sub, icon, color, alert = false, small = false, oracle = false }: {
   label: string; value: string; sub?: string; icon: string
-  color: string; alert?: boolean; small?: boolean
+  color: string; alert?: boolean; small?: boolean; oracle?: boolean
 }) {
   return (
-    <div className={`rounded-xl border p-5 ${alert ? 'border-[#ff6b35]/25 bg-[#ff6b35]/[0.04]' : 'border-white/[0.06] bg-white/[0.02]'}`}>
+    <div className={`rounded-xl border p-5 relative overflow-hidden ${alert ? 'border-[#ff6b35]/25 bg-[#ff6b35]/[0.04]' : 'border-white/[0.06] bg-white/[0.02]'} ${oracle ? 'oracle-card-active' : ''}`}
+      style={oracle ? { borderColor: 'rgba(167,139,250,0.3)', boxShadow: '0 0 0 1px rgba(167,139,250,0.08) inset' } : undefined}>
+      {oracle && (
+        <div className="absolute top-0 left-0 right-0 h-px oracle-card-topline" />
+      )}
       <div className="flex items-start justify-between mb-3">
-        <div className="text-[11px] uppercase tracking-[0.12em] text-white/40">{label}</div>
+        <div className="flex items-center gap-1.5">
+          <div className="text-[11px] uppercase tracking-[0.12em] text-white/40">{label}</div>
+          {oracle && (
+            <span className="oracle-badge-pulse" style={{ display: 'inline-flex', alignItems: 'center' }}>
+              <span className="relative flex h-1.5 w-1.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-50"
+                  style={{ background: '#a78bfa' }} />
+                <span className="relative inline-flex rounded-full h-1.5 w-1.5"
+                  style={{ background: '#a78bfa' }} />
+              </span>
+            </span>
+          )}
+        </div>
         <div className="w-8 h-8 rounded-lg flex items-center justify-center text-[14px]"
           style={{ background: `${color}18`, color }}>{icon}</div>
       </div>

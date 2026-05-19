@@ -2,6 +2,7 @@ import { supabaseAdmin } from '@/lib/supabase'
 import { HealthSummaryChart } from '@/components/dashboard/HealthSummaryChart'
 import { SeedButton } from '@/components/dashboard/SeedButton'
 import { PageHeader } from '@/components/ui/PageHeader'
+import { OracleBrief } from '@/components/oracle/OracleBrief'
 import { formatCurrency, stateLabel, stateColor } from '@/lib/utils'
 import type { CustomerState } from '@/types'
 import Link from 'next/link'
@@ -168,6 +169,9 @@ export default async function DashboardPage() {
         <EmptyState />
       ) : (
         <>
+          {/* ── ORACLE INTELLIGENCE BRIEF ── */}
+          <OracleBrief />
+
           {/* ── LIVE REVENUE LEAK SCORE ── */}
           {leakTotal > 0 && (
             <LiveLeakScore

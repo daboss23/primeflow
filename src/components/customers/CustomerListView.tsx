@@ -5,6 +5,7 @@ import type { CustomerWithHealth, HealthBand, CustomerState } from '@/types'
 import { Empty, Spinner, PageHeader } from '@/components/ui'
 import { CustomerDetail } from '@/components/customers/CustomerDetail'
 import { fullName, formatCurrency, daysSinceLabel } from '@/lib/utils'
+import { OracleIcon } from '@/components/oracle/OracleBrief'
 
 // ─── Filter Config ─────────────────────────────────────────────────────────────
 
@@ -24,6 +25,120 @@ const STATES: { key: CustomerState | 'all'; label: string }[] = [
   { key: 'replenishment',       label: 'Replenishment'          },
   { key: 'engaged_unconverted', label: 'Engaged, Not Converted' },
 ]
+
+// ─── Oracle Customer Risk Panel ───────────────────────────────────────────────
+
+function OracleCustomerPanel({ customers }: { customers: CustomerWithHealth[] }) {
+  const critical    = customers.filter(c => c.health_band === 'red')
+  const vipCritical = critical.filter(c => (c.total_spend ?? 0) > 1500)
+  const atRiskLTV   = critical.reduce((sum, c) => sum + (c.total_spend ?? 0), 0)
+
+  if (critical.length === 0) return null
+
+  const signals: Array<{ color: string; bg: string; border: string; title: string; body: string; nextPlay: string; critical?: boolean }> = []
+
+  if (vipCritical.length > 0) {
+    const topVip = [...vipCritical].sort((a, b) => (b.total_spend ?? 0) - (a.total_spend ?? 0))[0]
+    signals.push({
+      color: '#ff4060', bg: 'rgba(255,64,96,0.07)', border: 'rgba(255,64,96,0.2)',
+      title: `${vipCritical.length} high-value customer${vipCritical.length > 1 ? 's' : ''} in critical state`,
+      body: `${fullName(topVip.first_name, topVip.last_name)} and ${vipCritical.length - 1} other${vipCritical.length > 2 ? 's' : ''} above $1,500 LTV — all in red-band health.`,
+      nextPlay: 'Initiate personal outreach for top-LTV at-risk customers.',
+      critical: true,
+    })
+  }
+
+  if (atRiskLTV > 0) {
+    signals.push({
+      color: '#f59e0b', bg: 'rgba(245,158,11,0.07)', border: 'rgba(245,158,11,0.2)',
+      title: `$${atRiskLTV.toLocaleString()} LTV at risk`,
+      body: `${critical.length} critical-band customers account for this combined lifetime value. Recovery window is narrowing.`,
+      nextPlay: 'Sort by opportunity score. Prioritize top 3 by recovery potential.',
+    })
+  }
+
+  const byOpp = [...critical].sort((a, b) => (b.opportunity_score ?? 0) - (a.opportunity_score ?? 0)).slice(0, 1)[0]
+  if (byOpp) {
+    signals.push({
+      color: '#a78bfa', bg: 'rgba(167,139,250,0.07)', border: 'rgba(167,139,250,0.18)',
+      title: 'Highest recovery opportunity',
+      body: `${fullName(byOpp.first_name, byOpp.last_name)} — opportunity score ${byOpp.opportunity_score}, state: ${byOpp.state?.replace(/_/g, ' ') ?? 'unknown'}.`,
+      nextPlay: `Open ${fullName(byOpp.first_name, byOpp.last_name)}'s profile and generate outreach now.`,
+    })
+  }
+
+  const topSignals = signals.slice(0, 3)
+
+  return (
+    <div className="mb-6 rounded-xl oracle-panel-in relative overflow-hidden"
+      style={{
+        background: 'rgba(255,255,255,0.016)',
+        border: '1px solid rgba(255,64,96,0.16)',
+      }}>
+
+      <div className="oracle-scan-line"
+        style={{ '--scan-color': '#ff4060' } as React.CSSProperties} />
+
+      <div className="flex items-center justify-between px-4 py-2.5"
+        style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+        <div className="flex items-center gap-2">
+          <OracleIcon size={12} />
+          <span className="text-[9px] font-bold tracking-[0.2em] uppercase oracle-gradient-text">Oracle</span>
+          <div className="w-px h-3 bg-white/[0.07]" />
+          <span className="text-[9px] font-medium tracking-[0.1em] uppercase" style={{ color: '#ff4060' }}>
+            {critical.length} customer{critical.length !== 1 ? 's' : ''} require attention
+          </span>
+        </div>
+        <span className="text-[9px]" style={{ color: 'rgba(255,255,255,0.2)' }}>
+          Based on current health scores
+        </span>
+      </div>
+
+      <div className="flex gap-3 p-3">
+        {topSignals.map((sig, i) => (
+          <div key={i} className="flex-1 rounded-lg px-3.5 py-2.5"
+            style={{ background: sig.bg, border: `1px solid ${sig.border}` }}>
+
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="text-[8px] font-semibold tracking-[0.14em] uppercase px-1.5 py-0.5 rounded"
+                style={{ color: sig.color, background: `${sig.color}12` }}>
+                {sig.critical ? 'Critical' : i === 1 ? 'Risk' : 'Opportunity'}
+              </span>
+              {sig.critical && (
+                <span className="relative flex h-1.5 w-1.5">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-60"
+                    style={{ background: sig.color }} />
+                  <span className="relative inline-flex rounded-full h-1.5 w-1.5"
+                    style={{ background: sig.color }} />
+                </span>
+              )}
+            </div>
+
+            <div className="text-[11px] font-semibold leading-snug mb-1"
+              style={{ color: 'rgba(255,255,255,0.85)' }}>
+              {sig.title}
+            </div>
+
+            <div className="text-[10px] leading-relaxed mb-2"
+              style={{ color: 'rgba(255,255,255,0.42)' }}>
+              {sig.body}
+            </div>
+
+            <div className="flex items-start gap-1">
+              <svg width="8" height="8" viewBox="0 0 16 16" fill="none"
+                className="mt-0.5 flex-shrink-0" style={{ color: sig.color }}>
+                <path d="M2 8L14 2L8 14L7 9L2 8Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
+              </svg>
+              <span className="text-[10px] font-medium leading-snug" style={{ color: sig.color }}>
+                {sig.nextPlay}
+              </span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -213,6 +328,9 @@ export function CustomerListView({
           </div>
         </div>
 
+        {/* Oracle Customer Risk Intelligence */}
+        {!loading && <OracleCustomerPanel customers={customers} />}
+
         {/* Table */}
         <div className="rounded-2xl overflow-hidden"
           style={{ border: '1px solid rgba(255,255,255,0.07)' }}>
@@ -248,13 +366,15 @@ export function CustomerListView({
               const stateCfg  = getStateCfg(c.state)
               const actionCfg = getActionCfg(c.state, c.total_spend ?? 0)
               const hColor    = c.health_band === 'red' ? '#ff4060' : c.health_band === 'yellow' ? '#ffaa00' : '#00e676'
+              const isOracleFlag = isUrgent && isVIP
 
               return (
                 <div key={c.customer_id}
-                  className="grid px-6 py-4 relative cursor-pointer transition-all hover:bg-white/[0.02] group"
+                  className="grid px-6 py-4 relative cursor-pointer transition-all hover:bg-white/[0.02] oracle-row-highlight group"
                   style={{
                     gridTemplateColumns: '2fr 1.4fr 1.5fr 0.9fr 0.9fr 1fr 1.2fr 1.3fr',
                     borderBottom: i < filtered.length - 1 ? '1px solid rgba(255,255,255,0.04)' : undefined,
+                    background: isOracleFlag ? 'rgba(255,64,96,0.03)' : undefined,
                   }}
                   onClick={() => setSelectedId(c.customer_id)}>
 
@@ -278,6 +398,11 @@ export function CustomerListView({
                           <svg width="10" height="10" viewBox="0 0 16 16" fill="#f59e0b" className="flex-shrink-0">
                             <path d="M8 1l1.5 4.5H14l-3.7 2.7 1.4 4.3L8 10l-3.7 2.5 1.4-4.3L2 5.5h4.5z"/>
                           </svg>
+                        )}
+                        {isOracleFlag && (
+                          <span className="oracle-badge-pulse flex-shrink-0">
+                            <OracleIcon size={10} />
+                          </span>
                         )}
                       </div>
                       <div className="text-[10px] truncate mt-0.5" style={{ color: 'rgba(255,255,255,0.25)' }}>

@@ -278,3 +278,66 @@ html, body {
   50%       { opacity: 0.3; }
   90%       { opacity: 0.7; }
 }
+
+/* ─── Oracle Intelligence Layer ──────────────────────────────────────────── */
+
+/* Gradient text for Oracle identity mark */
+.oracle-gradient-text {
+  background: linear-gradient(90deg, #a78bfa, #00d4ff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Scan line that sweeps across the Oracle brief panel */
+@keyframes oracleScan {
+  0%   { transform: translateX(-20%); opacity: 0; }
+  5%   { opacity: 1; }
+  95%  { opacity: 0.6; }
+  100% { transform: translateX(120%); opacity: 0; }
+}
+
+.oracle-scan-line {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 1px;
+  width: 30%;
+  background: linear-gradient(90deg, transparent, var(--scan-color, #a78bfa), transparent);
+  opacity: 0.4;
+  animation: oracleScan 5s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* Row highlight when Oracle directs attention */
+@keyframes oracleRowPulse {
+  0%   { opacity: 0; }
+  30%  { opacity: 1; }
+  70%  { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+.oracle-row-highlight {
+  transition: background 0.25s ease, box-shadow 0.25s ease;
+}
+
+/* Oracle signal badge pulse */
+@keyframes oracleBadgePulse {
+  0%, 100% { opacity: 0.7; }
+  50%       { opacity: 1; }
+}
+
+.oracle-badge-pulse {
+  animation: oracleBadgePulse 2s ease-in-out infinite;
+}
+
+/* Oracle panel entry */
+@keyframes oraclePanelIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.oracle-panel-in {
+  animation: oraclePanelIn 0.3s ease-out forwards;
+}

@@ -5,6 +5,7 @@ import {
   LineChart, Line, BarChart, Bar,
   XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
 } from 'recharts'
+import { OracleAnalyticsSummary } from '@/components/oracle/OracleAnalyticsSummary'
 
 const DATA_BY_RANGE: Record<string, {
   trend: { month: string; recovered: number; customers: number }[]
@@ -192,6 +193,9 @@ export default function AnalyticsPage() {
             )}
           </div>
         </div>
+
+        {/* Oracle Summary */}
+        <OracleAnalyticsSummary />
 
         {/* KPI Cards */}
         <div className="grid grid-cols-4 gap-4 mb-6">

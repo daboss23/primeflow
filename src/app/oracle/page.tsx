@@ -1,44 +1,35 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
+import {
+  getOracleBrief, sortedSignals,
+  SIGNAL_STYLE, SYSTEM_STATE_STYLE,
+  type OracleSignal, type SystemState,
+} from '@/lib/oracle'
+import { OracleIcon } from '@/components/oracle/OracleBrief'
+
+// ─── Demo data for chat mode ──────────────────────────────────────────────────
 
 const DEMO_CUSTOMERS = [
-  { id: '1', name: 'Sarah Chen', state: 'VIP at Risk', health: 25, ltv: 847, lastPurchase: '3 months ago', opportunity: 100, email: 'sarah@example.com' },
-  { id: '2', name: 'Aisha Mohammed', state: 'VIP at Risk', health: 30, ltv: 2840, lastPurchase: '2 months ago', opportunity: 100, email: 'aisha@example.com' },
-  { id: '3', name: 'James Whitfield', state: 'Abandoned Cart', health: 5, ltv: 0, lastPurchase: 'Never', opportunity: 73, email: 'james@example.com' },
-  { id: '4', name: 'Tobias Klein', state: 'Engaged, Not Converted', health: 30, ltv: 0, lastPurchase: 'Never', opportunity: 69, email: 'tobias@example.com' },
-  { id: '5', name: 'Maria Santos', state: 'Healthy', health: 85, ltv: 1240, lastPurchase: '2 weeks ago', opportunity: 20, email: 'maria@example.com' },
-  { id: '6', name: 'David Park', state: 'Replenishment Due', health: 55, ltv: 620, lastPurchase: '6 weeks ago', opportunity: 60, email: 'david@example.com' },
-  { id: '7', name: 'Emma Wilson', state: 'Failed Payment', health: 10, ltv: 390, lastPurchase: '1 month ago', opportunity: 80, email: 'emma@example.com' },
-  { id: '8', name: 'Liam Johnson', state: 'Healthy', health: 90, ltv: 3200, lastPurchase: '1 week ago', opportunity: 10, email: 'liam@example.com' },
-  { id: '9', name: 'Priya Patel', state: 'Replenishment Due', health: 50, ltv: 780, lastPurchase: '7 weeks ago', opportunity: 55, email: 'priya@example.com' },
-  { id: '10', name: 'Omar Hassan', state: 'Dormant Buyer', health: 15, ltv: 430, lastPurchase: '5 months ago', opportunity: 45, email: 'omar@example.com' },
+  { id: '1', name: 'Sarah Chen',      state: 'VIP at Risk',            health: 25,  ltv: 847,  lastPurchase: '3 months ago',  opportunity: 100 },
+  { id: '2', name: 'Aisha Mohammed',  state: 'VIP at Risk',            health: 30,  ltv: 2840, lastPurchase: '2 months ago',  opportunity: 100 },
+  { id: '3', name: 'James Whitfield', state: 'Abandoned Cart',         health: 5,   ltv: 0,    lastPurchase: 'Never',         opportunity: 73  },
+  { id: '4', name: 'Tobias Klein',    state: 'Engaged, Not Converted', health: 30,  ltv: 0,    lastPurchase: 'Never',         opportunity: 69  },
+  { id: '5', name: 'Maria Santos',    state: 'Healthy',                health: 85,  ltv: 1240, lastPurchase: '2 weeks ago',   opportunity: 20  },
+  { id: '6', name: 'David Park',      state: 'Replenishment Due',      health: 55,  ltv: 620,  lastPurchase: '6 weeks ago',   opportunity: 60  },
+  { id: '7', name: 'Emma Wilson',     state: 'Failed Payment',         health: 10,  ltv: 390,  lastPurchase: '1 month ago',   opportunity: 80  },
+  { id: '8', name: 'Liam Johnson',    state: 'Healthy',                health: 90,  ltv: 3200, lastPurchase: '1 week ago',    opportunity: 10  },
+  { id: '9', name: 'Priya Patel',     state: 'Replenishment Due',      health: 50,  ltv: 780,  lastPurchase: '7 weeks ago',   opportunity: 55  },
+  { id: '10', name: 'Omar Hassan',    state: 'Dormant Buyer',          health: 15,  ltv: 430,  lastPurchase: '5 months ago',  opportunity: 45  },
 ]
 
 const STORE_METRICS = {
-  totalRevenue: 9347,
-  totalCustomers: 10,
-  criticalAtRisk: 4,
-  recoveredRevenue: 0,
-  liveRevenueLeak: 1570,
-  recoverableThisWeek: 502,
-  abandonedCarts: 2,
-  abandonedValue: 370,
-  failedPayments: 1,
-  failedValue: 210,
-  vipsAtRisk: 2,
-  vipValue: 680,
-  avgLTV: 634,
-  topCustomerLTV: 3200,
+  totalRevenue: 9347, totalCustomers: 10, criticalAtRisk: 4,
+  liveRevenueLeak: 1570, recoverableThisWeek: 502,
+  abandonedCarts: 2, failedPayments: 1, vipsAtRisk: 2,
 }
 
-const SUGGESTED_QUESTIONS = [
-  'Who are my top customers at risk right now?',
-  'How much revenue am I leaking this week?',
-  'Which customers should I contact first?',
-  'What is my biggest recovery opportunity?',
-  'Show me all abandoned carts',
-]
+// ─── Types ────────────────────────────────────────────────────────────────────
 
 interface Message {
   role: 'user' | 'assistant'
@@ -46,35 +37,169 @@ interface Message {
   timestamp: Date
 }
 
-export default function OraclePage() {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      role: 'assistant',
-      content: "AXIOM ORACLE online. I have full visibility into your store's customer health, revenue leakage, and recovery opportunities. Ask me anything.",
-      timestamp: new Date(),
-    }
-  ])
+// ─── Signal detail card ───────────────────────────────────────────────────────
+
+function SignalDetailCard({ signal }: { signal: OracleSignal }) {
+  const s = SIGNAL_STYLE[signal.type]
+  const isCritical = signal.priority === 'critical'
+
+  return (
+    <div className="rounded-xl p-5 transition-all duration-200 hover:scale-[1.01]"
+      style={{ background: s.bg, border: `1px solid ${s.border}` }}>
+
+      {/* Top row */}
+      <div className="flex items-start justify-between mb-3">
+        <div className="flex items-center gap-2">
+          <span className="text-[9px] font-semibold tracking-[0.14em] uppercase px-2 py-0.5 rounded"
+            style={{ color: s.color, background: `${s.color}15` }}>
+            {s.label}
+          </span>
+          <span className="text-[9px] font-medium tracking-[0.1em] uppercase"
+            style={{ color: 'rgba(255,255,255,0.25)' }}>
+            {signal.priority}
+          </span>
+        </div>
+        <div className="flex items-center gap-2">
+          {isCritical && (
+            <span className="relative flex h-1.5 w-1.5">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-60"
+                style={{ background: s.color }} />
+              <span className="relative inline-flex rounded-full h-1.5 w-1.5"
+                style={{ background: s.color }} />
+            </span>
+          )}
+          <span className="text-[9px] font-medium px-1.5 py-0.5 rounded"
+            style={{ color: 'rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.04)' }}>
+            {signal.confidence}% confidence
+          </span>
+        </div>
+      </div>
+
+      {/* Title */}
+      <div className="text-[13px] font-semibold leading-snug mb-2"
+        style={{ color: 'rgba(255,255,255,0.9)' }}>
+        {signal.title}
+      </div>
+
+      {/* Body */}
+      <div className="text-[12px] leading-relaxed mb-4"
+        style={{ color: 'rgba(255,255,255,0.5)' }}>
+        {signal.body}
+      </div>
+
+      {/* Target */}
+      <div className="flex items-center gap-2 mb-3">
+        <span className="text-[9px] font-semibold tracking-[0.12em] uppercase"
+          style={{ color: 'rgba(255,255,255,0.2)' }}>Target</span>
+        <span className="text-[10px] font-medium px-2 py-0.5 rounded"
+          style={{ color: s.color, background: `${s.color}12`, border: `1px solid ${s.color}20` }}>
+          {signal.targetLabel}
+        </span>
+        {signal.impactValue && (
+          <span className="text-[10px] font-semibold ml-auto"
+            style={{ color: '#00e676', fontFamily: 'var(--font-jetbrains)' }}>
+            ${signal.impactValue.toLocaleString()} impact
+          </span>
+        )}
+      </div>
+
+      {/* Next play */}
+      <div className="flex items-start gap-2 pt-3"
+        style={{ borderTop: `1px solid ${s.border}` }}>
+        <svg width="10" height="10" viewBox="0 0 16 16" fill="none"
+          className="mt-0.5 flex-shrink-0" style={{ color: s.color }}>
+          <path d="M2 8L14 2L8 14L7 9L2 8Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
+        </svg>
+        <span className="text-[11px] font-semibold leading-snug" style={{ color: s.color }}>
+          {signal.nextPlay}
+        </span>
+      </div>
+    </div>
+  )
+}
+
+// ─── System state header ──────────────────────────────────────────────────────
+
+function SystemStateBar({ state }: { state: SystemState }) {
+  const cfg = SYSTEM_STATE_STYLE[state]
+  const signals = sortedSignals()
+  const criticalCount = signals.filter(s => s.priority === 'critical').length
+  const totalImpact = signals.reduce((sum, s) => sum + (s.impactValue ?? 0), 0)
+
+  return (
+    <div className="rounded-2xl p-5 mb-6 relative overflow-hidden"
+      style={{ background: cfg.bg, border: `1px solid ${cfg.border}` }}>
+
+      <div className="oracle-scan-line"
+        style={{ '--scan-color': cfg.color } as React.CSSProperties} />
+
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center"
+            style={{ background: `${cfg.color}12`, border: `1px solid ${cfg.border}` }}>
+            <OracleIcon size={18} />
+          </div>
+          <div>
+            <div className="flex items-center gap-2 mb-0.5">
+              <span className="text-[11px] font-bold tracking-[0.18em] uppercase oracle-gradient-text">
+                Oracle
+              </span>
+              <div className="w-px h-3 bg-white/[0.08]" />
+              <span className="text-[11px] font-semibold tracking-[0.1em] uppercase"
+                style={{ color: cfg.color }}>
+                System {cfg.label}
+              </span>
+              {(state === 'critical' || state === 'watch') && (
+                <span className="relative flex h-1.5 w-1.5">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-60"
+                    style={{ background: cfg.color }} />
+                  <span className="relative inline-flex rounded-full h-1.5 w-1.5"
+                    style={{ background: cfg.color }} />
+                </span>
+              )}
+            </div>
+            <div className="text-[11px]" style={{ color: 'rgba(255,255,255,0.4)' }}>
+              Intelligence layer active · {signals.length} signals detected · {criticalCount} critical
+            </div>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-6">
+          {[
+            { label: 'Active Signals', value: String(signals.length), color: cfg.color },
+            { label: 'Critical', value: String(criticalCount), color: '#ff4060' },
+            { label: 'Total Impact', value: `$${totalImpact.toLocaleString()}`, color: '#00e676' },
+          ].map(({ label, value, color }) => (
+            <div key={label} className="text-right">
+              <div className="text-[9px] font-semibold tracking-[0.12em] uppercase mb-0.5"
+                style={{ color: 'rgba(255,255,255,0.25)' }}>{label}</div>
+              <div className="text-[18px] font-bold"
+                style={{ color, fontFamily: 'var(--font-jetbrains)' }}>{value}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ─── Chat mode ────────────────────────────────────────────────────────────────
+
+function ChatMode() {
+  const [messages, setMessages] = useState<Message[]>([{
+    role: 'assistant',
+    content: "Oracle online. I have full visibility into your store's customer health, revenue leakage, and recovery opportunities. What do you need to know?",
+    timestamp: new Date(),
+  }])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
   const bottomRef = useRef<HTMLDivElement>(null)
-  const inputRef = useRef<HTMLTextAreaElement>(null)
 
-  useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages])
+  useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: 'smooth' }) }, [messages])
 
-  async function sendMessage(text?: string) {
-    const userText = text || input.trim()
-    if (!userText || loading) return
-    setInput('')
+  const systemPrompt = `You are AXIOM ORACLE — the AI intelligence engine inside AXIOM, a premium ecommerce customer health and revenue recovery system.
 
-    const userMsg: Message = { role: 'user', content: userText, timestamp: new Date() }
-    setMessages(prev => [...prev, userMsg])
-    setLoading(true)
-
-    const systemPrompt = `You are AXIOM ORACLE — the AI intelligence engine inside the AXIOM platform, a premium ecommerce customer health and reactivation system.
-
-You have complete access to this store's customer data and metrics. Respond like a world-class analyst who knows every detail about this store. Be direct, confident, and specific. Use exact numbers. Never say you "don't have access" — you have everything.
+You have complete access to this store's data. Respond like a world-class analyst — direct, specific, commercially useful. Use exact numbers. Never hedge unnecessarily.
 
 STORE DATA:
 - Total Revenue: $${STORE_METRICS.totalRevenue.toLocaleString()}
@@ -82,27 +207,38 @@ STORE DATA:
 - Critical & At-Risk: ${STORE_METRICS.criticalAtRisk}
 - Live Revenue Leak: $${STORE_METRICS.liveRevenueLeak}
 - Recoverable This Week: $${STORE_METRICS.recoverableThisWeek}
-- Abandoned Carts: ${STORE_METRICS.abandonedCarts} worth $${STORE_METRICS.abandonedValue}
-- Failed Payments: ${STORE_METRICS.failedPayments} worth $${STORE_METRICS.failedValue}
-- VIPs At Risk: ${STORE_METRICS.vipsAtRisk} worth $${STORE_METRICS.vipValue}
-- Average LTV: $${STORE_METRICS.avgLTV}
-- Top Customer LTV: $${STORE_METRICS.topCustomerLTV}
+- Abandoned Carts: ${STORE_METRICS.abandonedCarts}
+- Failed Payments: ${STORE_METRICS.failedPayments}
+- VIPs At Risk: ${STORE_METRICS.vipsAtRisk}
 
 CUSTOMERS:
-${DEMO_CUSTOMERS.map(c => `- ${c.name}: ${c.state}, Health Score ${c.health}/100, LTV $${c.ltv}, Last Purchase: ${c.lastPurchase}, Recovery Opportunity: ${c.opportunity}%`).join('\n')}
+${DEMO_CUSTOMERS.map(c => `- ${c.name}: ${c.state}, Health ${c.health}/100, LTV $${c.ltv}, Last Purchase: ${c.lastPurchase}, Recovery Opportunity: ${c.opportunity}%`).join('\n')}
+
+ACTIVE ORACLE SIGNALS:
+- CRITICAL: VIP Retention workflow paused — 17 customers, $8,940 stalled
+- CRITICAL: Top VIP (Aisha Mohammed, $2,840 LTV) approaching churn threshold
+- HIGH: Dormant Win-Back converting at only 13.2% — sequence underperforming
+- HIGH: Failed Payment Recovery at 50% conversion — expand enrollment
+- HIGH: Cart recovery stalling at step 2 — $370 in active cart value
+- MEDIUM: Engaged-Unconverted workflow never activated — 69+ customers qualifying
 
 RESPONSE STYLE:
-- Be concise but insightful. Lead with the most important insight.
-- Use specific names, numbers, and dollar amounts from the data.
-- When recommending actions, be precise about WHO to contact and WHY.
-- Format lists cleanly. Bold key names or numbers using markdown **like this**.
-- Max 3-4 paragraphs unless the question demands more detail.
-- Never start with "Certainly" or "Of course" — get straight to the intelligence.
-- Sign off with a short follow-up question or action suggestion when relevant.`
+- Lead with the most important insight
+- Use specific names and dollar amounts
+- Give concrete next actions, not vague suggestions
+- Max 3-4 paragraphs unless more detail is needed
+- Never start with "Certainly" or "Of course"
+- Bold key names and numbers using **markdown**`
+
+  async function sendMessage(text?: string) {
+    const userText = (text || input).trim()
+    if (!userText || loading) return
+    setInput('')
+    setMessages(prev => [...prev, { role: 'user', content: userText, timestamp: new Date() }])
+    setLoading(true)
 
     try {
       const history = messages.slice(-8).map(m => ({ role: m.role, content: m.content }))
-
       const response = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -113,118 +249,56 @@ RESPONSE STYLE:
           messages: [...history, { role: 'user', content: userText }],
         }),
       })
-
       const data = await response.json()
-      const reply = data.content?.[0]?.text || 'Signal lost. Please try again.'
-
+      const reply = data.content?.[0]?.text || 'Signal lost. Try again.'
       setMessages(prev => [...prev, { role: 'assistant', content: reply, timestamp: new Date() }])
     } catch {
-      setMessages(prev => [...prev, { role: 'assistant', content: 'Connection interrupted. Check your network and try again.', timestamp: new Date() }])
+      setMessages(prev => [...prev, { role: 'assistant', content: 'Connection interrupted.', timestamp: new Date() }])
     } finally {
       setLoading(false)
     }
   }
 
-  function handleKeyDown(e: React.KeyboardEvent) {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault()
-      sendMessage()
-    }
+  function formatContent(text: string) {
+    return text.split('\n').map((line, i) => (
+      <p key={i} style={{ margin: '0 0 5px 0' }}
+        dangerouslySetInnerHTML={{ __html: line.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') }} />
+    ))
   }
 
-  function formatContent(text: string) {
-    const lines = text.split('\n')
-    return lines.map((line, i) => {
-      const boldFormatted = line.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-      return <p key={i} style={{ margin: '0 0 6px 0' }} dangerouslySetInnerHTML={{ __html: boldFormatted }} />
-    })
-  }
+  const SUGGESTED = [
+    'Which workflow should I focus on first?',
+    'Who are my highest-value customers at risk?',
+    'Where is revenue leaking most?',
+    'What should I do in the next 24 hours?',
+  ]
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', background: '#070714', color: '#fff' }}>
-
-      {/* Header */}
-      <div style={{ padding: '20px 28px 16px', borderBottom: '1px solid rgba(255,255,255,0.06)', flexShrink: 0 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <div style={{ position: 'relative', width: 36, height: 36 }}>
-            <div style={{
-              position: 'absolute', inset: 0, borderRadius: '50%',
-              background: 'radial-gradient(circle, rgba(0,212,255,0.3) 0%, rgba(130,60,255,0.15) 50%, transparent 70%)',
-              animation: 'oraclePulse 2.5s ease-in-out infinite'
-            }} />
-            <div style={{
-              position: 'absolute', inset: '6px', borderRadius: '50%',
-              background: 'radial-gradient(circle, rgba(0,212,255,0.6) 0%, rgba(130,60,255,0.3) 100%)',
-            }} />
-            <style>{`
-              @keyframes oraclePulse {
-                0%,100% { transform: scale(1); opacity: 0.6; }
-                50% { transform: scale(1.8); opacity: 0; }
-              }
-              @keyframes blink {
-                0%,100% { opacity: 1; }
-                50% { opacity: 0; }
-              }
-            `}</style>
-          </div>
-          <div>
-            <div style={{ fontSize: 16, fontWeight: 600, letterSpacing: '0.08em', color: '#fff' }}>AXIOM ORACLE</div>
-            <div style={{ fontSize: 11, color: 'rgba(0,212,255,0.7)', letterSpacing: '0.12em', textTransform: 'uppercase' }}>Store Intelligence Engine</div>
-          </div>
-          <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 6 }}>
-            <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#00e676', boxShadow: '0 0 6px #00e676aa' }} />
-            <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', letterSpacing: '0.08em' }}>LIVE</span>
-          </div>
-        </div>
-
-        {/* Metrics strip */}
-        <div style={{ display: 'flex', gap: 20, marginTop: 16, paddingTop: 14, borderTop: '1px solid rgba(255,255,255,0.04)' }}>
-          {[
-            { label: 'Revenue Leak', value: `$${STORE_METRICS.liveRevenueLeak.toLocaleString()}`, color: '#ff4d6d' },
-            { label: 'Recoverable', value: `$${STORE_METRICS.recoverableThisWeek}`, color: '#00e676' },
-            { label: 'At Risk', value: `${STORE_METRICS.criticalAtRisk} customers`, color: '#ffab00' },
-            { label: 'Total LTV', value: `$${STORE_METRICS.totalRevenue.toLocaleString()}`, color: '#00d4ff' },
-          ].map(m => (
-            <div key={m.label}>
-              <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 3 }}>{m.label}</div>
-              <div style={{ fontSize: 14, fontWeight: 600, color: m.color }}>{m.value}</div>
-            </div>
-          ))}
-        </div>
-      </div>
+    <div className="flex flex-col" style={{ height: 'calc(100vh - 200px)' }}>
 
       {/* Messages */}
-      <div style={{ flex: 1, overflowY: 'auto', padding: '20px 28px', display: 'flex', flexDirection: 'column', gap: 16 }}>
-
+      <div className="flex-1 overflow-y-auto space-y-4 pr-1">
         {messages.map((msg, i) => (
-          <div key={i} style={{ display: 'flex', gap: 12, alignItems: 'flex-start', flexDirection: msg.role === 'user' ? 'row-reverse' : 'row' }}>
-            {/* Avatar */}
-            <div style={{
-              width: 30, height: 30, borderRadius: '50%', flexShrink: 0,
-              background: msg.role === 'assistant'
-                ? 'radial-gradient(circle, rgba(0,212,255,0.4) 0%, rgba(130,60,255,0.2) 100%)'
-                : 'rgba(255,255,255,0.08)',
-              border: msg.role === 'assistant' ? '1px solid rgba(0,212,255,0.3)' : '1px solid rgba(255,255,255,0.1)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: 10, fontWeight: 600, color: msg.role === 'assistant' ? '#00d4ff' : 'rgba(255,255,255,0.5)',
-              letterSpacing: '0.05em'
-            }}>
-              {msg.role === 'assistant' ? 'AX' : 'YOU'}
+          <div key={i} className={`flex gap-3 items-start ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}>
+            <div className="w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center text-[9px] font-bold"
+              style={{
+                background: msg.role === 'assistant'
+                  ? 'radial-gradient(circle, rgba(167,139,250,0.4) 0%, rgba(0,212,255,0.2) 100%)'
+                  : 'rgba(255,255,255,0.06)',
+                border: msg.role === 'assistant' ? '1px solid rgba(167,139,250,0.3)' : '1px solid rgba(255,255,255,0.1)',
+                color: msg.role === 'assistant' ? '#a78bfa' : 'rgba(255,255,255,0.4)',
+              }}>
+              {msg.role === 'assistant' ? <OracleIcon size={12} /> : 'YOU'}
             </div>
-
-            {/* Bubble */}
-            <div style={{
-              maxWidth: '75%',
-              background: msg.role === 'assistant' ? 'rgba(255,255,255,0.04)' : 'rgba(0,212,255,0.08)',
-              border: msg.role === 'assistant' ? '1px solid rgba(255,255,255,0.07)' : '1px solid rgba(0,212,255,0.2)',
-              borderRadius: msg.role === 'assistant' ? '4px 12px 12px 12px' : '12px 4px 12px 12px',
-              padding: '12px 16px',
-              fontSize: 14,
-              lineHeight: 1.65,
-              color: msg.role === 'assistant' ? 'rgba(255,255,255,0.88)' : 'rgba(255,255,255,0.75)',
-            }}>
+            <div className="max-w-[78%] px-4 py-3 rounded-xl text-[13px] leading-relaxed"
+              style={{
+                background: msg.role === 'assistant' ? 'rgba(255,255,255,0.04)' : 'rgba(167,139,250,0.08)',
+                border: msg.role === 'assistant' ? '1px solid rgba(255,255,255,0.07)' : '1px solid rgba(167,139,250,0.2)',
+                borderRadius: msg.role === 'assistant' ? '4px 14px 14px 14px' : '14px 4px 14px 14px',
+                color: msg.role === 'assistant' ? 'rgba(255,255,255,0.82)' : 'rgba(255,255,255,0.7)',
+              }}>
               {formatContent(msg.content)}
-              <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.2)', marginTop: 6 }}>
+              <div className="text-[9px] mt-2" style={{ color: 'rgba(255,255,255,0.2)' }}>
                 {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
               </div>
             </div>
@@ -232,45 +306,30 @@ RESPONSE STYLE:
         ))}
 
         {loading && (
-          <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
-            <div style={{
-              width: 30, height: 30, borderRadius: '50%', flexShrink: 0,
-              background: 'radial-gradient(circle, rgba(0,212,255,0.4) 0%, rgba(130,60,255,0.2) 100%)',
-              border: '1px solid rgba(0,212,255,0.3)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: 10, fontWeight: 600, color: '#00d4ff'
-            }}>AX</div>
-            <div style={{
-              background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)',
-              borderRadius: '4px 12px 12px 12px', padding: '14px 18px',
-              display: 'flex', gap: 6, alignItems: 'center'
-            }}>
-              {[0, 0.2, 0.4].map((delay, i) => (
-                <div key={i} style={{
-                  width: 6, height: 6, borderRadius: '50%',
-                  background: 'rgba(0,212,255,0.6)',
-                  animation: `blink 1.2s ease-in-out ${delay}s infinite`
-                }} />
+          <div className="flex gap-3 items-start">
+            <div className="w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center"
+              style={{ background: 'radial-gradient(circle, rgba(167,139,250,0.4) 0%, rgba(0,212,255,0.2) 100%)', border: '1px solid rgba(167,139,250,0.3)' }}>
+              <OracleIcon size={12} />
+            </div>
+            <div className="px-4 py-3 rounded-xl flex gap-1.5 items-center"
+              style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '4px 14px 14px 14px' }}>
+              {[0, 0.18, 0.36].map((delay, i) => (
+                <div key={i} className="w-1.5 h-1.5 rounded-full"
+                  style={{ background: 'rgba(167,139,250,0.6)', animation: `pulse-dot 1.2s ease-in-out ${delay}s infinite` }} />
               ))}
             </div>
           </div>
         )}
-
         <div ref={bottomRef} />
       </div>
 
-      {/* Suggested questions */}
+      {/* Suggested */}
       {messages.length <= 1 && (
-        <div style={{ padding: '0 28px 12px', display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-          {SUGGESTED_QUESTIONS.map(q => (
-            <button key={q} onClick={() => sendMessage(q)} style={{
-              background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)',
-              borderRadius: 20, padding: '6px 14px', fontSize: 12, color: 'rgba(255,255,255,0.5)',
-              cursor: 'pointer', transition: 'all 0.2s',
-            }}
-              onMouseEnter={e => { (e.target as HTMLElement).style.background = 'rgba(0,212,255,0.08)'; (e.target as HTMLElement).style.color = '#00d4ff'; (e.target as HTMLElement).style.borderColor = 'rgba(0,212,255,0.3)' }}
-              onMouseLeave={e => { (e.target as HTMLElement).style.background = 'rgba(255,255,255,0.04)'; (e.target as HTMLElement).style.color = 'rgba(255,255,255,0.5)'; (e.target as HTMLElement).style.borderColor = 'rgba(255,255,255,0.08)' }}
-            >
+        <div className="flex flex-wrap gap-2 py-3">
+          {SUGGESTED.map(q => (
+            <button key={q} onClick={() => sendMessage(q)}
+              className="text-[11px] px-3 py-1.5 rounded-full transition-all hover:opacity-80"
+              style={{ background: 'rgba(167,139,250,0.06)', border: '1px solid rgba(167,139,250,0.15)', color: 'rgba(255,255,255,0.45)' }}>
               {q}
             </button>
           ))}
@@ -278,39 +337,111 @@ RESPONSE STYLE:
       )}
 
       {/* Input */}
-      <div style={{ padding: '12px 28px 20px', borderTop: '1px solid rgba(255,255,255,0.06)', flexShrink: 0 }}>
-        <div style={{ display: 'flex', gap: 12, alignItems: 'flex-end', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: '10px 14px' }}>
+      <div className="pt-3" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+        <div className="flex gap-3 items-end rounded-xl px-4 py-3"
+          style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
           <textarea
-            ref={inputRef}
             value={input}
             onChange={e => setInput(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder="Ask Oracle anything about your store..."
+            onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage() } }}
+            placeholder="Ask Oracle anything about your store…"
             rows={1}
-            style={{
-              flex: 1, background: 'transparent', border: 'none', outline: 'none',
-              color: '#fff', fontSize: 14, lineHeight: 1.5, resize: 'none',
-              fontFamily: 'inherit'
-            }}
+            className="flex-1 bg-transparent outline-none resize-none text-[13px]"
+            style={{ color: '#fff', fontFamily: 'inherit' }}
           />
-          <button
-            onClick={() => sendMessage()}
-            disabled={!input.trim() || loading}
-            style={{
-              width: 34, height: 34, borderRadius: 8, border: 'none', cursor: 'pointer',
-              background: input.trim() && !loading ? 'linear-gradient(135deg, #00d4ff, #8b5cf6)' : 'rgba(255,255,255,0.06)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              transition: 'all 0.2s', flexShrink: 0
-            }}
-          >
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+          <button onClick={() => sendMessage()} disabled={!input.trim() || loading}
+            className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 transition-all"
+            style={{ background: input.trim() && !loading ? 'linear-gradient(135deg,#a78bfa,#00d4ff)' : 'rgba(255,255,255,0.06)' }}>
+            <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
               <path d="M2 8L14 2L8 14L7 9L2 8Z" stroke={input.trim() && !loading ? '#fff' : 'rgba(255,255,255,0.2)'} strokeWidth="1.5" strokeLinejoin="round" />
             </svg>
           </button>
         </div>
-        <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.18)', marginTop: 8, textAlign: 'center', letterSpacing: '0.05em' }}>
-          ORACLE has access to all customer health scores, revenue data, and store metrics
+      </div>
+    </div>
+  )
+}
+
+// ─── Oracle Page ──────────────────────────────────────────────────────────────
+
+export default function OraclePage() {
+  const [tab, setTab] = useState<'intelligence' | 'ask'>('intelligence')
+  const brief = getOracleBrief()
+  const signals = sortedSignals()
+
+  return (
+    <div className="flex-1 overflow-y-auto h-full" style={{ background: '#070714' }}>
+      <div className="max-w-[1200px] mx-auto px-8 py-8">
+
+        {/* Page header */}
+        <div className="flex items-start justify-between mb-7">
+          <div>
+            <div className="flex items-center gap-3 mb-2">
+              <OracleIcon size={20} />
+              <h1 className="text-[24px] font-bold tracking-tight text-white oracle-gradient-text">
+                Oracle
+              </h1>
+              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full"
+                style={{ background: SYSTEM_STATE_STYLE[brief.systemState].bg, border: `1px solid ${SYSTEM_STATE_STYLE[brief.systemState].border}` }}>
+                <span className="relative flex h-1.5 w-1.5">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-60"
+                    style={{ background: SYSTEM_STATE_STYLE[brief.systemState].color }} />
+                  <span className="relative inline-flex rounded-full h-1.5 w-1.5"
+                    style={{ background: SYSTEM_STATE_STYLE[brief.systemState].color }} />
+                </span>
+                <span className="text-[10px] font-semibold tracking-[0.1em] uppercase"
+                  style={{ color: SYSTEM_STATE_STYLE[brief.systemState].color }}>
+                  {brief.systemState}
+                </span>
+              </div>
+            </div>
+            <p className="text-[12px] ml-[36px]" style={{ color: 'rgba(255,255,255,0.3)' }}>
+              Embedded intelligence layer · Reads the platform · Guides the next play
+            </p>
+          </div>
+
+          {/* Tabs */}
+          <div className="flex items-center gap-1 p-1 rounded-xl"
+            style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
+            {([
+              { id: 'intelligence', label: 'Intelligence' },
+              { id: 'ask', label: 'Ask Oracle' },
+            ] as const).map(({ id, label }) => (
+              <button key={id} onClick={() => setTab(id)}
+                className="px-4 py-2 rounded-lg text-[12px] font-medium transition-all"
+                style={tab === id
+                  ? { background: 'rgba(167,139,250,0.12)', color: '#a78bfa', border: '1px solid rgba(167,139,250,0.2)' }
+                  : { color: 'rgba(255,255,255,0.32)', border: '1px solid transparent' }}>
+                {label}
+              </button>
+            ))}
+          </div>
         </div>
+
+        {/* Intelligence tab */}
+        {tab === 'intelligence' && (
+          <>
+            <SystemStateBar state={brief.systemState} />
+
+            {/* Signal grid */}
+            <div className="grid grid-cols-2 gap-4">
+              {signals.map(signal => (
+                <SignalDetailCard key={signal.id} signal={signal} />
+              ))}
+            </div>
+
+            <div className="flex items-center gap-2 mt-6">
+              <div className="w-1 h-1 rounded-full" style={{ background: 'rgba(255,255,255,0.12)' }} />
+              <span className="text-[11px]" style={{ color: 'rgba(255,255,255,0.2)' }}>
+                Intelligence computed from workflow performance, customer health scores, and revenue signals · Updates every 6 hours
+              </span>
+            </div>
+          </>
+        )}
+
+        {/* Ask Oracle tab */}
+        {tab === 'ask' && <ChatMode />}
+
       </div>
     </div>
   )

@@ -5,6 +5,8 @@
 import { useState, useEffect, useRef } from 'react'
 import { PageHeader } from '@/components/ui/PageHeader'
 import { WorkflowCustomerView, type WorkflowCustomer } from './WorkflowCustomerView'
+import { getWorkflowSignals, getWorkflowSignalMap, SIGNAL_STYLE, type OracleSignal } from '@/lib/oracle'
+import { OracleIcon } from '@/components/oracle/OracleBrief'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -116,6 +118,102 @@ const WORKFLOW_CUSTOMERS: Record<string, WorkflowCustomer[]> = {
 }
 
 const COLS = '2fr 1.3fr 1.3fr 0.8fr 0.85fr 0.65fr 0.65fr 0.8fr 0.7fr'
+
+// ─── Oracle Workflow Intelligence Panel ───────────────────────────────────────
+
+function OracleWorkflowPanel({
+  onHighlight,
+  activeHighlight,
+}: {
+  onHighlight: (id: string | null) => void
+  activeHighlight: string | null
+}) {
+  const signals = getWorkflowSignals()
+  if (signals.length === 0) return null
+
+  const topSignals = signals.slice(0, 3)
+  const criticalCount = signals.filter(s => s.priority === 'critical').length
+
+  return (
+    <div className="mb-6 rounded-xl oracle-panel-in relative overflow-hidden"
+      style={{
+        background: 'rgba(255,255,255,0.016)',
+        border: `1px solid ${criticalCount > 0 ? 'rgba(255,64,96,0.18)' : 'rgba(167,139,250,0.14)'}`,
+      }}>
+
+      <div className="oracle-scan-line"
+        style={{ '--scan-color': criticalCount > 0 ? '#ff4060' : '#a78bfa' } as React.CSSProperties} />
+
+      {/* Header */}
+      <div className="flex items-center justify-between px-4 py-2.5"
+        style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+        <div className="flex items-center gap-2">
+          <OracleIcon size={12} />
+          <span className="text-[9px] font-bold tracking-[0.2em] uppercase oracle-gradient-text">Oracle</span>
+          <div className="w-px h-3 bg-white/[0.07]" />
+          <span className="text-[9px] font-medium tracking-[0.1em] uppercase"
+            style={{ color: criticalCount > 0 ? '#ff4060' : 'rgba(255,255,255,0.3)' }}>
+            {signals.length} workflow signal{signals.length !== 1 ? 's' : ''} detected
+          </span>
+        </div>
+        <span className="text-[9px]" style={{ color: 'rgba(255,255,255,0.2)' }}>
+          Hover a signal to highlight the workflow
+        </span>
+      </div>
+
+      {/* Signals */}
+      <div className="flex gap-3 p-3">
+        {topSignals.map((signal) => {
+          const s = SIGNAL_STYLE[signal.type]
+          const isActive = activeHighlight === signal.targetId
+          return (
+            <div
+              key={signal.id}
+              onMouseEnter={() => onHighlight(signal.targetId)}
+              onMouseLeave={() => onHighlight(null)}
+              className="flex-1 rounded-lg px-3.5 py-2.5 cursor-default transition-all duration-200"
+              style={{
+                background: isActive ? s.bg : 'rgba(255,255,255,0.02)',
+                border: `1px solid ${isActive ? s.border : 'rgba(255,255,255,0.05)'}`,
+                transform: isActive ? 'translateY(-1px)' : 'none',
+              }}>
+
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="text-[8px] font-semibold tracking-[0.14em] uppercase px-1.5 py-0.5 rounded"
+                  style={{ color: s.color, background: s.bg }}>
+                  {s.label}
+                </span>
+                {signal.priority === 'critical' && (
+                  <span className="relative flex h-1.5 w-1.5">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-60"
+                      style={{ background: s.color }} />
+                    <span className="relative inline-flex rounded-full h-1.5 w-1.5"
+                      style={{ background: s.color }} />
+                  </span>
+                )}
+              </div>
+
+              <div className="text-[11px] font-semibold leading-snug mb-1"
+                style={{ color: isActive ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.7)' }}>
+                {signal.title}
+              </div>
+
+              <div className="flex items-start gap-1 mt-1.5">
+                <svg width="8" height="8" viewBox="0 0 16 16" fill="none"
+                  className="mt-0.5 flex-shrink-0" style={{ color: s.color }}>
+                  <path d="M2 8L14 2L8 14L7 9L2 8Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
+                </svg>
+                <span className="text-[10px] font-medium leading-snug" style={{ color: s.color }}>
+                  {signal.nextPlay}
+                </span>
+              </div>
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
 
 // ─── Workflow Context Descriptions ───────────────────────────────────────────
 
@@ -1315,6 +1413,7 @@ export function WorkflowsView() {
   const [view,             setView]             = useState<'list' | 'customers' | 'recovery'>('list')
   const [selectedWorkflow, setSelectedWorkflow] = useState<Workflow | null>(null)
   const [selectedCustomer, setSelectedCustomer] = useState<WorkflowCustomer | null>(null)
+  const [oracleHighlight,  setOracleHighlight]  = useState<string | null>(null)
 
   const filtered       = filter === 'all' ? workflows : workflows.filter(w => w.status === filter)
   const totalEnrolled  = workflows.reduce((s, w) => s + w.enrolled, 0)
@@ -1408,6 +1507,12 @@ export function WorkflowsView() {
             ))}
           </div>
 
+          {/* Oracle Workflow Intelligence */}
+          <OracleWorkflowPanel
+            onHighlight={setOracleHighlight}
+            activeHighlight={oracleHighlight}
+          />
+
           {/* Table */}
           <div className="rounded-2xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.06)' }}>
             <div className="flex items-center justify-between px-6 py-4" style={{ background: 'rgba(255,255,255,0.02)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
@@ -1435,19 +1540,41 @@ export function WorkflowsView() {
             {filtered.map((wf, i) => {
               const convPct = wf.enrolled > 0 ? `${((wf.converted / wf.enrolled) * 100).toFixed(0)}%` : null
               const tc = TRIGGER_COLORS[wf.trigger]
+              const oracleSignalMap = getWorkflowSignalMap()
+              const wfSignal = oracleSignalMap.get(wf.id)
+              const isOracleHighlighted = oracleHighlight === wf.id
+              const wfSignalStyle = wfSignal ? SIGNAL_STYLE[wfSignal.type] : null
               return (
-                <div key={wf.id} className="wf-row grid px-6 py-4 cursor-pointer relative"
-                  style={{ gridTemplateColumns: COLS, borderBottom: i < filtered.length - 1 ? '1px solid rgba(255,255,255,0.04)' : undefined, background: 'transparent' }}
+                <div key={wf.id} className="wf-row oracle-row-highlight grid px-6 py-4 cursor-pointer relative"
+                  style={{
+                    gridTemplateColumns: COLS,
+                    borderBottom: i < filtered.length - 1 ? '1px solid rgba(255,255,255,0.04)' : undefined,
+                    background: isOracleHighlighted && wfSignalStyle
+                      ? wfSignalStyle.bg
+                      : 'transparent',
+                    boxShadow: isOracleHighlighted && wfSignalStyle
+                      ? `inset 0 0 0 1px ${wfSignalStyle.border}`
+                      : 'none',
+                  }}
                   onMouseEnter={() => setHoveredRow(wf.id)}
                   onMouseLeave={() => setHoveredRow(null)}
                   onClick={() => { setSelectedWorkflow(wf); setView('customers') }}>
                   <div className="flex items-center gap-3 pr-3">
                     <div className="w-1 h-8 rounded-full flex-shrink-0"
                       style={{ background: tc, opacity: wf.status === 'draft' ? 0.25 : 0.65, boxShadow: wf.status === 'active' ? `0 0 5px ${tc}55` : undefined }} />
-                    <div>
+                    <div className="min-w-0">
                       <div className="text-[13px] font-medium text-white/80 leading-tight">{wf.name}</div>
-                      {wf.status === 'active' && (
+                      {wf.status === 'active' && !wfSignal && (
                         <div className="text-[10px] text-white/25 mt-0.5">Running · {WORKFLOW_CUSTOMERS[wf.id]?.length ?? 0} customers</div>
+                      )}
+                      {wfSignal && wfSignalStyle && (
+                        <div className="flex items-center gap-1 mt-0.5">
+                          <OracleIcon size={9} />
+                          <span className="text-[9px] font-semibold truncate"
+                            style={{ color: wfSignalStyle.color }}>
+                            {wfSignal.title}
+                          </span>
+                        </div>
                       )}
                     </div>
                   </div>
